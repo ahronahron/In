@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Suppliers Management - INVENTORY Management System</title>
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<script type="module" src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Finventory6919back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script>
+</head>
+<body class="min-h-screen bg-background transition-colors duration-300">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white dark:bg-gray-900 shadow-xl border-r border-border-light dark:border-gray-700 z-50 transform -translate-x-full lg:translate-x-0 transition-all duration-300">
+        <!-- Sidebar Header -->
+        <div class="flex items-center justify-between p-6 border-b border-border-light dark:border-gray-700">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-pills text-primary-600 dark:text-primary-400 text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold text-text-primary dark:text-gray-100">PHARMACY</h2>
+                    <p class="text-xs text-text-tertiary dark:text-gray-400">Inventory System</p>
+                </div>
+            </div>
+            <button id="closeSidebar" class="lg:hidden text-text-tertiary hover:text-text-secondary dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+
+        <!-- User Profile Section -->
+        <div class="p-6 border-b border-border-light dark:border-gray-700">
+            <div class="flex items-center space-x-3">
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="User Avatar" class="w-12 h-12 rounded-full object-cover border-2 border-primary-200 dark:border-primary-700" onerror="this.src='https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'; this.onerror=null;" />
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-text-primary dark:text-gray-100 truncate" id="userDisplayName">Pharmacist Admin</p>
+                    <p class="text-xs text-text-tertiary dark:text-gray-400 truncate" id="userDisplayEmail">admin@pharmacy.com</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="flex-1 p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="dashboard.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-chart-pie w-5"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="inventory_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-capsules w-5"></i>
+                        <span>Medicine Inventory</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="suppliers_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white bg-primary dark:bg-primary-600 rounded-xl transition-all duration-200">
+                        <i class="fas fa-truck-medical w-5"></i>
+                        <span>Suppliers</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="orders_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-prescription-bottle w-5"></i>
+                        <span>Orders</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="reports_analytics.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-chart-bar w-5"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:void(0)" onclick="openSettings()" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-cog w-5"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Theme Toggle & Settings -->
+        <div class="p-4 border-t border-border-light dark:border-gray-700">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-sm font-medium text-text-secondary dark:text-gray-300">Dark Mode</span>
+                <button id="themeToggle" class="relative inline-flex h-6 w-11 items-center rounded-full bg-border-light dark:bg-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-200">
+                    <span id="themeToggleButton" class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 translate-x-1 dark:translate-x-6"></span>
+                </button>
+            </div>
+            <button id="logoutBtn" class="w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium text-error-600 hover:bg-error-50 dark:hover:bg-error-900 rounded-xl transition-all duration-200">
+                <i class="fas fa-sign-out-alt w-5"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden"></div>
+
+    <!-- Main Content -->
+    <div class="lg:ml-64 min-h-screen bg-background dark:bg-gray-900">
+        <!-- Top Header -->
+        <header class="bg-white dark:bg-gray-900 shadow-sm border-b border-border-light dark:border-gray-700">
+            <div class="flex items-center justify-between h-16 px-6">
+                <div class="flex items-center space-x-4">
+                    <button id="menuToggle" class="lg:hidden text-text-tertiary hover:text-text-secondary dark:text-gray-400 dark:hover:text-gray-200">
+                        <i class="fas fa-bars text-lg"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-xl font-semibold text-text-primary dark:text-gray-100">Suppliers Management</h1>
+                        <p class="text-sm text-text-tertiary dark:text-gray-400">Manage vendor relationships and contacts</p>
+                    </div>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-text-tertiary dark:text-gray-400 text-sm"></i>
+                        </div>
+                        <input type="text" id="globalSearch" class="w-80 pl-10 pr-4 py-2 border border-border-light dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Search suppliers, contacts, locations..." />
+                    </div>
+                    
+                    <!-- Theme Toggle -->
+                    <button id="headerThemeToggle" class="p-2 text-text-secondary dark:text-gray-400 hover:text-text-primary dark:hover:text-gray-200 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-moon dark:hidden text-lg"></i>
+                        <i class="fas fa-sun hidden dark:block text-lg"></i>
+                    </button>
+                    
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="p-6">
+            <!-- Page Actions -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+                <div class="flex items-center space-x-4 mb-4 sm:mb-0">
+                    <button id="addSupplierBtn" class="btn-primary px-4 py-2 rounded-lg font-medium flex items-center space-x-2 shadow-sm">
+                        <i class="fas fa-plus text-sm"></i>
+                        <span>Add Supplier</span>
+                    </button>
+                    <button id="bulkActionsBtn" class="px-4 py-2 border border-border-light rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-all duration-200 flex items-center space-x-2">
+                        <i class="fas fa-tasks text-sm"></i>
+                        <span>Bulk Actions</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <div class="flex items-center space-x-2 text-sm text-text-secondary">
+                        <span>Total Suppliers:</span>
+                        <span id="totalCount" class="font-medium text-text-primary">12</span>
+                    </div>
+                    <button id="exportBtn" class="px-3 py-2 border border-border-light rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-all duration-200 flex items-center space-x-2">
+                        <i class="fas fa-download text-sm"></i>
+                        <span class="hidden sm:inline">Export</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters and Search -->
+            <div class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-border-light dark:border-gray-700 p-4 mb-6">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                    <div class="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-text-tertiary dark:text-gray-400 text-sm"></i>
+                            </div>
+                            <input type="text" id="tableSearch" class="w-full sm:w-64 pl-10 pr-4 py-2 border border-border-light dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Search suppliers..." />
+                        </div>
+                        
+                        <select id="locationFilter" class="px-3 py-2 border border-border-light dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100">
+                            <option value>All Locations</option>
+                            <option value="New York">New York</option>
+                            <option value="California">California</option>
+                            <option value="Texas">Texas</option>
+                            <option value="Florida">Florida</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                        <button id="resetFilters" class="px-3 py-2 text-text-secondary dark:text-gray-400 hover:text-text-primary dark:hover:text-gray-200 transition-colors duration-200 flex items-center space-x-2">
+                            <i class="fas fa-undo text-sm"></i>
+                            <span>Reset</span>
+                        </button>
+                        <div class="text-sm text-text-secondary dark:text-gray-400">
+                            Showing <span id="showingCount">12</span> of <span id="totalSuppliers">12</span> suppliers
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Suppliers Table -->
+            <div class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-border-light dark:border-gray-700 overflow-hidden">
+                <!-- Desktop Table -->
+                <div class="hidden lg:block overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-surface-hover dark:bg-gray-800 border-b border-border-light dark:border-gray-700">
+                            <tr>
+                                <th class="w-12 px-4 py-3">
+                                    <input type="checkbox" id="selectAll" class="rounded border-border-medium text-primary-600 focus:ring-primary-200" />
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-text-primary dark:hover:text-gray-100 transition-colors duration-200" data-sort="name">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Supplier Name</span>
+                                        <i class="fas fa-sort text-xs"></i>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-text-primary dark:hover:text-gray-100 transition-colors duration-200" data-sort="contact">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Contact Person</span>
+                                        <i class="fas fa-sort text-xs"></i>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-text-primary dark:hover:text-gray-100 transition-colors duration-200" data-sort="email">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Email</span>
+                                        <i class="fas fa-sort text-xs"></i>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-text-primary dark:hover:text-gray-100 transition-colors duration-200" data-sort="phone">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Phone Number</span>
+                                        <i class="fas fa-sort text-xs"></i>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-text-primary dark:hover:text-gray-100 transition-colors duration-200" data-sort="location">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Location</span>
+                                        <i class="fas fa-sort text-xs"></i>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="suppliersTableBody" class="bg-white dark:bg-gray-900 divide-y divide-border-light dark:divide-gray-700">
+                            <!-- Table rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile Cards -->
+                <div id="supplierCards" class="lg:hidden divide-y divide-border-light">
+                    <!-- Cards will be populated by JavaScript -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="hidden text-center py-12">
+                    <div class="w-24 h-24 mx-auto mb-4 bg-surface-hover rounded-full flex items-center justify-center">
+                        <i class="fas fa-truck text-3xl text-text-tertiary"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-text-primary mb-2">No suppliers found</h3>
+                    <p class="text-text-secondary mb-6">Get started by adding your first supplier to the system.</p>
+                    <button class="btn-primary px-4 py-2 rounded-lg font-medium">
+                        Add First Supplier
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex items-center justify-between mt-6">
+                <div class="text-sm text-text-secondary">
+                    Showing <span class="font-medium">1</span> to <span class="font-medium">12</span> of <span class="font-medium">12</span> results
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button class="px-3 py-2 border border-border-light rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <i class="fas fa-chevron-left text-sm"></i>
+                    </button>
+                    <button class="px-3 py-2 bg-primary text-white rounded-lg">1</button>
+                    <button class="px-3 py-2 border border-border-light rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <i class="fas fa-chevron-right text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Supplier Modal -->
+    <div id="addSupplierModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animation-slide-up">
+            <div class="flex items-center justify-between p-6 border-b border-border-light">
+                <h2 class="text-xl font-semibold text-text-primary">Add New Supplier</h2>
+                <button id="closeAddModal" class="text-text-tertiary hover:text-text-secondary transition-colors duration-200">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <form id="addSupplierForm" class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Supplier Name -->
+                    <div class="md:col-span-2">
+                        <label for="supplierName" class="block text-sm font-medium text-text-primary mb-2">
+                            Supplier Name <span class="text-error-600">*</span>
+                        </label>
+                        <input type="text" id="supplierName" name="supplierName" required class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200" placeholder="Enter supplier company name" />
+                        <div id="supplierName-error" class="text-sm text-error-600 hidden mt-1" role="alert"></div>
+                    </div>
+
+                    <!-- Contact Person -->
+                    <div>
+                        <label for="contactPerson" class="block text-sm font-medium text-text-primary mb-2">
+                            Contact Person <span class="text-error-600">*</span>
+                        </label>
+                        <input type="text" id="contactPerson" name="contactPerson" required class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200" placeholder="Enter contact person name" />
+                        <div id="contactPerson-error" class="text-sm text-error-600 hidden mt-1" role="alert"></div>
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-text-primary mb-2">
+                            Email Address <span class="text-error-600">*</span>
+                        </label>
+                        <input type="email" id="email" name="email" required class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200" placeholder="Enter email address" />
+                        <div id="email-error" class="text-sm text-error-600 hidden mt-1" role="alert"></div>
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div>
+                        <label for="phoneNumber" class="block text-sm font-medium text-text-primary mb-2">
+                            Phone Number <span class="text-error-600">*</span>
+                        </label>
+                        <input type="tel" id="phoneNumber" name="phoneNumber" required class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200" placeholder="Enter phone number" />
+                        <div id="phoneNumber-error" class="text-sm text-error-600 hidden mt-1" role="alert"></div>
+                    </div>
+
+                    <!-- Location -->
+                    <div>
+                        <label for="location" class="block text-sm font-medium text-text-primary mb-2">
+                            Location <span class="text-error-600">*</span>
+                        </label>
+                        <input type="text" id="location" name="location" required class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200" placeholder="Enter location/address" />
+                        <div id="location-error" class="text-sm text-error-600 hidden mt-1" role="alert"></div>
+                    </div>
+
+                    <!-- Website -->
+                    <div class="md:col-span-2">
+                        <label for="website" class="block text-sm font-medium text-text-primary mb-2">
+                            Website (Optional)
+                        </label>
+                        <input type="url" id="website" name="website" class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200" placeholder="https://example.com" />
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="md:col-span-2">
+                        <label for="notes" class="block text-sm font-medium text-text-primary mb-2">
+                            Notes (Optional)
+                        </label>
+                        <textarea id="notes" name="notes" rows="3" class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 resize-none" placeholder="Additional notes about the supplier..."></textarea>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end space-x-4 pt-6 border-t border-border-light">
+                    <button type="button" id="cancelAdd" class="px-6 py-3 border border-border-light rounded-xl text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-all duration-200">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-primary px-6 py-3 rounded-xl font-medium">
+                        Add Supplier
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Supplier Modal -->
+    <div id="editSupplierModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animation-slide-up">
+            <div class="flex items-center justify-between p-6 border-b border-border-light">
+                <h2 class="text-xl font-semibold text-text-primary">Edit Supplier</h2>
+                <button id="closeEditModal" class="text-text-tertiary hover:text-text-secondary transition-colors duration-200">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <form id="editSupplierForm" class="p-6 space-y-6">
+                <!-- Same form fields as add modal -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label for="editSupplierName" class="block text-sm font-medium text-text-primary mb-2">
+                            Supplier Name <span class="text-error-600">*</span>
+                        </label>
+                        <input type="text" id="editSupplierName" name="supplierName" required class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200" />
+                    </div>
+
+                    <div>
+                        <label for="editContactPerson" class="block text-sm font-medium text-text-primary mb-2">
+                            Contact Person <span class="text-error-600">*</span>
+                        </label>
+                        <input type="text" id="editContactPerson" name="contactPerson" required class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200" />
+                    </div>
+
+                    <div>
+                        <label for="editEmail" class="block text-sm font-medium text-text-primary mb-2">
+                            Email Address <span class="text-error-600">*</span>
+                        </label>
+                        <input type="email" id="editEmail" name="email" required class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200" />
+                    </div>
+
+                    <div>
+                        <label for="editPhoneNumber" class="block text-sm font-medium text-text-primary mb-2">
+                            Phone Number <span class="text-error-600">*</span>
+                        </label>
+                        <input type="tel" id="editPhoneNumber" name="phoneNumber" required class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200" />
+                    </div>
+
+                    <div>
+                        <label for="editLocation" class="block text-sm font-medium text-text-primary mb-2">
+                            Location <span class="text-error-600">*</span>
+                        </label>
+                        <input type="text" id="editLocation" name="location" required class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200" />
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label for="editWebsite" class="block text-sm font-medium text-text-primary mb-2">
+                            Website (Optional)
+                        </label>
+                        <input type="url" id="editWebsite" name="website" class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200" />
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label for="editNotes" class="block text-sm font-medium text-text-primary mb-2">
+                            Notes (Optional)
+                        </label>
+                        <textarea id="editNotes" name="notes" rows="3" class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 resize-none"></textarea>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end space-x-4 pt-6 border-t border-border-light">
+                    <button type="button" id="cancelEdit" class="px-6 py-3 border border-border-light rounded-xl text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-all duration-200">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-primary px-6 py-3 rounded-xl font-medium">
+                        Update Supplier
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Supplier Detail Modal -->
+    <div id="supplierDetailModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animation-slide-up">
+            <div class="flex items-center justify-between p-6 border-b border-border-light">
+                <h2 class="text-xl font-semibold text-text-primary">Supplier Details</h2>
+                <button id="closeDetailModal" class="text-text-tertiary hover:text-text-secondary transition-colors duration-200">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Supplier Information -->
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg font-medium text-text-primary mb-4">Supplier Information</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-text-secondary mb-1">Company Name</label>
+                                    <p id="detailSupplierName" class="text-text-primary">-</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-text-secondary mb-1">Contact Person</label>
+                                    <p id="detailContactPerson" class="text-text-primary">-</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-text-secondary mb-1">Email</label>
+                                    <p id="detailEmail" class="text-text-primary">-</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-text-secondary mb-1">Phone</label>
+                                    <p id="detailPhone" class="text-text-primary">-</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-text-secondary mb-1">Location</label>
+                                    <p id="detailLocation" class="text-text-primary">-</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-text-secondary mb-1">Website</label>
+                                    <p id="detailWebsite" class="text-text-primary">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order History -->
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg font-medium text-text-primary mb-4">Recent Orders</h3>
+                            <div class="space-y-3">
+                                <div class="p-4 bg-surface-hover rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="font-medium text-text-primary">Order #ORD-001</span>
+                                        <span class="status-badge status-success">Completed</span>
+                                    </div>
+                                    <div class="text-sm text-text-secondary">
+                                        <p>Date: 09/15/2025</p>
+                                        <p>Amount: $2,450.00</p>
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-surface-hover rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="font-medium text-text-primary">Order #ORD-002</span>
+                                        <span class="status-badge status-warning">Pending</span>
+                                    </div>
+                                    <div class="text-sm text-text-secondary">
+                                        <p>Date: 09/18/2025</p>
+                                        <p>Amount: $1,850.00</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end space-x-4 pt-6 border-t border-border-light mt-8">
+                    <button type="button" id="editFromDetail" class="btn-secondary px-6 py-3 rounded-xl font-medium">
+                        Edit Supplier
+                    </button>
+                    <button type="button" id="createOrderFromDetail" class="btn-primary px-6 py-3 rounded-xl font-medium">
+                        Create Order
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock supplier data
+        const suppliersData = [
+            {
+                id: 1,
+                name: "PharmaSupply Corp",
+                contact: "Dr. John Smith",
+                email: "john@pharmasupply.com",
+                phone: "+1 (555) 123-4567",
+                location: "New York",
+                website: "https://pharmasupply.com",
+                notes: "Primary supplier for prescription medications"
+            },
+            {
+                id: 2,
+                name: "MedDistribution Ltd",
+                contact: "Sarah Johnson",
+                email: "sarah@meddistribution.com",
+                phone: "+1 (555) 234-5678",
+                location: "California",
+                website: "https://meddistribution.com",
+                notes: "Reliable supplier for over-the-counter medicines"
+            },
+            {
+                id: 3,
+                name: "Healthcare Solutions Inc",
+                contact: "Dr. Mike Davis",
+                email: "mike@healthcaresolutions.com",
+                phone: "+1 (555) 345-6789",
+                location: "Texas",
+                website: "https://healthcaresolutions.com",
+                notes: "Medical supplies and equipment"
+            },
+            {
+                id: 4,
+                name: "Pharma Wholesale Co",
+                contact: "Lisa Wilson",
+                email: "lisa@pharmawholesale.com",
+                phone: "+1 (555) 456-7890",
+                location: "Florida",
+                website: "https://pharmawholesale.com",
+                notes: "Specialized in bulk pharmaceutical products"
+            },
+            {
+                id: 5,
+                name: "Vitamin & Supplement Supply",
+                contact: "Dr. David Brown",
+                email: "david@vitaminsupply.com",
+                phone: "+1 (555) 567-8901",
+                location: "California",
+                website: "https://vitaminsupply.com",
+                notes: "Natural health and vitamin supplements"
+            },
+            {
+                id: 6,
+                name: "Medical Device Plus",
+                contact: "Jennifer Lee",
+                email: "jennifer@meddeviceplus.com",
+                phone: "+1 (555) 678-9012",
+                location: "New York",
+                website: "https://meddeviceplus.com",
+                notes: "Medical devices and diagnostic equipment"
+            },
+            {
+                id: 7,
+                name: "Generic Medicines Hub",
+                contact: "Dr. Robert Taylor",
+                email: "robert@genericmedicines.com",
+                phone: "+1 (555) 789-0123",
+                location: "Texas",
+                website: "https://genericmedicines.com",
+                notes: "Generic and branded pharmaceutical products"
+            },
+            {
+                id: 8,
+                name: "Specialty Pharma Distributors",
+                contact: "Amanda White",
+                email: "amanda@specialtypharma.com",
+                phone: "+1 (555) 890-1234",
+                location: "Florida",
+                website: "https://specialtypharma.com",
+                notes: "Rare and specialty pharmaceutical medications"
+            },
+            {
+                id: 9,
+                name: "Diabetes Care Direct",
+                contact: "Chris Martinez",
+                email: "chris@diabetescare.com",
+                phone: "+1 (555) 901-2345",
+                location: "California",
+                website: "https://diabetescare.com",
+                notes: "Diabetes medications and testing supplies"
+            },
+            {
+                id: 10,
+                name: "Antibiotic Solutions Ltd",
+                contact: "Dr. Patricia Garcia",
+                email: "patricia@antibioticsolutions.com",
+                phone: "+1 (555) 012-3456",
+                location: "New York",
+                website: "https://antibioticsolutions.com",
+                notes: "Antibiotic and antimicrobial medications"
+            },
+            {
+                id: 11,
+                name: "Pediatric Medicine Co",
+                contact: "Dr. Kevin Rodriguez",
+                email: "kevin@pediatricmeds.com",
+                phone: "+1 (555) 123-4567",
+                location: "Texas",
+                website: "https://pediatricmeds.com",
+                notes: "Children's medications and pediatric supplies"
+            },
+            {
+                id: 12,
+                name: "OTC Pharmacy Wholesale",
+                contact: "Michelle Thompson",
+                email: "michelle@otcwholesale.com",
+                phone: "+1 (555) 234-5678",
+                location: "Florida",
+                website: "https://otcwholesale.com",
+                notes: "Over-the-counter drugs and pharmacy supplies"
+            }
+        ];
+
+        let filteredSuppliers = [...suppliersData];
+        let currentEditId = null;
+
+        // DOM Elements
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const closeSidebar = document.getElementById('closeSidebar');
+        const addSupplierBtn = document.getElementById('addSupplierBtn');
+        const addSupplierModal = document.getElementById('addSupplierModal');
+        const editSupplierModal = document.getElementById('editSupplierModal');
+        const supplierDetailModal = document.getElementById('supplierDetailModal');
+        const tableSearch = document.getElementById('tableSearch');
+        const locationFilter = document.getElementById('locationFilter');
+        const resetFilters = document.getElementById('resetFilters');
+        const selectAll = document.getElementById('selectAll');
+
+        // Sidebar functionality
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.remove('-translate-x-full');
+            sidebarOverlay.classList.remove('hidden');
+        });
+
+        closeSidebar.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.add('hidden');
+        });
+
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.add('hidden');
+        });
+
+        // Modal functionality
+        addSupplierBtn.addEventListener('click', () => {
+            addSupplierModal.classList.remove('hidden');
+        });
+
+        document.getElementById('closeAddModal').addEventListener('click', () => {
+            addSupplierModal.classList.add('hidden');
+        });
+
+        document.getElementById('cancelAdd').addEventListener('click', () => {
+            addSupplierModal.classList.add('hidden');
+        });
+
+        document.getElementById('closeEditModal').addEventListener('click', () => {
+            editSupplierModal.classList.add('hidden');
+        });
+
+        document.getElementById('cancelEdit').addEventListener('click', () => {
+            editSupplierModal.classList.add('hidden');
+        });
+
+        document.getElementById('closeDetailModal').addEventListener('click', () => {
+            supplierDetailModal.classList.add('hidden');
+        });
+
+        // Close modals on ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                addSupplierModal.classList.add('hidden');
+                editSupplierModal.classList.add('hidden');
+                supplierDetailModal.classList.add('hidden');
+            }
+        });
+
+        // Close modals on backdrop click
+        [addSupplierModal, editSupplierModal, supplierDetailModal].forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+        });
+
+        // Search and filter functionality
+        tableSearch.addEventListener('input', filterSuppliers);
+        locationFilter.addEventListener('change', filterSuppliers);
+
+        function filterSuppliers() {
+            const searchTerm = tableSearch.value.toLowerCase();
+            const locationFilter = document.getElementById('locationFilter').value;
+
+            filteredSuppliers = suppliersData.filter(supplier => {
+                const matchesSearch = !searchTerm || 
+                    supplier.name.toLowerCase().includes(searchTerm) ||
+                    supplier.contact.toLowerCase().includes(searchTerm) ||
+                    supplier.email.toLowerCase().includes(searchTerm) ||
+                    supplier.phone.includes(searchTerm) ||
+                    supplier.location.toLowerCase().includes(searchTerm);
+
+                const matchesLocation = !locationFilter || supplier.location === locationFilter;
+
+                return matchesSearch && matchesLocation;
+            });
+
+            renderSuppliers();
+            updateCounts();
+        }
+
+        resetFilters.addEventListener('click', () => {
+            tableSearch.value = '';
+            locationFilter.value = '';
+            filteredSuppliers = [...suppliersData];
+            renderSuppliers();
+            updateCounts();
+        });
+
+        // Render suppliers table
+        function renderSuppliers() {
+            const tableBody = document.getElementById('suppliersTableBody');
+            const supplierCards = document.getElementById('supplierCards');
+            const emptyState = document.getElementById('emptyState');
+
+            if (filteredSuppliers.length === 0) {
+                tableBody.innerHTML = '';
+                supplierCards.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            // Desktop table
+            tableBody.innerHTML = filteredSuppliers.map(supplier => `
+                <tr class="table-row-hover cursor-pointer" data-supplier-id="${supplier.id}">
+                    <td class="px-4 py-4">
+                        <input type="checkbox" class="supplier-checkbox rounded border-border-medium text-primary-600 focus:ring-primary-200" value="${supplier.id}">
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-capsules text-primary-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-text-primary dark:text-gray-100">${supplier.name}</div>
+                                <div class="text-sm text-text-tertiary dark:text-gray-400">${supplier.website || 'No website'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-text-primary dark:text-gray-100">${supplier.contact}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-text-primary dark:text-gray-100">${supplier.email}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-text-primary dark:text-gray-100">${supplier.phone}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-text-primary dark:text-gray-100">${supplier.location}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex items-center justify-end space-x-2">
+                            <button class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 p-1" onclick="viewSupplier(${supplier.id})" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="text-accent-600 dark:text-accent-400 hover:text-accent-700 dark:hover:text-accent-300 p-1" onclick="editSupplier(${supplier.id})" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="text-error-600 dark:text-error-400 hover:text-error-700 dark:hover:text-error-300 p-1" onclick="deleteSupplier(${supplier.id})" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Mobile cards
+            supplierCards.innerHTML = filteredSuppliers.map(supplier => `
+                <div class="p-4 cursor-pointer hover:bg-surface-hover transition-colors duration-200" data-supplier-id="${supplier.id}">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center space-x-3">
+                            <input type="checkbox" class="supplier-checkbox rounded border-border-medium text-primary-600 focus:ring-primary-200 mt-1" value="${supplier.id}">
+                            <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-capsules text-primary-600"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-text-primary">${supplier.name}</div>
+                                <div class="text-sm text-text-tertiary">${supplier.contact}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="text-primary-600 hover:text-primary-700 p-1" onclick="viewSupplier(${supplier.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="text-accent-600 hover:text-accent-700 p-1" onclick="editSupplier(${supplier.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="text-error-600 hover:text-error-700 p-1" onclick="deleteSupplier(${supplier.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center text-text-secondary">
+                            <i class="fas fa-envelope w-4 mr-2"></i>
+                            <span>${supplier.email}</span>
+                        </div>
+                        <div class="flex items-center text-text-secondary">
+                            <i class="fas fa-phone w-4 mr-2"></i>
+                            <span>${supplier.phone}</span>
+                        </div>
+                        <div class="flex items-center text-text-secondary">
+                            <i class="fas fa-map-marker-alt w-4 mr-2"></i>
+                            <span>${supplier.location}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Add click handlers for table rows
+            document.querySelectorAll('[data-supplier-id]').forEach(row => {
+                row.addEventListener('click', (e) => {
+                    if (!e.target.closest('button') && !e.target.closest('input')) {
+                        const supplierId = parseInt(row.dataset.supplierId);
+                        viewSupplier(supplierId);
+                    }
+                });
+            });
+        }
+
+        // Update counts
+        function updateCounts() {
+            document.getElementById('totalCount').textContent = suppliersData.length;
+            document.getElementById('showingCount').textContent = filteredSuppliers.length;
+            document.getElementById('totalSuppliers').textContent = suppliersData.length;
+        }
+
+        // Supplier actions
+        function viewSupplier(id) {
+            const supplier = suppliersData.find(s => s.id === id);
+            if (!supplier) return;
+
+            document.getElementById('detailSupplierName').textContent = supplier.name;
+            document.getElementById('detailContactPerson').textContent = supplier.contact;
+            document.getElementById('detailEmail').textContent = supplier.email;
+            document.getElementById('detailPhone').textContent = supplier.phone;
+            document.getElementById('detailLocation').textContent = supplier.location;
+            document.getElementById('detailWebsite').textContent = supplier.website || 'Not provided';
+
+            supplierDetailModal.classList.remove('hidden');
+        }
+
+        function editSupplier(id) {
+            const supplier = suppliersData.find(s => s.id === id);
+            if (!supplier) return;
+
+            currentEditId = id;
+            document.getElementById('editSupplierName').value = supplier.name;
+            document.getElementById('editContactPerson').value = supplier.contact;
+            document.getElementById('editEmail').value = supplier.email;
+            document.getElementById('editPhoneNumber').value = supplier.phone;
+            document.getElementById('editLocation').value = supplier.location;
+            document.getElementById('editWebsite').value = supplier.website || '';
+            document.getElementById('editNotes').value = supplier.notes || '';
+
+            editSupplierModal.classList.remove('hidden');
+        }
+
+        function deleteSupplier(id) {
+            if (confirm('Are you sure you want to delete this supplier?')) {
+                const index = suppliersData.findIndex(s => s.id === id);
+                if (index > -1) {
+                    suppliersData.splice(index, 1);
+                    filterSuppliers();
+                }
+            }
+        }
+
+        // Form submissions
+        document.getElementById('addSupplierForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const newSupplier = {
+                id: Math.max(...suppliersData.map(s => s.id)) + 1,
+                name: formData.get('supplierName'),
+                contact: formData.get('contactPerson'),
+                email: formData.get('email'),
+                phone: formData.get('phoneNumber'),
+                location: formData.get('location'),
+                website: formData.get('website'),
+                notes: formData.get('notes')
+            };
+
+            suppliersData.push(newSupplier);
+            filterSuppliers();
+            addSupplierModal.classList.add('hidden');
+            this.reset();
+        });
+
+        document.getElementById('editSupplierForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const supplier = suppliersData.find(s => s.id === currentEditId);
+            
+            if (supplier) {
+                supplier.name = formData.get('supplierName');
+                supplier.contact = formData.get('contactPerson');
+                supplier.email = formData.get('email');
+                supplier.phone = formData.get('phoneNumber');
+                supplier.location = formData.get('location');
+                supplier.website = formData.get('website');
+                supplier.notes = formData.get('notes');
+            }
+
+            filterSuppliers();
+            editSupplierModal.classList.add('hidden');
+            currentEditId = null;
+        });
+
+        // Select all functionality
+        selectAll.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.supplier-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        // Export functionality
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            const csvContent = "data:text/csv;charset=utf-8," + 
+                "Supplier Name,Contact Person,Email,Phone,Location,Website\n" +
+                filteredSuppliers.map(supplier => 
+                    `"${supplier.name}","${supplier.contact}","${supplier.email}","${supplier.phone}","${supplier.location}","${supplier.website || ''}"`
+                ).join("\n");
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "suppliers_export.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+
+        // Theme management
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const isDark = savedTheme === 'dark';
+            
+            document.documentElement.classList.toggle('dark', isDark);
+            
+            // Update toggle buttons
+            const toggles = document.querySelectorAll('#themeToggle');
+            const toggleButtons = document.querySelectorAll('#themeToggleButton');
+            
+            toggles.forEach(toggle => {
+                toggle.classList.toggle('bg-primary', isDark);
+                toggle.classList.toggle('bg-border-light', !isDark);
+            });
+            
+            toggleButtons.forEach(button => {
+                button.classList.toggle('translate-x-6', isDark);
+                button.classList.toggle('translate-x-1', !isDark);
+            });
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const newTheme = isDark ? 'light' : 'dark';
+            
+            document.documentElement.classList.toggle('dark', !isDark);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update toggle buttons
+            const toggles = document.querySelectorAll('#themeToggle');
+            const toggleButtons = document.querySelectorAll('#themeToggleButton');
+            
+            toggles.forEach(toggle => {
+                toggle.classList.toggle('bg-primary', !isDark);
+                toggle.classList.toggle('bg-border-light', isDark);
+            });
+            
+            toggleButtons.forEach(button => {
+                button.classList.toggle('translate-x-6', !isDark);
+                button.classList.toggle('translate-x-1', isDark);
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize theme
+            initializeTheme();
+
+            // Check authentication
+            if (!localStorage.getItem('isLoggedIn')) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Set user display info
+            const userEmail = localStorage.getItem('userEmail') || 'admin@pharmacy.com';
+            document.getElementById('userDisplayEmail').textContent = userEmail;
+            
+            // Set display name based on email
+            const displayNames = {
+                'admin@pharmacy.com': 'Pharmacy Admin',
+                'manager@pharmacy.com': 'Pharmacy Manager',
+                'pharmacist@pharmacy.com': 'Lead Pharmacist'
+            };
+            document.getElementById('userDisplayName').textContent = displayNames[userEmail] || 'Pharmacist';
+
+            renderSuppliers();
+            updateCounts();
+        });
+
+        // Theme toggle functionality
+        document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
+        document.getElementById('headerThemeToggle')?.addEventListener('click', toggleTheme);
+
+        // Logout functionality
+        document.getElementById('logoutBtn')?.addEventListener('click', function() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('userEmail');
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Global search functionality
+        document.getElementById('globalSearch')?.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            if (searchTerm) {
+                document.getElementById('tableSearch').value = searchTerm;
+                filterSuppliers();
+            }
+        });
+    </script>
+<script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+</body>
+</html>

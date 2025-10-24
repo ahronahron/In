@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Medicine Inventory - PHARMACY Management System</title>
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<script type="module" src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Finventory6919back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script>
+</head>
+<body class="min-h-screen bg-background transition-colors duration-300">
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden lg:hidden"></div>
+    
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white dark:bg-gray-900 shadow-xl border-r border-border-light dark:border-gray-700 z-50 transform -translate-x-full lg:translate-x-0 transition-all duration-300">
+        <!-- Sidebar Header -->
+        <div class="flex items-center justify-between p-6 border-b border-border-light dark:border-gray-700">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-pills text-primary-600 dark:text-primary-400 text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold text-text-primary dark:text-gray-100">PHARMACY</h2>
+                    <p class="text-xs text-text-tertiary dark:text-gray-400">Inventory System</p>
+                </div>
+            </div>
+            <button id="closeSidebar" class="lg:hidden text-text-tertiary hover:text-text-secondary dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+
+        <!-- User Profile Section -->
+        <div class="p-6 border-b border-border-light dark:border-gray-700">
+            <div class="flex items-center space-x-3">
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="User Avatar" class="w-12 h-12 rounded-full object-cover border-2 border-primary-200 dark:border-primary-700" onerror="this.src='https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'; this.onerror=null;" />
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-text-primary dark:text-gray-100 truncate" id="userDisplayName">Pharmacist Admin</p>
+                    <p class="text-xs text-text-tertiary dark:text-gray-400 truncate" id="userDisplayEmail">admin@pharmacy.com</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="flex-1 p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="dashboard.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-chart-pie w-5"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="inventory_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white bg-primary dark:bg-primary-600 rounded-xl transition-all duration-200">
+                        <i class="fas fa-capsules w-5"></i>
+                        <span>Medicine Inventory</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="suppliers_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-truck-medical w-5"></i>
+                        <span>Suppliers</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="orders_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-prescription-bottle w-5"></i>
+                        <span>Orders</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="reports_analytics.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-chart-bar w-5"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:void(0)" onclick="openSettings()" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-cog w-5"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Theme Toggle & Settings -->
+        <div class="p-4 border-t border-border-light dark:border-gray-700">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-sm font-medium text-text-secondary dark:text-gray-300">Dark Mode</span>
+                <button id="themeToggle" class="relative inline-flex h-6 w-11 items-center rounded-full bg-border-light dark:bg-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-200">
+                    <span id="themeToggleButton" class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 translate-x-1 dark:translate-x-6"></span>
+                </button>
+            </div>
+            <button id="logoutBtn" class="w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium text-error-600 hover:bg-error-50 dark:hover:bg-error-900 rounded-xl transition-all duration-200">
+                <i class="fas fa-sign-out-alt w-5"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="lg:ml-64 min-h-screen bg-background dark:bg-gray-900">
+        <!-- Header -->
+        <header class="bg-white dark:bg-gray-900 shadow-sm border-b border-border-light dark:border-gray-700 sticky top-0 z-30">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="menuToggle" class="lg:hidden text-text-secondary dark:text-gray-400 hover:text-text-primary dark:hover:text-gray-200 transition-colors duration-200">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-2xl font-semibold text-text-primary dark:text-gray-100">Medicine Inventory</h1>
+                        <p class="text-sm text-text-secondary dark:text-gray-400">Manage your pharmaceutical inventory and stock levels</p>
+                    </div>
+                </div>
+
+                <!-- Header Actions -->
+                <div class="flex items-center space-x-4">
+                    <!-- Search Bar -->
+                    <div class="relative hidden md:block">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-text-tertiary dark:text-gray-500 text-sm"></i>
+                        </div>
+                        <input type="text" id="globalSearch" placeholder="Search medicines..." class="pl-10 pr-4 py-2 w-64 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" />
+                    </div>
+
+                    <!-- Theme Toggle -->
+                    <button id="headerThemeToggle" class="p-2 text-text-secondary dark:text-gray-400 hover:text-text-primary dark:hover:text-gray-200 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-moon dark:hidden text-lg"></i>
+                        <i class="fas fa-sun hidden dark:block text-lg"></i>
+                    </button>
+
+                    <!-- Notifications -->
+                    <button class="relative p-2 text-text-secondary dark:text-gray-400 hover:text-text-primary dark:hover:text-gray-200 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-bell text-lg"></i>
+                        <span class="absolute -top-1 -right-1 w-5 h-5 bg-error text-white text-xs rounded-full flex items-center justify-center">0</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="p-6">
+            <!-- Action Bar -->
+            <div class="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <!-- Add Medicine Button -->
+                    <button id="addMedicineBtn" class="btn-primary px-6 py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200">
+                        <i class="fas fa-plus"></i>
+                        <span>Add Medicine</span>
+                    </button>
+
+                    <!-- Bulk Actions -->
+                    <div class="flex space-x-2">
+                        <button id="bulkEditBtn" class="px-4 py-3 border border-border-medium dark:border-gray-600 text-text-secondary dark:text-gray-300 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200 disabled:opacity-50" disabled>
+                            <i class="fas fa-edit mr-2"></i>
+                            Bulk Edit
+                        </button>
+                        <button id="bulkDeleteBtn" class="px-4 py-3 border border-error-300 text-error-600 hover:bg-error-50 dark:hover:bg-error-900 rounded-xl transition-all duration-200 disabled:opacity-50" disabled>
+                            <i class="fas fa-trash mr-2"></i>
+                            Delete Selected
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Export and Column Controls -->
+                <div class="flex space-x-2">
+                    <button id="exportCsvBtn" class="px-4 py-3 bg-accent text-white hover:bg-accent-700 rounded-xl transition-all duration-200 flex items-center space-x-2">
+                        <i class="fas fa-download"></i>
+                        <span>Export CSV</span>
+                    </button>
+                    <button id="columnToggleBtn" class="px-4 py-3 border border-border-medium dark:border-gray-600 text-text-secondary dark:text-gray-300 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-columns mr-2"></i>
+                        Columns
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters Section -->
+            <div class="mb-6 bg-white dark:bg-gray-900 rounded-2xl shadow-md border border-border-light dark:border-gray-700 p-6">
+                <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+                    <!-- Search -->
+                    <div class="flex-1">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-text-tertiary dark:text-gray-500"></i>
+                            </div>
+                            <input type="text" id="tableSearch" placeholder="Search medicines by name, NDC, manufacturer..." class="w-full pl-10 pr-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" />
+                        </div>
+                    </div>
+
+                    <!-- Stock Status Filter -->
+                    <div class="min-w-0 lg:w-48">
+                        <select id="stockStatusFilter" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100">
+                            <option value>All Stock Status</option>
+                            <option value="in-stock">In Stock</option>
+                            <option value="low-stock">Low Stock</option>
+                            <option value="out-of-stock">Out of Stock</option>
+                            <option value="expired">Expired</option>
+                        </select>
+                    </div>
+
+                    <!-- Expiration Filter -->
+                    <div class="min-w-0 lg:w-48">
+                        <select id="expirationFilter" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100">
+                            <option value>All Expiration</option>
+                            <option value="expired">Expired</option>
+                            <option value="expiring-soon">Expiring Soon (30 days)</option>
+                            <option value="expiring-later">Expiring Later</option>
+                        </select>
+                    </div>
+
+                    <!-- Clear Filters -->
+                    <button id="clearFiltersBtn" class="px-4 py-3 text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200 flex items-center space-x-2">
+                        <i class="fas fa-times"></i>
+                        <span>Clear</span>
+                    </button>
+                </div>
+
+                <!-- Results Count -->
+                <div class="mt-4 flex items-center justify-between">
+                    <div class="text-sm text-text-secondary dark:text-gray-400">
+                        Showing <span id="resultsCount" class="font-medium text-text-primary dark:text-gray-100">0</span> of <span id="totalCount" class="font-medium text-text-primary dark:text-gray-100">0</span> medicines
+                    </div>
+                    <div class="text-sm text-text-secondary dark:text-gray-400">
+                        <span id="selectedCount" class="font-medium text-text-primary dark:text-gray-100">0</span> selected
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Table -->
+            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-md border border-border-light dark:border-gray-700 overflow-hidden">
+                <!-- Table Header -->
+                <div class="px-6 py-4 border-b border-border-light dark:border-gray-700 bg-surface-hover dark:bg-gray-800">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-text-primary dark:text-gray-100">Medicine Inventory</h3>
+                        <div class="flex items-center space-x-2">
+                            <button id="refreshTableBtn" class="p-2 text-text-secondary dark:text-gray-400 hover:text-text-primary dark:hover:text-gray-200 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-all duration-200">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Container -->
+                <div class="overflow-x-auto">
+                    <table id="inventoryTable" class="w-full">
+                        <thead class="bg-surface-hover dark:bg-gray-800 border-b border-border-light dark:border-gray-700">
+                            <tr>
+                                <th class="px-6 py-4 text-left">
+                                    <input type="checkbox" id="selectAll" class="h-4 w-4 text-primary-600 focus:ring-primary-200 border-border-medium dark:border-gray-500 rounded" />
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-text-primary dark:hover:text-gray-100 transition-colors duration-200" data-column="ndc">
+                                    <div class="flex items-center space-x-1">
+                                        <span>NDC Code</span>
+                                        <i class="fas fa-sort text-xs opacity-50"></i>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-text-primary dark:hover:text-gray-100 transition-colors duration-200" data-column="name">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Medicine Name</span>
+                                        <i class="fas fa-sort text-xs opacity-50"></i>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-text-primary dark:hover:text-gray-100 transition-colors duration-200 column-manufacturer" data-column="manufacturer">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Manufacturer</span>
+                                        <i class="fas fa-sort text-xs opacity-50"></i>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-text-primary dark:hover:text-gray-100 transition-colors duration-200 column-category" data-column="category">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Category</span>
+                                        <i class="fas fa-sort text-xs opacity-50"></i>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-text-primary dark:hover:text-gray-100 transition-colors duration-200" data-column="quantity">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Quantity</span>
+                                        <i class="fas fa-sort text-xs opacity-50"></i>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-text-primary dark:hover:text-gray-100 transition-colors duration-200 column-expiration" data-column="expiration">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Expiration</span>
+                                        <i class="fas fa-sort text-xs opacity-50"></i>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-text-primary dark:hover:text-gray-100 transition-colors duration-200 column-price" data-column="price">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Price</span>
+                                        <i class="fas fa-sort text-xs opacity-50"></i>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-text-primary dark:hover:text-gray-100 transition-colors duration-200" data-column="status">
+                                    <div class="flex items-center space-x-1">
+                                        <span>Status</span>
+                                        <i class="fas fa-sort text-xs opacity-50"></i>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody" class="bg-white dark:bg-gray-900 divide-y divide-border-light dark:divide-gray-700">
+                            <!-- Medicine data will be populated from database -->
+                            <tr>
+                                <td colspan="10" class="px-6 py-12 text-center text-text-secondary dark:text-gray-400">
+                                    <div class="flex flex-col items-center space-y-3">
+                                        <i class="fas fa-pills text-4xl opacity-50"></i>
+                                        <p class="text-lg font-medium">No medicines found</p>
+                                        <p class="text-sm">Connect to database to view medicine inventory</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Table Footer -->
+                <div class="px-6 py-4 border-t border-border-light dark:border-gray-700 bg-surface-hover dark:bg-gray-800">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-text-secondary dark:text-gray-400">
+                            Showing <span id="paginationStart">0</span> to <span id="paginationEnd">0</span> of <span id="paginationTotal">0</span> results
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button id="prevPageBtn" class="px-3 py-2 border border-border-medium dark:border-gray-600 text-text-secondary dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-all duration-200 disabled:opacity-50" disabled>
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <div id="pageNumbers" class="flex items-center space-x-1">
+                                <!-- Page numbers will be populated by JavaScript -->
+                            </div>
+                            <button id="nextPageBtn" class="px-3 py-2 border border-border-medium dark:border-gray-600 text-text-secondary dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-all duration-200 disabled:opacity-50" disabled>
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Medicine Modal -->
+    <div id="addMedicineModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animation-slide-up">
+            <div class="flex items-center justify-between p-6 border-b border-border-light dark:border-gray-700">
+                <h2 class="text-xl font-semibold text-text-primary dark:text-gray-100">Add New Medicine</h2>
+                <button id="closeAddMedicineModal" class="text-text-tertiary dark:text-gray-400 hover:text-text-secondary dark:hover:text-gray-200 transition-colors duration-200">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <form id="addMedicineForm" class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- NDC Code -->
+                    <div>
+                        <label for="ndcCode" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            NDC Code *
+                        </label>
+                        <input type="text" id="ndcCode" name="ndcCode" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="e.g., 0069-2587-68" />
+                    </div>
+
+                    <!-- Medicine Name -->
+                    <div>
+                        <label for="medicineName" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Medicine Name *
+                        </label>
+                        <input type="text" id="medicineName" name="medicineName" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter medicine name" />
+                    </div>
+
+                    <!-- Manufacturer -->
+                    <div>
+                        <label for="manufacturer" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Manufacturer
+                        </label>
+                        <input type="text" id="manufacturer" name="manufacturer" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter manufacturer name" />
+                    </div>
+
+                    <!-- Category -->
+                    <div>
+                        <label for="category" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Category
+                        </label>
+                        <select id="category" name="category" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100">
+                            <option value>Select category</option>
+                            <option value="antibiotics">Antibiotics</option>
+                            <option value="analgesics">Analgesics</option>
+                            <option value="cardiovascular">Cardiovascular</option>
+                            <option value="diabetes">Diabetes</option>
+                            <option value="respiratory">Respiratory</option>
+                            <option value="vitamins">Vitamins & Supplements</option>
+                            <option value="otc">Over-the-Counter</option>
+                            <option value="prescription">Prescription</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div>
+                        <label for="quantity" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Quantity *
+                        </label>
+                        <input type="number" id="quantity" name="quantity" required min="0" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="0" />
+                    </div>
+
+                    <!-- Unit Price -->
+                    <div>
+                        <label for="price" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Unit Price *
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-text-tertiary dark:text-gray-500">$</span>
+                            </div>
+                            <input type="number" id="price" name="price" required min="0" step="0.01" class="w-full pl-8 pr-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="0.00" />
+                        </div>
+                    </div>
+
+                    <!-- Expiration Date -->
+                    <div>
+                        <label for="expirationDate" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Expiration Date
+                        </label>
+                        <input type="date" id="expirationDate" name="expirationDate" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" />
+                    </div>
+
+                    <!-- Dosage Form -->
+                    <div>
+                        <label for="dosageForm" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Dosage Form
+                        </label>
+                        <select id="dosageForm" name="dosageForm" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100">
+                            <option value>Select dosage form</option>
+                            <option value="tablet">Tablet</option>
+                            <option value="capsule">Capsule</option>
+                            <option value="liquid">Liquid</option>
+                            <option value="injection">Injection</option>
+                            <option value="cream">Cream/Ointment</option>
+                            <option value="inhaler">Inhaler</option>
+                            <option value="patch">Patch</option>
+                            <option value="drops">Drops</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end space-x-4 pt-6 border-t border-border-light dark:border-gray-700">
+                    <button type="button" id="cancelAddMedicine" class="px-6 py-3 border border-border-medium dark:border-gray-600 text-text-secondary dark:text-gray-300 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-primary px-6 py-3 rounded-xl font-medium">
+                        Add Medicine
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const isDark = savedTheme === 'dark';
+            
+            console.log('Initializing theme:', savedTheme, 'isDark:', isDark);
+            
+            // Ensure we start with light mode if no theme is saved
+            if (!localStorage.getItem('theme')) {
+                localStorage.setItem('theme', 'light');
+            }
+            
+            document.documentElement.classList.toggle('dark', isDark);
+            
+            // Update toggle buttons
+            const toggles = document.querySelectorAll('#themeToggle');
+            const toggleButtons = document.querySelectorAll('#themeToggleButton');
+            
+            console.log('Found toggles:', toggles.length);
+            console.log('Found toggle buttons:', toggleButtons.length);
+            
+            toggles.forEach(toggle => {
+                toggle.classList.toggle('bg-primary', isDark);
+                toggle.classList.toggle('bg-border-light', !isDark);
+            });
+            
+            toggleButtons.forEach(button => {
+                button.classList.toggle('translate-x-6', isDark);
+                button.classList.toggle('translate-x-1', !isDark);
+            });
+            
+            console.log('Theme initialization completed');
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const newTheme = isDark ? 'light' : 'dark';
+            
+            console.log('Current theme:', isDark ? 'dark' : 'light');
+            console.log('Switching to:', newTheme);
+            
+            document.documentElement.classList.toggle('dark', !isDark);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update toggle buttons
+            const toggles = document.querySelectorAll('#themeToggle');
+            const toggleButtons = document.querySelectorAll('#themeToggleButton');
+            
+            console.log('Found toggles:', toggles.length);
+            console.log('Found toggle buttons:', toggleButtons.length);
+            
+            toggles.forEach(toggle => {
+                toggle.classList.toggle('bg-primary', !isDark);
+                toggle.classList.toggle('bg-border-light', isDark);
+            });
+            
+            toggleButtons.forEach(button => {
+                button.classList.toggle('translate-x-6', !isDark);
+                button.classList.toggle('translate-x-1', isDark);
+            });
+            
+            console.log('Theme toggle completed');
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize theme
+            initializeTheme();
+
+            // Check authentication
+            if (!localStorage.getItem('isLoggedIn')) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Set user display info
+            const userEmail = localStorage.getItem('userEmail') || 'admin@pharmacy.com';
+            document.getElementById('userDisplayEmail').textContent = userEmail;
+            
+            // Set display name based on email
+            const displayNames = {
+                'admin@pharmacy.com': 'Pharmacy Admin',
+                'manager@pharmacy.com': 'Pharmacy Manager',
+                'pharmacist@pharmacy.com': 'Lead Pharmacist'
+            };
+            document.getElementById('userDisplayName').textContent = displayNames[userEmail] || 'Pharmacist';
+
+            // Sidebar functionality
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const menuToggle = document.getElementById('menuToggle');
+            const closeSidebar = document.getElementById('closeSidebar');
+
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarOverlay.classList.remove('hidden');
+            });
+
+            closeSidebar.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
+            });
+
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
+            });
+
+            // Theme toggle functionality
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', toggleTheme);
+            }
+            
+            // Header theme toggle functionality
+            const headerThemeToggle = document.getElementById('headerThemeToggle');
+            if (headerThemeToggle) {
+                headerThemeToggle.addEventListener('click', toggleTheme);
+            }
+
+            // Add Medicine Modal
+            const addMedicineModal = document.getElementById('addMedicineModal');
+            const addMedicineBtn = document.getElementById('addMedicineBtn');
+            const closeAddMedicineModal = document.getElementById('closeAddMedicineModal');
+            const cancelAddMedicine = document.getElementById('cancelAddMedicine');
+
+            addMedicineBtn.addEventListener('click', () => {
+                addMedicineModal.classList.remove('hidden');
+            });
+
+            closeAddMedicineModal.addEventListener('click', () => {
+                addMedicineModal.classList.add('hidden');
+            });
+
+            cancelAddMedicine.addEventListener('click', () => {
+                addMedicineModal.classList.add('hidden');
+            });
+
+            // Form submission
+            document.getElementById('addMedicineForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form data
+                const formData = new FormData(e.target);
+                const medicineData = {
+                    ndc: formData.get('ndcCode'),
+                    name: formData.get('medicineName'),
+                    manufacturer: formData.get('manufacturer'),
+                    category: formData.get('category'),
+                    quantity: parseInt(formData.get('quantity')),
+                    price: parseFloat(formData.get('price')),
+                    expiration: formData.get('expirationDate'),
+                    dosageForm: formData.get('dosageForm')
+                };
+
+                // TODO: Send to PHP backend/MySQL database
+                console.log('Medicine data ready for database:', medicineData);
+                
+                // Show success message
+                alert('Medicine added successfully! Ready for database integration.');
+                
+                // Close modal and reset form
+                addMedicineModal.classList.add('hidden');
+                e.target.reset();
+            });
+
+            // Logout functionality
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                if (confirm('Are you sure you want to logout?')) {
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('userEmail');
+                    window.location.href = 'login.html';
+                }
+            });
+
+            // Export CSV functionality
+            document.getElementById('exportCsvBtn').addEventListener('click', function() {
+                // TODO: Implement CSV export from database
+                alert('CSV Export ready for database integration');
+            });
+
+            // Search functionality
+            const searchInputs = document.querySelectorAll('#globalSearch, #tableSearch');
+            searchInputs.forEach(input => {
+                input.addEventListener('input', function(e) {
+                    const searchTerm = e.target.value.toLowerCase();
+                    if (searchTerm.length > 2) {
+                        // TODO: Implement database search
+                        console.log('Searching for:', searchTerm);
+                    }
+                });
+            });
+
+            // Filter functionality
+            const filters = document.querySelectorAll('#stockStatusFilter, #expirationFilter');
+            filters.forEach(filter => {
+                filter.addEventListener('change', function() {
+                    // TODO: Implement database filtering
+                    console.log('Filter changed:', this.id, this.value);
+                });
+            });
+
+            // Clear filters
+            document.getElementById('clearFiltersBtn').addEventListener('click', function() {
+                filters.forEach(filter => filter.value = '');
+                searchInputs.forEach(input => input.value = '');
+                // TODO: Refresh table data
+            });
+
+            // Bulk actions
+            document.getElementById('bulkEditBtn').addEventListener('click', function() {
+                // TODO: Implement bulk edit
+                alert('Bulk edit ready for database integration');
+            });
+
+            document.getElementById('bulkDeleteBtn').addEventListener('click', function() {
+                // TODO: Implement bulk delete
+                alert('Bulk delete ready for database integration');
+            });
+
+            // Column toggle
+            document.getElementById('columnToggleBtn').addEventListener('click', function() {
+                // TODO: Implement column visibility toggle
+                alert('Column toggle ready for implementation');
+            });
+
+            // Refresh table
+            document.getElementById('refreshTableBtn').addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                icon.classList.add('fa-spin');
+                
+                // TODO: Refresh data from database
+                setTimeout(() => {
+                    icon.classList.remove('fa-spin');
+                    alert('Data refreshed! Ready for database integration.');
+                }, 1000);
+            });
+
+            // ESC key to close modals
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    addMedicineModal.classList.add('hidden');
+                }
+            });
+
+            // Check for low stock filter from dashboard
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('filter') === 'low-stock') {
+                document.getElementById('stockStatusFilter').value = 'low-stock';
+                // TODO: Apply filter and show results
+                alert('Low stock filter applied! Ready for database integration.');
+            }
+        });
+
+        // Global functions
+        function openSettings() {
+            alert('Settings page - Ready for implementation');
+        }
+
+        window.openSettings = openSettings;
+    </script>
+<script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+</body>
+</html>

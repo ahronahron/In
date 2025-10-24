@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - INVENTORY Management System</title>
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="module" src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Finventory6919back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script>
+</head>
+<body class="min-h-screen bg-background transition-colors duration-300">
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden lg:hidden"></div>
+    
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white dark:bg-gray-900 shadow-xl border-r border-border-light dark:border-gray-700 z-50 transform -translate-x-full lg:translate-x-0 transition-all duration-300">
+        <!-- Sidebar Header -->
+        <div class="flex items-center justify-between p-6 border-b border-border-light dark:border-gray-700">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-pills text-primary-600 text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold text-text-primary dark:text-gray-100">PHARMACY</h2>
+                    <p class="text-xs text-text-tertiary dark:text-gray-400">Inventory System</p>
+                </div>
+            </div>
+            <button id="closeSidebar" class="lg:hidden text-text-tertiary hover:text-text-secondary dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+
+        <!-- User Profile Section -->
+        <div class="p-6 border-b border-border-light dark:border-gray-700">
+            <div class="flex items-center space-x-3">
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="User Avatar" class="w-12 h-12 rounded-full object-cover border-2 border-primary-200" onerror="this.src='https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'; this.onerror=null;" />
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-text-primary dark:text-gray-100 truncate" id="userDisplayName">Pharmacist Admin</p>
+                    <p class="text-xs text-text-tertiary dark:text-gray-400 truncate" id="userDisplayEmail">admin@pharmacy.com</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="flex-1 p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="dashboard.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white bg-primary rounded-xl transition-all duration-200">
+                        <i class="fas fa-chart-pie w-5"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="inventory_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
+                        <i class="fas fa-capsules w-5"></i>
+                        <span>Medicine Inventory</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="suppliers_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
+                        <i class="fas fa-truck-medical w-5"></i>
+                        <span>Suppliers</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="orders_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
+                        <i class="fas fa-prescription-bottle w-5"></i>
+                        <span>Orders</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="reports_analytics.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
+                        <i class="fas fa-chart-bar w-5"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:void(0)" onclick="openSettings()" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
+                        <i class="fas fa-cog w-5"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Theme Toggle & Settings -->
+        <div class="p-4 border-t border-border-light dark:border-gray-700">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-sm font-medium text-text-secondary dark:text-gray-300">Dark Mode</span>
+                <button id="themeToggle" class="relative inline-flex h-6 w-11 items-center rounded-full bg-border-light dark:bg-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-200">
+                    <span id="themeToggleButton" class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 translate-x-1 dark:translate-x-6"></span>
+                </button>
+            </div>
+            <button id="logoutBtn" class="w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium text-error-600 hover:bg-error-50 dark:hover:bg-error-900 rounded-xl transition-all duration-200">
+                <i class="fas fa-sign-out-alt w-5"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="lg:ml-64 min-h-screen bg-background dark:bg-gray-900">
+        <!-- Top Header -->
+        <header class="bg-white dark:bg-gray-900 border-b border-border-light dark:border-gray-700 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <!-- Mobile Menu Button -->
+                <button id="openSidebar" class="lg:hidden text-text-secondary hover:text-text-primary dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+
+                <!-- Page Title -->
+                <div class="hidden lg:block">
+                    <h1 class="text-2xl font-semibold text-text-primary dark:text-gray-100">Pharmacy Dashboard</h1>
+                    <p class="text-sm text-text-secondary dark:text-gray-400">Welcome back! Monitor your medicine inventory and operations.</p>
+                </div>
+
+                <!-- Search Bar & Clock -->
+                <div class="flex items-center space-x-4">
+                    <!-- Search Bar -->
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-text-tertiary text-sm"></i>
+                        </div>
+                        <input type="text" id="globalSearch" placeholder="Search medicines..." class="w-64 pl-10 pr-4 py-2 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-surface text-text-primary" />
+                    </div>
+
+                    <!-- Theme Toggle -->
+                    <button id="headerThemeToggle" class="p-2 text-text-secondary dark:text-gray-400 hover:text-text-primary dark:hover:text-gray-200 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-moon dark:hidden text-lg"></i>
+                        <i class="fas fa-sun hidden dark:block text-lg"></i>
+                    </button>
+
+                    <!-- Live Clock -->
+                    <div class="hidden md:flex items-center space-x-2 px-4 py-2 bg-surface-hover dark:bg-gray-800 rounded-xl">
+                        <i class="fas fa-clock text-primary-600 dark:text-primary-400 text-sm"></i>
+                        <span id="liveClock" class="text-sm font-medium text-text-primary dark:text-gray-100">--:--:--</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="p-6 space-y-6">
+            <!-- Quick Actions Section -->
+            <section class="bg-white dark:bg-gray-900 rounded-2xl shadow-md border border-border-light dark:border-gray-700 p-6">
+                <h2 class="text-lg font-semibold text-text-primary dark:text-gray-100 mb-4 flex items-center">
+                    <i class="fas fa-bolt text-primary-600 dark:text-primary-400 mr-2"></i>
+                    Quick Actions
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <button onclick="window.location.href='inventory_management.html'" class="flex flex-col items-center justify-center p-6 bg-primary-50 dark:bg-primary-900 hover:bg-primary-100 dark:hover:bg-primary-800 border-2 border-primary-200 dark:border-primary-700 hover:border-primary-300 dark:hover:border-primary-600 rounded-xl transition-all duration-200 group">
+                        <div class="w-12 h-12 bg-primary-600 dark:bg-primary-500 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
+                            <i class="fas fa-plus text-white"></i>
+                        </div>
+                        <span class="text-sm font-medium text-primary-700 dark:text-primary-300">Add Medicine</span>
+                    </button>
+
+                    <button onclick="window.location.href='orders_management.html'" class="flex flex-col items-center justify-center p-6 bg-secondary-50 dark:bg-secondary-900 hover:bg-secondary-100 dark:hover:bg-secondary-800 border-2 border-secondary-200 dark:border-secondary-700 hover:border-secondary-300 dark:hover:border-secondary-600 rounded-xl transition-all duration-200 group">
+                        <div class="w-12 h-12 bg-secondary-600 dark:bg-secondary-500 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
+                            <i class="fas fa-prescription-bottle text-white"></i>
+                        </div>
+                        <span class="text-sm font-medium text-secondary-700 dark:text-secondary-300">Create Order</span>
+                    </button>
+
+                    <button onclick="window.location.href='suppliers_management.html'" class="flex flex-col items-center justify-center p-6 bg-accent-50 dark:bg-accent-900 hover:bg-accent-100 dark:hover:bg-accent-800 border-2 border-accent-200 dark:border-accent-700 hover:border-accent-300 dark:hover:border-accent-600 rounded-xl transition-all duration-200 group">
+                        <div class="w-12 h-12 bg-accent-600 dark:bg-accent-500 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
+                            <i class="fas fa-truck-medical text-white"></i>
+                        </div>
+                        <span class="text-sm font-medium text-accent-700 dark:text-accent-300">Add Supplier</span>
+                    </button>
+
+                    <button onclick="window.location.href='reports_analytics.html'" class="flex flex-col items-center justify-center p-6 bg-success-50 dark:bg-success-900 hover:bg-success-100 dark:hover:bg-success-800 border-2 border-success-200 dark:border-success-700 hover:border-success-300 dark:hover:border-success-600 rounded-xl transition-all duration-200 group">
+                        <div class="w-12 h-12 bg-success-600 dark:bg-success-500 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
+                            <i class="fas fa-chart-bar text-white"></i>
+                        </div>
+                        <span class="text-sm font-medium text-success-700 dark:text-success-300">Generate Report</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Metrics & Activities Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Totals & Metrics Panel -->
+                <section class="lg:col-span-2 bg-white dark:bg-gray-900 rounded-2xl shadow-md border border-border-light dark:border-gray-700 p-6">
+                    <h2 class="text-lg font-semibold text-text-primary dark:text-gray-100 mb-6 flex items-center">
+                        <i class="fas fa-chart-line text-primary-600 dark:text-primary-400 mr-2"></i>
+                        Key Metrics
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+                        <!-- Total Products -->
+                        <button onclick="window.location.href='inventory_management.html'" class="text-center p-4 bg-primary-50 dark:bg-primary-900 rounded-xl hover:bg-primary-100 dark:hover:bg-primary-800 transition-all duration-200 cursor-pointer">
+                            <div class="w-12 h-12 bg-primary-600 dark:bg-primary-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-capsules text-white"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-primary-700 dark:text-primary-300 mb-1" id="totalMedicines">--</div>
+                            <div class="text-sm text-primary-600 dark:text-primary-400">Total Medicines</div>
+                        </button>
+
+                        <!-- Pending Orders -->
+                        <button onclick="window.location.href='orders_management.html'" class="text-center p-4 bg-warning-50 dark:bg-warning-900 rounded-xl hover:bg-warning-100 dark:hover:bg-warning-800 transition-all duration-200 cursor-pointer">
+                            <div class="w-12 h-12 bg-warning-600 dark:bg-warning-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-clock text-white"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-warning-700 dark:text-warning-300 mb-1" id="pendingOrders">--</div>
+                            <div class="text-sm text-warning-600 dark:text-warning-400">Pending Orders</div>
+                        </button>
+
+                        <!-- Inventory Value -->
+                        <button onclick="window.location.href='reports_analytics.html'" class="text-center p-4 bg-success-50 dark:bg-success-900 rounded-xl hover:bg-success-100 dark:hover:bg-success-800 transition-all duration-200 cursor-pointer">
+                            <div class="w-12 h-12 bg-success-600 dark:bg-success-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-dollar-sign text-white"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-success-700 dark:text-success-300 mb-1" id="totalValue">--</div>
+                            <div class="text-sm text-success-600 dark:text-success-400">Total Value</div>
+                        </button>
+                    </div>
+
+                    <!-- Low Stock Warning -->
+                    <button onclick="filterLowStock()" class="w-full bg-error-50 dark:bg-error-900 border border-error-200 dark:border-error-700 rounded-xl p-4 hover:bg-error-100 dark:hover:bg-error-800 transition-all duration-200 cursor-pointer">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-medium text-error-700 dark:text-error-300">Low Stock Alert</h3>
+                            <span class="text-xs text-error-600 dark:text-error-400" id="lowStockCount">-- items</span>
+                        </div>
+                        <div class="flex items-center justify-center">
+                            <div class="relative w-24 h-24">
+                                <canvas id="lowStockChart" width="96" height="96"></canvas>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="text-center">
+                                        <div class="text-lg font-bold text-error-700 dark:text-error-300" id="lowStockPercentage">--%</div>
+                                        <div class="text-xs text-error-600 dark:text-error-400">Critical</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </button>
+                </section>
+
+                <!-- Recent Activities -->
+                <section class="bg-white dark:bg-gray-900 rounded-2xl shadow-md border border-border-light dark:border-gray-700 p-6">
+                    <h2 class="text-lg font-semibold text-text-primary dark:text-gray-100 mb-4 flex items-center">
+                        <i class="fas fa-history text-primary-600 dark:text-primary-400 mr-2"></i>
+                        Recent Activities
+                    </h2>
+                    
+                    <div class="space-y-4" id="recentActivitiesList">
+                        <!-- Activities will be populated from database -->
+                        <div class="flex items-start space-x-3 p-3 bg-surface-hover dark:bg-gray-800 rounded-xl">
+                            <div class="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-database text-gray-600 dark:text-gray-400 text-xs"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-text-primary dark:text-gray-100">No recent activities</p>
+                                <p class="text-xs text-text-tertiary dark:text-gray-400">Connect to database to view activities</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="viewAllActivities()" class="w-full mt-4 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors duration-200">
+                        View All Activities
+                    </button>
+                </section>
+            </div>
+
+            <!-- Calendar Section -->
+            <section class="bg-white dark:bg-gray-900 rounded-2xl shadow-md border border-border-light dark:border-gray-700 p-6">
+                <h2 class="text-lg font-semibold text-text-primary dark:text-gray-100 mb-4 flex items-center">
+                    <i class="fas fa-calendar-alt text-primary-600 dark:text-primary-400 mr-2"></i>
+                    Medicine Schedule & Expiry Calendar
+                </h2>
+                <div id="calendar" class="min-h-[400px]"></div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-md w-full p-6 animation-slide-up">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-text-primary dark:text-gray-100">Settings</h2>
+                <button id="closeSettingsModal" class="text-text-tertiary dark:text-gray-400 hover:text-text-secondary dark:hover:text-gray-200 transition-colors duration-200">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                
+                <div class="flex items-center justify-between p-4 bg-surface-hover dark:bg-gray-800 rounded-xl">
+                    <div>
+                        <p class="text-sm font-medium text-text-primary dark:text-gray-100">Database Status</p>
+                        <p class="text-xs text-text-secondary dark:text-gray-400">Ready for PHP/MySQL integration</p>
+                    </div>
+                    <span class="px-2 py-1 bg-warning-100 dark:bg-warning-900 text-warning-700 dark:text-warning-300 text-xs rounded-full">Pending</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        // Theme management
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const isDark = savedTheme === 'dark';
+            
+            console.log('Initializing theme:', savedTheme, 'isDark:', isDark);
+            
+            // Ensure we start with light mode if no theme is saved
+            if (!localStorage.getItem('theme')) {
+                localStorage.setItem('theme', 'light');
+            }
+            
+            document.documentElement.classList.toggle('dark', isDark);
+            
+            // Update toggle buttons
+            const toggles = document.querySelectorAll('#themeToggle, #settingsThemeToggle');
+            const toggleButtons = document.querySelectorAll('#themeToggleButton');
+            
+            console.log('Found toggles:', toggles.length);
+            console.log('Found toggle buttons:', toggleButtons.length);
+            
+            toggles.forEach(toggle => {
+                toggle.classList.toggle('bg-primary', isDark);
+                toggle.classList.toggle('bg-border-light', !isDark);
+            });
+            
+            toggleButtons.forEach(button => {
+                button.classList.toggle('translate-x-6', isDark);
+                button.classList.toggle('translate-x-1', !isDark);
+            });
+            
+            console.log('Theme initialization completed');
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const newTheme = isDark ? 'light' : 'dark';
+            
+            console.log('Current theme:', isDark ? 'dark' : 'light');
+            console.log('Switching to:', newTheme);
+            
+            document.documentElement.classList.toggle('dark', !isDark);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update toggle buttons
+            const toggles = document.querySelectorAll('#themeToggle, #settingsThemeToggle');
+            const toggleButtons = document.querySelectorAll('#themeToggleButton');
+            
+            console.log('Found toggles:', toggles.length);
+            console.log('Found toggle buttons:', toggleButtons.length);
+            
+            toggles.forEach(toggle => {
+                toggle.classList.toggle('bg-primary', !isDark);
+                toggle.classList.toggle('bg-border-light', isDark);
+            });
+            
+            toggleButtons.forEach(button => {
+                button.classList.toggle('translate-x-6', !isDark);
+                button.classList.toggle('translate-x-1', isDark);
+            });
+            
+            console.log('Theme toggle completed');
+        }
+
+        // Navigation functions
+        function filterLowStock() {
+            window.location.href = 'inventory_management.html?filter=low-stock';
+        }
+
+        function viewAllActivities() {
+            // In a real implementation, this would show a modal or navigate to activities page
+            alert('Activities page - Ready for database integration');
+        }
+
+        function openSettings() {
+            document.getElementById('settingsModal').classList.remove('hidden');
+        }
+
+        // Initialize dashboard functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize theme
+            initializeTheme();
+
+            // Check authentication
+            if (!localStorage.getItem('isLoggedIn')) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Set user display info
+            const userEmail = localStorage.getItem('userEmail') || 'admin@pharmacy.com';
+            document.getElementById('userDisplayEmail').textContent = userEmail;
+            
+            // Set display name based on email
+            const displayNames = {
+                'admin@pharmacy.com': 'Pharmacy Admin',
+                'manager@pharmacy.com': 'Pharmacy Manager',
+                'pharmacist@pharmacy.com': 'Lead Pharmacist'
+            };
+            document.getElementById('userDisplayName').textContent = displayNames[userEmail] || 'Pharmacist';
+
+            // Initialize live clock
+            function updateClock() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('en-US', { 
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                document.getElementById('liveClock').textContent = timeString;
+            }
+            
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            // Initialize FullCalendar
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek'
+                },
+                events: [
+                    // Empty - ready for database integration
+                ],
+                height: 'auto',
+                eventClick: function(info) {
+                    alert('Medicine Schedule: ' + info.event.title + '\nReady for database integration');
+                },
+                dayHeaderContent: function(arg) {
+                    return arg.text;
+                },
+                eventContent: function(arg) {
+                    return {
+                        html: `<div class="fc-event-main-frame">
+                            <div class="fc-event-title-container">
+                                <div class="fc-event-title fc-sticky">${arg.event.title}</div>
+                            </div>
+                        </div>`
+                    };
+                }
+            });
+            calendar.render();
+
+            // Initialize placeholder chart
+            const ctx = document.getElementById('lowStockChart');
+            if (ctx) {
+                new Chart(ctx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [0, 100],
+                            backgroundColor: ['#F44336', '#E0E0E0'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: false,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                enabled: false
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Sidebar functionality
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const openSidebarBtn = document.getElementById('openSidebar');
+            const closeSidebarBtn = document.getElementById('closeSidebar');
+
+            function openSidebar() {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarOverlay.classList.remove('hidden');
+            }
+
+            function closeSidebar() {
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
+            }
+
+            openSidebarBtn.addEventListener('click', openSidebar);
+            closeSidebarBtn.addEventListener('click', closeSidebar);
+            sidebarOverlay.addEventListener('click', closeSidebar);
+
+            // Theme toggle functionality
+            const themeToggle = document.getElementById('themeToggle');
+            const settingsThemeToggle = document.getElementById('settingsThemeToggle');
+            const headerThemeToggle = document.getElementById('headerThemeToggle');
+            
+            if (themeToggle) {
+                themeToggle.addEventListener('click', toggleTheme);
+            }
+            
+            if (settingsThemeToggle) {
+                settingsThemeToggle.addEventListener('click', toggleTheme);
+            }
+            
+            if (headerThemeToggle) {
+                headerThemeToggle.addEventListener('click', toggleTheme);
+            }
+
+
+            // Settings modal
+            document.getElementById('closeSettingsModal').addEventListener('click', () => {
+                document.getElementById('settingsModal').classList.add('hidden');
+            });
+
+            // Logout functionality
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                if (confirm('Are you sure you want to logout?')) {
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('userEmail');
+                    window.location.href = 'login.html';
+                }
+            });
+
+            // Global search functionality
+            document.getElementById('globalSearch').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                if (searchTerm.length > 2) {
+                    // Ready for database integration
+                    console.log('Searching for:', searchTerm);
+                }
+            });
+
+            // ESC key to close modals
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.getElementById('settingsModal').classList.add('hidden');
+                }
+            });
+
+            // Initialize placeholder data (will be replaced with database data)
+            document.getElementById('totalMedicines').textContent = '--';
+            document.getElementById('pendingOrders').textContent = '--';
+            document.getElementById('totalValue').textContent = '--';
+            document.getElementById('lowStockCount').textContent = '-- items';
+            document.getElementById('lowStockPercentage').textContent = '--%';
+        });
+
+        // Global functions
+        window.openSettings = openSettings;
+        window.filterLowStock = filterLowStock;
+        window.viewAllActivities = viewAllActivities;
+    </script>
+<script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+</body>
+</html>
