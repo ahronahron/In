@@ -288,13 +288,13 @@
                                         <i class="fas fa-sort text-xs opacity-50"></i>
                                     </div>
                                 </th>
-                                <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-text-primary dark:hover:text-gray-100 transition-colors duration-200 column-expiration" data-column="expiration">
+                                <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-text-primary dark:hover:text-gray-100 transition-colors duration-200" data-column="expiration">
                                     <div class="flex items-center space-x-1">
                                         <span>Expiration</span>
                                         <i class="fas fa-sort text-xs opacity-50"></i>
                                     </div>
                                 </th>
-                                <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-text-primary dark:hover:text-gray-100 transition-colors duration-200 column-price" data-column="price">
+                                <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-text-primary dark:hover:text-gray-100 transition-colors duration-200" data-column="price">
                                     <div class="flex items-center space-x-1">
                                         <span>Price</span>
                                         <i class="fas fa-sort text-xs opacity-50"></i>
@@ -346,10 +346,8 @@
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
 
-    <!-- Add Medicine Modal -->
+            <!-- Add Medicine Modal -->
     <div id="addMedicineModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
         <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animation-slide-up">
             <div class="flex items-center justify-between p-6 border-b border-border-light dark:border-gray-700">
@@ -366,7 +364,7 @@
                         <label for="ndcCode" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
                             NDC Code *
                         </label>
-                        <input type="text" id="ndcCode" name="ndcCode" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="e.g., 0069-2587-68" />
+                        <input name="ndcCode" type="text" id="ndcCode" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="e.g., 0069-2587-68" />
                     </div>
 
                     <!-- Medicine Name -->
@@ -374,7 +372,7 @@
                         <label for="medicineName" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
                             Medicine Name *
                         </label>
-                        <input type="text" id="medicineName" name="medicineName" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter medicine name" />
+                        <input name="medicineName" type="text" id="medicineName" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter medicine name" />
                     </div>
 
                     <!-- Manufacturer -->
@@ -382,7 +380,7 @@
                         <label for="manufacturer" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
                             Manufacturer
                         </label>
-                        <input type="text" id="manufacturer" name="manufacturer" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter manufacturer name" />
+                        <input name="manufacturer" type="text" id="manufacturer" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter manufacturer name" />
                     </div>
 
                     <!-- Category -->
@@ -409,7 +407,7 @@
                         <label for="quantity" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
                             Quantity *
                         </label>
-                        <input type="number" id="quantity" name="quantity" required min="0" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="0" />
+                        <input name="quantity" type="number" id="quantity" required min="0" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="0" />
                     </div>
 
 
@@ -422,7 +420,7 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <span class="text-text-tertiary dark:text-gray-500">$</span>
                             </div>
-                            <input type="number" id="price" name="price" required min="0" step="0.01" class="w-full pl-8 pr-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="0.00" />
+                            <input name="price" type="number" id="price" required min="0" step="0.01" class="w-full pl-8 pr-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="0.00" />
                         </div>
                     </div>
 
@@ -431,7 +429,7 @@
                         <label for="expirationDate" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
                             Expiration Date
                         </label>
-                        <input type="date" id="expirationDate" name="expirationDate" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" />
+                        <input name="expirationDate" type="date" id="expirationDate" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" />
                     </div>
 
                     <!-- Dosage Form -->
@@ -465,27 +463,43 @@
         </div>
     </div>
 
+    <div id="errorMessage" class="text-red-600 p-4 hidden"></div>
+
     <script>
+        // Global variables
+        let currentPage = 1;
+        let currentFilters = {
+            search: '',
+            status: '',
+            expiration: ''
+        };
+        const pageSize = 25;
+
+        // Get base URL for API calls - handles both localhost:3000 and localhost
+        function getApiBaseUrl() {
+            const protocol = window.location.protocol;
+            const hostname = window.location.hostname;
+            // If running on port 3000, use localhost for PHP (port 80)
+            if (window.location.port === '3000') {
+                return `${protocol}//${hostname}/INVENTORY/In/php`;
+            }
+            // Otherwise, use current origin
+            return `${window.location.origin}/INVENTORY/In/php`;
+        }
+
         // Theme management
         function initializeTheme() {
             const savedTheme = localStorage.getItem('theme') || 'light';
             const isDark = savedTheme === 'dark';
             
-            console.log('Initializing theme:', savedTheme, 'isDark:', isDark);
-            
-            // Ensure we start with light mode if no theme is saved
             if (!localStorage.getItem('theme')) {
                 localStorage.setItem('theme', 'light');
             }
             
             document.documentElement.classList.toggle('dark', isDark);
             
-            // Update toggle buttons
             const toggles = document.querySelectorAll('#themeToggle');
             const toggleButtons = document.querySelectorAll('#themeToggleButton');
-            
-            console.log('Found toggles:', toggles.length);
-            console.log('Found toggle buttons:', toggleButtons.length);
             
             toggles.forEach(toggle => {
                 toggle.classList.toggle('bg-primary', isDark);
@@ -496,26 +510,17 @@
                 button.classList.toggle('translate-x-6', isDark);
                 button.classList.toggle('translate-x-1', !isDark);
             });
-            
-            console.log('Theme initialization completed');
         }
 
         function toggleTheme() {
             const isDark = document.documentElement.classList.contains('dark');
             const newTheme = isDark ? 'light' : 'dark';
             
-            console.log('Current theme:', isDark ? 'dark' : 'light');
-            console.log('Switching to:', newTheme);
-            
             document.documentElement.classList.toggle('dark', !isDark);
             localStorage.setItem('theme', newTheme);
             
-            // Update toggle buttons
             const toggles = document.querySelectorAll('#themeToggle');
             const toggleButtons = document.querySelectorAll('#themeToggleButton');
-            
-            console.log('Found toggles:', toggles.length);
-            console.log('Found toggle buttons:', toggleButtons.length);
             
             toggles.forEach(toggle => {
                 toggle.classList.toggle('bg-primary', !isDark);
@@ -526,11 +531,219 @@
                 button.classList.toggle('translate-x-6', !isDark);
                 button.classList.toggle('translate-x-1', isDark);
             });
-            
-            console.log('Theme toggle completed');
         }
 
-        // Initialize the page
+        // Format date for display
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString + 'T00:00:00');
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        // Get status badge class
+        function getStatusClass(status) {
+            const statusClasses = {
+                'in-stock': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+                'low-stock': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+                'out-of-stock': 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
+                'expired': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+            };
+            return statusClasses[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+        }
+
+        // Format status text
+        function formatStatus(status) {
+            return status ? status.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Unknown';
+        }
+
+        // Data fetching & rendering
+        async function fetchMedicines(page = 1, filters = {}) {
+            try {
+                const baseUrl = getApiBaseUrl();
+                let url = `${baseUrl}/get_medicines.php?page=${page}&pageSize=${pageSize}`;
+                
+                if (filters.search) {
+                    url += `&search=${encodeURIComponent(filters.search)}`;
+                }
+                if (filters.status) {
+                    url += `&status=${encodeURIComponent(filters.status)}`;
+                }
+                if (filters.expiration) {
+                    url += `&expiration=${encodeURIComponent(filters.expiration)}`;
+                }
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to fetch medicines');
+                }
+
+                displayMedicines(data.data);
+                updatePagination(data.total, data.page, data.pageSize || data.limit);
+                updateResultsCount(data.data.length, data.total);
+                currentPage = data.page;
+
+            } catch (error) {
+                console.error('Error fetching medicines:', error);
+                showError(`Failed to load medicines: ${error.message}`);
+                displayMedicines([]);
+            }
+        }
+
+        function displayMedicines(medicines) {
+            const tbody = document.getElementById('inventoryTableBody');
+            
+            if (!medicines || medicines.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10" class="px-6 py-12 text-center text-text-secondary dark:text-gray-400">
+                            <div class="flex flex-col items-center space-y-3">
+                                <i class="fas fa-pills text-4xl opacity-50"></i>
+                                <p class="text-lg font-medium">No medicines found</p>
+                                <p class="text-sm">Add a new medicine to get started</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = medicines.map(medicine => {
+                const expirationDate = formatDate(medicine.expiration_date);
+                const statusClass = getStatusClass(medicine.status);
+                const statusText = formatStatus(medicine.status);
+                const price = parseFloat(medicine.price || 0).toFixed(2);
+                
+                return `
+                    <tr class="hover:bg-surface-hover dark:hover:bg-gray-800 transition-colors duration-200">
+                        <td class="px-6 py-4">
+                            <input type="checkbox" class="medicine-checkbox h-4 w-4 text-primary-600 focus:ring-primary-200 border-border-medium dark:border-gray-500 rounded" value="${medicine.id}" />
+                        </td>
+                        <td class="px-6 py-4 text-sm text-text-primary dark:text-gray-100">
+                            ${medicine.ndc || 'N/A'}
+                        </td>
+                        <td class="px-6 py-4 text-sm font-medium text-text-primary dark:text-gray-100">
+                            ${escapeHtml(medicine.name || 'N/A')}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-text-secondary dark:text-gray-400 column-manufacturer">
+                            ${escapeHtml(medicine.manufacturer || 'N/A')}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-text-secondary dark:text-gray-400 column-category">
+                            ${escapeHtml(medicine.category || 'N/A')}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-text-primary dark:text-gray-100">
+                            ${medicine.quantity || 0}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-text-secondary dark:text-gray-400">
+                            ${expirationDate}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-text-primary dark:text-gray-100">
+                            $${price}
+                        </td>
+                        <td class="px-6 py-4 text-sm">
+                            <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+                                ${statusText}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm">
+                            <div class="flex items-center space-x-2">
+                                <button class="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 transition-colors duration-200" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="text-error-600 hover:text-error-800 dark:text-error-400 dark:hover:text-error-300 transition-colors duration-200" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function updatePagination(total, currentPageNum, limit) {
+            const totalPages = Math.ceil(total / limit);
+            const start = (currentPageNum - 1) * limit + 1;
+            const end = Math.min(currentPageNum * limit, total);
+
+            // Update pagination info
+            document.getElementById('paginationStart').textContent = total > 0 ? start : 0;
+            document.getElementById('paginationEnd').textContent = end;
+            document.getElementById('paginationTotal').textContent = total;
+
+            // Update pagination buttons
+            const prevBtn = document.getElementById('prevPageBtn');
+            const nextBtn = document.getElementById('nextPageBtn');
+            const pageNumbers = document.getElementById('pageNumbers');
+
+            prevBtn.disabled = currentPageNum <= 1;
+            nextBtn.disabled = currentPageNum >= totalPages;
+
+            prevBtn.onclick = () => {
+                if (currentPageNum > 1) {
+                    fetchMedicines(currentPageNum - 1, currentFilters);
+                }
+            };
+
+            nextBtn.onclick = () => {
+                if (currentPageNum < totalPages) {
+                    fetchMedicines(currentPageNum + 1, currentFilters);
+                }
+            };
+
+            // Generate page number buttons
+            pageNumbers.innerHTML = '';
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPageNum - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.className = `px-3 py-2 border border-border-medium dark:border-gray-600 text-text-secondary dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-all duration-200 ${
+                    i === currentPageNum ? 'bg-primary text-white border-primary' : ''
+                }`;
+                button.onclick = () => fetchMedicines(i, currentFilters);
+                pageNumbers.appendChild(button);
+            }
+        }
+
+        function updateResultsCount(showing, total) {
+            document.getElementById('resultsCount').textContent = showing;
+            document.getElementById('totalCount').textContent = total;
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+            setTimeout(() => {
+                errorDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        // DOM ready
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize theme
             initializeTheme();
@@ -605,32 +818,86 @@
             });
 
             // Form submission
-            document.getElementById('addMedicineForm').addEventListener('submit', function(e) {
+            document.getElementById('addMedicineForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                // Get form data
-                const formData = new FormData(e.target);
-                const medicineData = {
-                    ndc: formData.get('ndcCode'),
-                    name: formData.get('medicineName'),
-                    manufacturer: formData.get('manufacturer'),
-                    category: formData.get('category'),
-                    quantity: parseInt(formData.get('quantity')),
-                    price: parseFloat(formData.get('price')),
-                    expiration: formData.get('expirationDate'),
-                    dosageForm: formData.get('dosageForm')
-                };
-
-                // TODO: Send to PHP backend/MySQL database
-                console.log('Medicine data ready for database:', medicineData);
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalText = submitButton.innerHTML;
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Adding...';
                 
-                // Show success message
-                alert('Medicine added successfully! Ready for database integration.');
-                
-                // Close modal and reset form
-                addMedicineModal.classList.add('hidden');
-                e.target.reset();
+                try {
+                    const formData = new FormData(this);
+                    
+                    // Log form data for debugging
+                    console.log('Form data being sent:');
+                    for (let [key, value] of formData.entries()) {
+                        console.log(key, ':', value);
+                    }
+                    
+                    const baseUrl = getApiBaseUrl();
+                    console.log('API URL:', `${baseUrl}/add_medicine.php`);
+                    
+                    const response = await fetch(`${baseUrl}/add_medicine.php`, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'Accept': 'application/json'
+                        },
+                        credentials: 'include'
+                    });
+                    
+                    // Get response text first to check what we're actually receiving
+                    const responseText = await response.text();
+                    console.log('Raw response:', responseText);
+                    console.log('Response status:', response.status);
+                    console.log('Response headers:', response.headers);
+                    
+                    // Try to parse as JSON
+                    let result;
+                    try {
+                        result = JSON.parse(responseText);
+                    } catch (parseError) {
+                        console.error('JSON parse error:', parseError);
+                        console.error('Response was not valid JSON:', responseText);
+                        throw new Error('Server returned invalid response. Please check the server logs.');
+                    }
+                    
+                    console.log('Parsed response:', result);
+                    
+                    if (result.success) {
+                        // Show success message
+                        showSuccess(result.message || 'Medicine added successfully!');
+                        
+                        // Reset form and close modal
+                        this.reset();
+                        document.getElementById('addMedicineModal').classList.add('hidden');
+                        
+                        // Refresh the medicines list
+                        await fetchMedicines(1, currentFilters);
+                    } else {
+                        showError(result.message || 'Failed to add medicine');
+                    }
+                } catch (error) {
+                    console.error('Full error:', error);
+                    console.error('Error stack:', error.stack);
+                    showError('Server error: ' + error.message);
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalText;
+                }
             });
+
+            function showSuccess(message) {
+                const errorDiv = document.getElementById('errorMessage');
+                errorDiv.className = 'text-green-600 p-4 bg-green-50 dark:bg-green-900 rounded-lg mb-4';
+                errorDiv.textContent = message;
+                errorDiv.classList.remove('hidden');
+                setTimeout(() => {
+                    errorDiv.classList.add('hidden');
+                    errorDiv.className = 'text-red-600 p-4 hidden';
+                }, 3000);
+            }
 
             // Logout functionality
             document.getElementById('logoutBtn').addEventListener('click', function() {
@@ -647,32 +914,44 @@
                 alert('CSV Export ready for database integration');
             });
 
-            // Search functionality
+            // Search functionality with debounce
+            const debouncedSearch = debounce((searchTerm) => {
+                currentFilters.search = searchTerm;
+                currentPage = 1;
+                fetchMedicines(currentPage, currentFilters);
+            }, 500);
+
             const searchInputs = document.querySelectorAll('#globalSearch, #tableSearch');
             searchInputs.forEach(input => {
                 input.addEventListener('input', function(e) {
-                    const searchTerm = e.target.value.toLowerCase();
-                    if (searchTerm.length > 2) {
-                        // TODO: Implement database search
-                        console.log('Searching for:', searchTerm);
-                    }
+                    const searchTerm = e.target.value.trim();
+                    currentFilters.search = searchTerm;
+                    currentPage = 1;
+                    debouncedSearch(searchTerm);
                 });
             });
 
             // Filter functionality
-            const filters = document.querySelectorAll('#stockStatusFilter, #expirationFilter');
-            filters.forEach(filter => {
-                filter.addEventListener('change', function() {
-                    // TODO: Implement database filtering
-                    console.log('Filter changed:', this.id, this.value);
-                });
+            document.getElementById('stockStatusFilter').addEventListener('change', function() {
+                currentFilters.status = this.value;
+                currentPage = 1;
+                fetchMedicines(currentPage, currentFilters);
+            });
+
+            document.getElementById('expirationFilter').addEventListener('change', function() {
+                currentFilters.expiration = this.value;
+                currentPage = 1;
+                fetchMedicines(currentPage, currentFilters);
             });
 
             // Clear filters
             document.getElementById('clearFiltersBtn').addEventListener('click', function() {
-                filters.forEach(filter => filter.value = '');
+                currentFilters = { search: '', status: '', expiration: '' };
+                document.getElementById('stockStatusFilter').value = '';
+                document.getElementById('expirationFilter').value = '';
                 searchInputs.forEach(input => input.value = '');
-                // TODO: Refresh table data
+                currentPage = 1;
+                fetchMedicines(currentPage, currentFilters);
             });
 
             // Bulk actions
@@ -697,11 +976,9 @@
                 const icon = this.querySelector('i');
                 icon.classList.add('fa-spin');
                 
-                // TODO: Refresh data from database
-                setTimeout(() => {
+                fetchMedicines(currentPage, currentFilters).finally(() => {
                     icon.classList.remove('fa-spin');
-                    alert('Data refreshed! Ready for database integration.');
-                }, 1000);
+                });
             });
 
             // ESC key to close modals
@@ -715,17 +992,45 @@
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('filter') === 'low-stock') {
                 document.getElementById('stockStatusFilter').value = 'low-stock';
-                // TODO: Apply filter and show results
-                alert('Low stock filter applied! Ready for database integration.');
+                currentFilters.status = 'low-stock';
+                fetchMedicines(1, currentFilters);
+            } else {
+                // Initial load
+                fetchMedicines(1, currentFilters);
+            }
+
+            // Select all checkbox functionality
+            document.getElementById('selectAll').addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('.medicine-checkbox');
+                checkboxes.forEach(cb => cb.checked = this.checked);
+                updateBulkActions();
+            });
+
+            // Update bulk actions when checkboxes change
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('medicine-checkbox')) {
+                    updateBulkActions();
+                }
+            });
+
+            function updateBulkActions() {
+                const checkedBoxes = document.querySelectorAll('.medicine-checkbox:checked');
+                const hasSelection = checkedBoxes.length > 0;
+                
+                document.getElementById('bulkEditBtn').disabled = !hasSelection;
+                document.getElementById('bulkDeleteBtn').disabled = !hasSelection;
+                document.getElementById('selectedCount').textContent = checkedBoxes.length;
             }
         });
 
-        // Global functions
-        function openSettings() {
-            alert('Settings page - Ready for implementation');
+        // Utilities
+        function debounce(fn, ms) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => fn.apply(this, args), ms);
+            };
         }
-
-        window.openSettings = openSettings;
     </script>
 <script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
 </body>
