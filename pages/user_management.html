@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Management - INVENTORY Management System</title>
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body class="min-h-screen bg-background transition-colors duration-300">
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden lg:hidden"></div>
+    
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white dark:bg-gray-900 shadow-xl border-r border-border-light dark:border-gray-700 z-50 transform -translate-x-full lg:translate-x-0 transition-all duration-300">
+        <!-- Sidebar Header -->
+        <div class="flex items-center justify-between p-6 border-b border-border-light dark:border-gray-700">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-pills text-primary-600 text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold text-text-primary dark:text-gray-100">PHARMACY</h2>
+                    <p class="text-xs text-text-tertiary dark:text-gray-400">Inventory System</p>
+                </div>
+            </div>
+            <button id="closeSidebar" class="lg:hidden text-text-tertiary hover:text-text-secondary dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+
+        <!-- User Profile Section -->
+        <div class="p-6 border-b border-border-light dark:border-gray-700">
+            <div class="flex items-center space-x-3">
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="User Avatar" class="w-12 h-12 rounded-full object-cover border-2 border-primary-200" onerror="this.src='https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'; this.onerror=null;" />
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-text-primary dark:text-gray-100 truncate" id="userDisplayName">Admin</p>
+                    <p class="text-xs text-text-tertiary dark:text-gray-400 truncate" id="userDisplayEmail">admin@inventory.com</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="flex-1 p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="dashboard.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
+                        <i class="fas fa-chart-pie w-5"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="inventory_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
+                        <i class="fas fa-capsules w-5"></i>
+                        <span>Medicine Inventory</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="suppliers_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
+                        <i class="fas fa-truck-medical w-5"></i>
+                        <span>Suppliers</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="orders_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
+                        <i class="fas fa-prescription-bottle w-5"></i>
+                        <span>Orders</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="reports_analytics.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
+                        <i class="fas fa-chart-bar w-5"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="user_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white bg-primary rounded-xl transition-all duration-200">
+                        <i class="fas fa-users w-5"></i>
+                        <span>User Management</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:void(0)" onclick="openSettings()" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
+                        <i class="fas fa-cog w-5"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Theme Toggle & Settings -->
+        <div class="p-4 border-t border-border-light dark:border-gray-700">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-sm font-medium text-text-secondary dark:text-gray-300">Dark Mode</span>
+                <button id="themeToggle" class="relative inline-flex h-6 w-11 items-center rounded-full bg-border-light dark:bg-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-200">
+                    <span id="themeToggleButton" class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 translate-x-1 dark:translate-x-6"></span>
+                </button>
+            </div>
+            <button id="logoutBtn" class="w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium text-error-600 hover:bg-error-50 dark:hover:bg-error-900 rounded-xl transition-all duration-200">
+                <i class="fas fa-sign-out-alt w-5"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="lg:ml-64 min-h-screen bg-background dark:bg-gray-900">
+        <!-- Top Header -->
+        <header class="bg-white dark:bg-gray-900 border-b border-border-light dark:border-gray-700 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <!-- Mobile Menu Button -->
+                <button id="openSidebar" class="lg:hidden text-text-secondary hover:text-text-primary dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+
+                <!-- Page Title -->
+                <div class="hidden lg:block">
+                    <h1 class="text-2xl font-semibold text-text-primary dark:text-gray-100">User Management</h1>
+                    <p class="text-sm text-text-secondary dark:text-gray-400">Manage user accounts and permissions</p>
+                </div>
+
+                <!-- User Info -->
+                <div class="flex items-center space-x-4">
+                    <button class="hidden md:flex items-center space-x-2 px-4 py-2 bg-primary-50 dark:bg-gray-800 rounded-xl hover:bg-primary-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                        <i class="fas fa-bell text-primary-600 text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="p-6">
+            <!-- Action Bar -->
+            <div class="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <!-- Add User Button -->
+                <button id="addUserBtn" class="btn-primary px-6 py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200">
+                    <i class="fas fa-plus"></i>
+                    <span>Add User</span>
+                </button>
+
+                <!-- Bulk Actions -->
+                <div class="flex space-x-2">
+                    <button id="bulkActivateBtn" class="px-4 py-3 border border-border-medium dark:border-gray-600 text-text-secondary dark:text-gray-300 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200 disabled:opacity-50" disabled>
+                        <i class="fas fa-check mr-2"></i>
+                        Activate Selected
+                    </button>
+                    <button id="bulkDeactivateBtn" class="px-4 py-3 border border-error-300 text-error-600 hover:bg-error-50 dark:hover:bg-error-900 rounded-xl transition-all duration-200 disabled:opacity-50" disabled>
+                        <i class="fas fa-ban mr-2"></i>
+                        Deactivate Selected
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters Section -->
+            <div class="mb-6 bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-border-light dark:border-gray-700 p-6">
+                <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+                    <!-- Search -->
+                    <div class="flex-1">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-text-tertiary dark:text-gray-500"></i>
+                            </div>
+                            <input type="text" id="userSearch" placeholder="Search users by name, email, username..." class="w-full pl-10 pr-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-700 text-text-primary dark:text-gray-100" />
+                        </div>
+                    </div>
+
+                    <!-- Role Filter -->
+                    <div class="min-w-0 lg:w-48">
+                        <select id="roleFilter" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-700 text-text-primary dark:text-gray-100">
+                            <option value="">All Roles</option>
+                            <option value="admin">Admin</option>
+                            <option value="manager">Manager</option>
+                            <option value="user">User</option>
+                        </select>
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div class="min-w-0 lg:w-48">
+                        <select id="statusFilter" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-700 text-text-primary dark:text-gray-100">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+
+                    <!-- Clear Filters -->
+                    <button id="clearFiltersBtn" class="px-4 py-3 text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-700 rounded-xl transition-all duration-200 flex items-center space-x-2">
+                        <i class="fas fa-times"></i>
+                        <span>Clear</span>
+                    </button>
+                </div>
+
+                <!-- Results Count -->
+                <div class="mt-4 flex items-center justify-between">
+                    <div class="text-sm text-text-secondary dark:text-gray-400">
+                        Showing <span id="resultsCount" class="font-medium text-text-primary dark:text-gray-100">0</span> of <span id="totalCount" class="font-medium text-text-primary dark:text-gray-100">0</span> users
+                    </div>
+                    <div class="text-sm text-text-secondary dark:text-gray-400">
+                        <span id="selectedCount" class="font-medium text-text-primary dark:text-gray-100">0</span> selected
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Table Container -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-border-light dark:border-gray-700 overflow-hidden">
+                <div class="p-6 border-b border-border-light dark:border-gray-700 bg-surface-hover dark:bg-gray-700">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-text-primary dark:text-gray-100">All Users</h3>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="loadUsers()" class="p-2 text-text-secondary dark:text-gray-400 hover:text-text-primary dark:hover:text-gray-200 hover:bg-white dark:hover:bg-gray-800 rounded-lg transition-all duration-200">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table id="usersTable" class="w-full">
+                        <thead class="bg-surface-hover dark:bg-gray-700 border-b border-border-light dark:border-gray-600">
+                            <tr>
+                                <th class="px-6 py-4 text-left">
+                                    <input type="checkbox" id="selectAll" class="h-4 w-4 text-primary-600 focus:ring-primary-200 border-border-medium dark:border-gray-500 rounded" />
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Full Name</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Email</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Username</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Employee ID</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Role</th>
+                                <th class="px-6 py-4 text-center text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <tr>
+                                <td colspan="7" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                                    <div class="flex flex-col items-center space-y-3">
+                                        <i class="fas fa-users text-4xl opacity-50"></i>
+                                        <p class="text-lg font-medium">No users found</p>
+                                        <p class="text-sm">Loading users...</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add User Modal -->
+    <div id="addUserModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animation-slide-up">
+            <div class="flex items-center justify-between p-6 border-b border-border-light dark:border-gray-700">
+                <h2 class="text-xl font-semibold text-text-primary dark:text-gray-100">Add New User</h2>
+                <button id="closeAddUserModal" class="text-text-tertiary dark:text-gray-400 hover:text-text-secondary dark:hover:text-gray-200 transition-colors duration-200">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <form id="createUserForm" class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Full Name -->
+                    <div class="md:col-span-2">
+                        <label for="full_name" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Full Name *
+                        </label>
+                        <input type="text" id="full_name" name="full_name" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter full name" />
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Email *
+                        </label>
+                        <input type="email" id="email" name="email" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter email address" />
+                    </div>
+
+                    <!-- Username -->
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Username *
+                        </label>
+                        <input type="text" id="username" name="username" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter username" />
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Password *
+                        </label>
+                        <input type="password" id="password" name="password" required minlength="8" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter password (min. 8 chars)" />
+                    </div>
+
+                    <!-- Role -->
+                    <div>
+                        <label for="user_role" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Role
+                        </label>
+                        <select id="user_role" name="user_role" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100">
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                            <option value="manager">Manager</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="formMessage" class="hidden p-3 rounded-lg text-sm"></div>
+
+                <div class="flex items-center justify-end space-x-4 pt-6 border-t border-border-light dark:border-gray-700">
+                    <button type="button" id="cancelAddUser" class="px-6 py-3 border border-border-medium dark:border-gray-600 text-text-secondary dark:text-gray-300 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-primary px-6 py-3 rounded-xl font-medium">
+                        Create User
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        const currentUserEmail = localStorage.getItem('userEmail') || 'admin@inventory.com';
+        let allUsers = [];
+        let filteredUsers = [];
+        
+        // Sidebar functionality
+        const openSidebar = document.getElementById('openSidebar');
+        const closeSidebar = document.getElementById('closeSidebar');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('-translate-x-full');
+            sidebarOverlay.classList.toggle('hidden');
+        }
+
+        openSidebar?.addEventListener('click', toggleSidebar);
+        closeSidebar?.addEventListener('click', toggleSidebar);
+        sidebarOverlay?.addEventListener('click', toggleSidebar);
+
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle?.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        });
+
+        // Load saved theme
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+
+        // Logout
+        document.getElementById('logoutBtn')?.addEventListener('click', () => {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.clear();
+                window.location.href = 'login.php';
+            }
+        });
+
+        // Modal functionality
+        const addUserBtn = document.getElementById('addUserBtn');
+        const addUserModal = document.getElementById('addUserModal');
+        const closeAddUserModal = document.getElementById('closeAddUserModal');
+        const cancelAddUser = document.getElementById('cancelAddUser');
+
+        addUserBtn?.addEventListener('click', () => {
+            addUserModal.classList.remove('hidden');
+        });
+
+        closeAddUserModal?.addEventListener('click', () => {
+            addUserModal.classList.add('hidden');
+        });
+
+        cancelAddUser?.addEventListener('click', () => {
+            addUserModal.classList.add('hidden');
+        });
+
+        // Close modal on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                addUserModal.classList.add('hidden');
+            }
+        });
+
+        // Load users
+        async function loadUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><p>Loading users...</p></td></tr>';
+            
+            try {
+                const response = await fetch('api/user_management.php?action=get_all');
+                const data = await response.json();
+                
+                if (data.success && data.users) {
+                    allUsers = data.users.filter(user => user.email !== currentUserEmail);
+                    applyFilters();
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-red-500"><p>Error loading users</p></td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-red-500"><p>Error loading users</p></td></tr>';
+            }
+        }
+        
+        // Render users table
+        function renderUsers(users) {
+            const tbody = document.getElementById('usersTableBody');
+            
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400"><i class="fas fa-users text-4xl opacity-50 mb-2"></i><p>No users found</p></td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = users.map(user => `
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="user-checkbox h-4 w-4 text-primary-600 focus:ring-primary-200 border-border-medium dark:border-gray-500 rounded" data-user-id="${user.user_id}" onchange="updateSelectedCount()">
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100">${escapeHtml(user.full_name || 'N/A')}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">${escapeHtml(user.email || 'N/A')}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">${escapeHtml(user.username || 'N/A')}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">${escapeHtml(user.employee_id || 'N/A')}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full ${user.role === 'admin' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' : user.role === 'manager' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'}">${escapeHtml((user.role || 'user').toUpperCase())}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="sr-only peer status-toggle" 
+                                   ${user.status === 'active' ? 'checked' : ''}
+                                   data-user-id="${user.user_id}"
+                                   onchange="toggleUserStatus(${user.user_id}, this.checked)">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            <span class="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">${user.status || 'inactive'}</span>
+                        </label>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const searchTerm = document.getElementById('userSearch')?.value.toLowerCase() || '';
+            const roleFilter = document.getElementById('roleFilter')?.value || '';
+            const statusFilter = document.getElementById('statusFilter')?.value || '';
+            
+            filteredUsers = allUsers.filter(user => {
+                const matchesSearch = !searchTerm || 
+                    (user.full_name && user.full_name.toLowerCase().includes(searchTerm)) ||
+                    (user.email && user.email.toLowerCase().includes(searchTerm)) ||
+                    (user.username && user.username.toLowerCase().includes(searchTerm));
+                
+                const matchesRole = !roleFilter || (user.role || 'user') === roleFilter;
+                const matchesStatus = !statusFilter || (user.status || 'inactive') === statusFilter;
+                
+                return matchesSearch && matchesRole && matchesStatus;
+            });
+            
+            renderUsers(filteredUsers);
+            updateCounts();
+        }
+        
+        // Update counts
+        function updateCounts() {
+            document.getElementById('resultsCount').textContent = filteredUsers.length;
+            document.getElementById('totalCount').textContent = allUsers.length;
+            updateSelectedCount();
+        }
+        
+        // Update selected count
+        function updateSelectedCount() {
+            const selectedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
+            document.getElementById('selectedCount').textContent = selectedCheckboxes.length;
+            
+            // Enable/disable bulk action buttons
+            const bulkActivateBtn = document.getElementById('bulkActivateBtn');
+            const bulkDeactivateBtn = document.getElementById('bulkDeactivateBtn');
+            
+            if (bulkActivateBtn && bulkDeactivateBtn) {
+                const hasSelection = selectedCheckboxes.length > 0;
+                bulkActivateBtn.disabled = !hasSelection;
+                bulkDeactivateBtn.disabled = !hasSelection;
+            }
+        }
+        
+        // Get selected user IDs
+        function getSelectedUserIds() {
+            return Array.from(document.querySelectorAll('.user-checkbox:checked'))
+                .map(cb => cb.dataset.userId);
+        }
+        
+        // Toggle user status
+        async function toggleUserStatus(userId, isActive) {
+            const status = isActive ? 'active' : 'inactive';
+            
+            try {
+                const response = await fetch('api/user_management.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        action: 'update_status',
+                        user_id: userId,
+                        status: status
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    alert('Failed to update user status');
+                    loadUsers();
+                }
+            } catch (error) {
+                console.error('Error updating status:', error);
+                alert('Error updating user status');
+                loadUsers();
+            }
+        }
+        
+        // Bulk activate
+        async function bulkActivate() {
+            const userIds = getSelectedUserIds();
+            if (userIds.length === 0) return;
+            
+            if (!confirm(`Activate ${userIds.length} user(s)?`)) return;
+            
+            try {
+                await Promise.all(userIds.map(id => 
+                    toggleUserStatus(id, true)
+                ));
+                loadUsers();
+            } catch (error) {
+                console.error('Error in bulk activate:', error);
+                alert('Error activating users');
+            }
+        }
+        
+        // Bulk deactivate
+        async function bulkDeactivate() {
+            const userIds = getSelectedUserIds();
+            if (userIds.length === 0) return;
+            
+            if (!confirm(`Deactivate ${userIds.length} user(s)?`)) return;
+            
+            try {
+                await Promise.all(userIds.map(id => 
+                    toggleUserStatus(id, false)
+                ));
+                loadUsers();
+            } catch (error) {
+                console.error('Error in bulk deactivate:', error);
+                alert('Error deactivating users');
+            }
+        }
+        
+        // Create user form
+        document.getElementById('createUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const formMessage = document.getElementById('formMessage');
+            
+            try {
+                const response = await fetch('api/user_management.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        action: 'create_user',
+                        full_name: formData.get('full_name'),
+                        email: formData.get('email'),
+                        username: formData.get('username'),
+                        password: formData.get('password'),
+                        role: formData.get('user_role')
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    formMessage.className = 'p-3 rounded-lg text-sm bg-success-50 text-success-700';
+                    formMessage.textContent = 'User created successfully!';
+                    formMessage.classList.remove('hidden');
+                    e.target.reset();
+                    addUserModal.classList.add('hidden');
+                    loadUsers();
+                    setTimeout(() => formMessage.classList.add('hidden'), 3000);
+                } else {
+                    formMessage.className = 'p-3 rounded-lg text-sm bg-error-50 text-error-700';
+                    formMessage.textContent = data.error || 'Failed to create user';
+                    formMessage.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error creating user:', error);
+                formMessage.className = 'p-3 rounded-lg text-sm bg-error-50 text-error-700';
+                formMessage.textContent = 'Error creating user';
+                formMessage.classList.remove('hidden');
+            }
+        });
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Event listeners
+        document.getElementById('userSearch')?.addEventListener('input', applyFilters);
+        document.getElementById('roleFilter')?.addEventListener('change', applyFilters);
+        document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
+        document.getElementById('clearFiltersBtn')?.addEventListener('click', () => {
+            document.getElementById('userSearch').value = '';
+            document.getElementById('roleFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            applyFilters();
+        });
+        
+        document.getElementById('bulkActivateBtn')?.addEventListener('click', bulkActivate);
+        document.getElementById('bulkDeactivateBtn')?.addEventListener('click', bulkDeactivate);
+        
+        document.getElementById('selectAll')?.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.user-checkbox');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            updateSelectedCount();
+        });
+
+        // Initial load
+        loadUsers();
+    </script>
+</body>
+</html>

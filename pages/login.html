@@ -1,3 +1,12 @@
+<?php
+session_start();
+
+// Redirect if already logged in
+if (isset($_SESSION['user_id'])) {
+    header('Location: dashboard.php');
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +18,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-<script type="module" src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Finventory6919back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script>
+    <!-- Remove or comment out the problematic script -->
+    <!--<script type="module" src="https://static.rocket.new/rocket-web.js?_cfg=..."></script>-->
 </head>
 <body class="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-100 flex items-center justify-center p-4">
     <!-- Background Pattern -->
@@ -342,19 +352,61 @@
             }
         });
 
-        // Forgot password form
-        document.getElementById('forgotPasswordForm').addEventListener('submit', function(e) {
+        document.getElementById('forgotPasswordForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            const emailInput = document.getElementById('resetEmail');
+            const email = emailInput.value.trim();
+            const btn = this.querySelector('button[type="submit"]');
+            const confirmationDiv = document.getElementById('resetConfirmation');
+            const errorDiv = document.getElementById('resetError');
             
-            // Show confirmation message
-            document.getElementById('resetConfirmation').classList.remove('hidden');
+            // Hide previous messages
+            confirmationDiv.classList.add('hidden');
+            if (errorDiv) errorDiv.classList.add('hidden');
             
-            // Hide form after 3 seconds
-            setTimeout(() => {
-                forgotPasswordModal.classList.add('hidden');
-                document.getElementById('resetConfirmation').classList.add('hidden');
-                document.getElementById('resetEmail').value = '';
-            }, 3000);
+            btn.disabled = true; 
+            btn.textContent = 'Sending...';
+
+            try {
+                const resp = await fetch('send_reset_email.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({ email })
+                });
+
+                const text = await resp.text();
+                let data;
+                try { data = JSON.parse(text); } catch (err) { 
+                    console.error('Parse error:', err, 'Response:', text);
+                    data = null; 
+                }
+
+                if (data && data.success) {
+                    // Success - show confirmation
+                    confirmationDiv.innerHTML = '<div class="flex items-center"><i class="fas fa-check-circle text-success-600 mr-2"></i><span class="text-sm text-success-700">Password reset link sent to your email!</span></div>';
+                    confirmationDiv.classList.remove('hidden');
+                    emailInput.value = '';
+                    setTimeout(() => {
+                        document.getElementById('forgotPasswordModal').classList.add('hidden');
+                        confirmationDiv.classList.add('hidden');
+                    }, 3000);
+                } else {
+                    // Error - show error message
+                    let errorMsg = 'Unable to send reset link. Please try again.';
+                    if (data && data.error) {
+                        errorMsg = data.error;
+                    }
+                    alert(errorMsg);
+                }
+            } catch (err) {
+                console.error('Fetch failed:', err);
+                alert('Network error. Please check your internet connection and try again.');
+            } finally {
+                btn.disabled = false; 
+                btn.textContent = 'Send Reset Link';
+            }
         });
 
         // Password strength checker
@@ -425,9 +477,7 @@
                 // Mock successful registration
                 alert('Account created successfully! Please log in with your credentials.');
                 signUpModal.classList.add('hidden');
-                this.reset();
-            }
-        });
+                this.reset
 
         // Real-time validation
         document.getElementById('confirmPassword').addEventListener('input', function() {
@@ -441,8 +491,10 @@
             } else {
                 errorEl.classList.add('hidden');
             }
+        }); }
         });
     </script>
-<script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+
+
 </body>
 </html>

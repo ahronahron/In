@@ -81,6 +81,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="user_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
+                        <i class="fas fa-users w-5"></i>
+                        <span>User Management</span>
+                    </a>
+                </li>
+                <li>
                     <a href="javascript:void(0)" onclick="openSettings()" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
                         <i class="fas fa-cog w-5"></i>
                         <span>Settings</span>
@@ -288,9 +294,7 @@
                     <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
-            
             <div class="space-y-4">
-                
                 <div class="flex items-center justify-between p-4 bg-surface-hover dark:bg-gray-800 rounded-xl">
                     <div>
                         <p class="text-sm font-medium text-text-primary dark:text-gray-100">Database Status</p>
@@ -301,6 +305,40 @@
             </div>
         </div>
     </div>
+
+<script>
+// Settings Modal Tabs Logic
+(function() {
+  const tabBtns = document.querySelectorAll('.settings-tab');
+  const panels = document.querySelectorAll('.settings-panel');
+  function showTab(tab) {
+    panels.forEach(panel => {
+      panel.style.display = (panel.getAttribute('data-tab-panel') === tab) ? 'block' : 'none';
+    });
+    tabBtns.forEach(btn => {
+      if (btn.dataset.tab === tab) {
+        btn.classList.add('bg-primary-100', 'dark:bg-primary-700', 'text-primary-900', 'dark:text-white');
+      } else {
+        btn.classList.remove('bg-primary-100', 'dark:bg-primary-700', 'text-primary-900', 'dark:text-white');
+      }
+    });
+  }
+  tabBtns.forEach(btn => {
+    btn.onclick = () => showTab(btn.dataset.tab);
+  });
+  // initial tab
+  showTab('profile');
+
+  // Save/cancel demo
+  document.getElementById('saveSettings').onclick = function() {
+    alert('Settings saved! (Demo only)');
+    document.getElementById('settingsModal').classList.add('hidden');
+  };
+  document.getElementById('cancelSettings').onclick = function() {
+    document.getElementById('settingsModal').classList.add('hidden');
+  }
+})();
+</script>
 
     <script>
 
