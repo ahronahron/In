@@ -1,7 +1,12 @@
 <?php
-// Simple JSON API to list medicines with basic filters and pagination
+// Get Suppliers API
+// Returns paginated list of suppliers with search and filter capabilities
 
-// Enhanced CORS headers - allow multiple origins for development
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
+// Enhanced CORS headers
 $allowed_origins = [
     'http://localhost:3000',
     'http://localhost',
@@ -13,7 +18,6 @@ $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array($origin, $allowed_origins)) {
     header("Access-Control-Allow-Origin: $origin");
 } else {
-    // Default to allow localhost on any port for development
     header('Access-Control-Allow-Origin: *');
 }
 
@@ -36,32 +40,17 @@ try {
     $offset = ($page - 1) * $pageSize;
 
     $search = isset($_GET['search']) ? trim($_GET['search']) : '';
-    $status = isset($_GET['status']) ? trim($_GET['status']) : '';
-    $expiration = isset($_GET['expiration']) ? trim($_GET['expiration']) : '';
 
-    // Build where clause safely using mysqli_real_escape_string
+    // Build where clause safely
     $where = " WHERE 1=1 ";
 
     if ($search !== '') {
         $s = mysqli_real_escape_string($conn, $search);
-        $where .= " AND (ndc LIKE '%{$s}%' OR name LIKE '%{$s}%' OR manufacturer LIKE '%{$s}%') ";
-    }
-
-    if ($status !== '') {
-        $st = mysqli_real_escape_string($conn, $status);
-        $where .= " AND status = '{$st}' ";
-    }
-
-    if ($expiration === 'expired') {
-        $where .= " AND expiration_date IS NOT NULL AND expiration_date < CURDATE() ";
-    } elseif ($expiration === 'expiring-soon') {
-        $where .= " AND expiration_date IS NOT NULL AND expiration_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY) ";
-    } elseif ($expiration === 'expiring-later') {
-        $where .= " AND (expiration_date IS NULL OR expiration_date > DATE_ADD(CURDATE(), INTERVAL 30 DAY)) ";
+        $where .= " AND (name LIKE '%{$s}%' OR contact_person LIKE '%{$s}%' OR email LIKE '%{$s}%' OR phone LIKE '%{$s}%' OR address LIKE '%{$s}%') ";
     }
 
     // Get total count
-    $countSql = "SELECT COUNT(*) AS cnt FROM medicines" . $where;
+    $countSql = "SELECT COUNT(*) AS cnt FROM suppliers" . $where;
     $countRes = mysqli_query($conn, $countSql);
     $total = 0;
     if ($countRes) {
@@ -70,8 +59,8 @@ try {
     }
 
     // Fetch page
-    $sql = "SELECT id, ndc, name, manufacturer, category, quantity, reorder_level, price, expiration_date, batch_number, status, dosage_form
-            FROM medicines
+    $sql = "SELECT id, name, contact_person, phone, email, address, created_at, updated_at
+            FROM suppliers
             {$where}
             ORDER BY name ASC
             LIMIT {$offset}, {$pageSize}";
@@ -89,18 +78,19 @@ try {
         'success' => true,
         'page' => $page,
         'pageSize' => $pageSize,
-        'limit' => $pageSize, // Also include 'limit' for backward compatibility
+        'limit' => $pageSize,
         'total' => $total,
         'data' => $data
     ], JSON_UNESCAPED_UNICODE);
 
 } catch (Exception $e) {
-    error_log("Error in get_medicines.php: " . $e->getMessage());
+    error_log("Error in get_suppliers.php: " . $e->getMessage());
     echo json_encode([
         'success' => false,
         'message' => $e->getMessage()
     ]);
 } finally {
     if (isset($stmt)) mysqli_stmt_close($stmt);
-    // Don't close $conn here as it might be used by other scripts
 }
+
+?>

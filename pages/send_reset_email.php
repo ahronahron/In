@@ -60,7 +60,7 @@ use PHPMailer\PHPMailer\Exception;
 $DB_HOST = '127.0.0.1';
 $DB_USER = 'root';
 $DB_PASS = '';
-$DB_NAME = 'inventory_system_db';
+$DB_NAME = 'Inventory_system_db';
 
 $mysqli = @new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
 if ($mysqli->connect_errno) {

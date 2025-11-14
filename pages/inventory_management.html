@@ -54,21 +54,21 @@
                     </a>
                 </li>
                 <li>
-                    <a href="inventory_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white bg-primary dark:bg-primary-600 rounded-xl transition-all duration-200">
-                        <i class="fas fa-capsules w-5"></i>
-                        <span>Medicine Inventory</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="suppliers_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
-                        <i class="fas fa-truck-medical w-5"></i>
-                        <span>Suppliers</span>
-                    </a>
-                </li>
-                <li>
                     <a href="orders_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
                         <i class="fas fa-prescription-bottle w-5"></i>
                         <span>Orders</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="batches_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-boxes w-5"></i>
+                        <span>Batches</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="inventory_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white bg-primary dark:bg-primary-600 rounded-xl transition-all duration-200">
+                        <i class="fas fa-capsules w-5"></i>
+                        <span>Inventory List</span>
                     </a>
                 </li>
                 <li>
@@ -78,9 +78,9 @@
                     </a>
                 </li>
                 <li>
-                    <a href="user_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
-                        <i class="fas fa-users w-5"></i>
-                        <span>User Management</span>
+                    <a href="suppliers_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-truck-medical w-5"></i>
+                        <span>Suppliers</span>
                     </a>
                 </li>
                 <li>
@@ -117,7 +117,7 @@
                         <i class="fas fa-bars text-xl"></i>
                     </button>
                     <div>
-                        <h1 class="text-2xl font-semibold text-text-primary dark:text-gray-100">Medicine Inventory</h1>
+                        <h1 class="text-2xl font-semibold text-text-primary dark:text-gray-100">Inventory List</h1>
                         <p class="text-sm text-text-secondary dark:text-gray-400">Manage your pharmaceutical inventory and stock levels</p>
                     </div>
                 </div>
@@ -155,7 +155,7 @@
                     <!-- Add Medicine Button -->
                     <button id="addMedicineBtn" class="btn-primary px-6 py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200">
                         <i class="fas fa-plus"></i>
-                        <span>Add Medicine</span>
+                        <span>Add Item</span>
                     </button>
 
                     <!-- Bulk Actions -->
@@ -208,15 +208,6 @@
                         </select>
                     </div>
 
-                    <!-- Expiration Filter -->
-                    <div class="min-w-0 lg:w-48">
-                        <select id="expirationFilter" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100">
-                            <option value>All Expiration</option>
-                            <option value="expired">Expired</option>
-                            <option value="expiring-soon">Expiring Soon (30 days)</option>
-                            <option value="expiring-later">Expiring Later</option>
-                        </select>
-                    </div>
 
                     <!-- Clear Filters -->
                     <button id="clearFiltersBtn" class="px-4 py-3 text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200 flex items-center space-x-2">
@@ -241,7 +232,7 @@
                 <!-- Table Header -->
                 <div class="px-6 py-4 border-b border-border-light dark:border-gray-700 bg-surface-hover dark:bg-gray-800">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold text-text-primary dark:text-gray-100">Medicine Inventory</h3>
+                        <h3 class="text-lg font-semibold text-text-primary dark:text-gray-100">List </h3>
                         <div class="flex items-center space-x-2">
                             <button id="refreshTableBtn" class="p-2 text-text-secondary dark:text-gray-400 hover:text-text-primary dark:hover:text-gray-200 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-all duration-200">
                                 <i class="fas fa-sync-alt"></i>
@@ -288,12 +279,6 @@
                                         <i class="fas fa-sort text-xs opacity-50"></i>
                                     </div>
                                 </th>
-                                <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-text-primary dark:hover:text-gray-100 transition-colors duration-200" data-column="expiration">
-                                    <div class="flex items-center space-x-1">
-                                        <span>Expiration</span>
-                                        <i class="fas fa-sort text-xs opacity-50"></i>
-                                    </div>
-                                </th>
                                 <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-text-primary dark:hover:text-gray-100 transition-colors duration-200" data-column="price">
                                     <div class="flex items-center space-x-1">
                                         <span>Price</span>
@@ -314,7 +299,7 @@
                         <tbody id="inventoryTableBody" class="bg-white dark:bg-gray-900 divide-y divide-border-light dark:divide-gray-700">
                             <!-- Medicine data will be populated from database -->
                             <tr>
-                                <td colspan="10" class="px-6 py-12 text-center text-text-secondary dark:text-gray-400">
+                                <td colspan="9" class="px-6 py-12 text-center text-text-secondary dark:text-gray-400">
                                     <div class="flex flex-col items-center space-y-3">
                                         <i class="fas fa-pills text-4xl opacity-50"></i>
                                         <p class="text-lg font-medium">No medicines found</p>
@@ -351,7 +336,7 @@
     <div id="addMedicineModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
         <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animation-slide-up">
             <div class="flex items-center justify-between p-6 border-b border-border-light dark:border-gray-700">
-                <h2 class="text-xl font-semibold text-text-primary dark:text-gray-100">Add New Medicine</h2>
+                <h2 class="text-xl font-semibold text-text-primary dark:text-gray-100">Add New Item </h2>
                 <button id="closeAddMedicineModal" class="text-text-tertiary dark:text-gray-400 hover:text-text-secondary dark:hover:text-gray-200 transition-colors duration-200">
                     <i class="fas fa-times text-lg"></i>
                 </button>
@@ -390,24 +375,9 @@
                         </label>
                         <select id="category" name="category" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100">
                             <option value>Select category</option>
-                            <option value="antibiotics">Antibiotics</option>
-                            <option value="analgesics">Analgesics</option>
-                            <option value="cardiovascular">Cardiovascular</option>
-                            <option value="diabetes">Diabetes</option>
-                            <option value="respiratory">Respiratory</option>
-                            <option value="vitamins">Vitamins & Supplements</option>
-                            <option value="otc">Over-the-Counter</option>
-                            <option value="prescription">Prescription</option>
-                            <option value="other">Other</option>
+                            <option value="Medicine">Medicine</option>
+                            <option value="Item">Item</option>
                         </select>
-                    </div>
-
-                    <!-- Quantity -->
-                    <div>
-                        <label for="quantity" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
-                            Quantity *
-                        </label>
-                        <input name="quantity" type="number" id="quantity" required min="0" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="0" />
                     </div>
 
                     <!-- Unit Price -->
@@ -421,32 +391,6 @@
                             </div>
                             <input name="price" type="number" id="price" required min="0" step="0.01" class="w-full pl-8 pr-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="0.00" />
                         </div>
-                    </div>
-
-                    <!-- Expiration Date -->
-                    <div>
-                        <label for="expirationDate" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
-                            Expiration Date
-                        </label>
-                        <input name="expirationDate" type="date" id="expirationDate" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" />
-                    </div>
-
-                    <!-- Dosage Form -->
-                    <div>
-                        <label for="dosageForm" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
-                            Dosage Form
-                        </label>
-                        <select id="dosageForm" name="dosageForm" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100">
-                            <option value>Select dosage form</option>
-                            <option value="tablet">Tablet</option>
-                            <option value="capsule">Capsule</option>
-                            <option value="liquid">Liquid</option>
-                            <option value="injection">Injection</option>
-                            <option value="cream">Cream/Ointment</option>
-                            <option value="inhaler">Inhaler</option>
-                            <option value="patch">Patch</option>
-                            <option value="drops">Drops</option>
-                        </select>
                     </div>
                 </div>
 
@@ -507,15 +451,8 @@
                         </label>
                         <select id="editCategory" name="category" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100">
                             <option value>Select category</option>
-                            <option value="antibiotics">Antibiotics</option>
-                            <option value="analgesics">Analgesics</option>
-                            <option value="cardiovascular">Cardiovascular</option>
-                            <option value="diabetes">Diabetes</option>
-                            <option value="respiratory">Respiratory</option>
-                            <option value="vitamins">Vitamins & Supplements</option>
-                            <option value="otc">Over-the-Counter</option>
-                            <option value="prescription">Prescription</option>
-                            <option value="other">Other</option>
+                            <option value="Medicine">Medicine</option>
+                            <option value="Item">Item</option>
                         </select>
                     </div>
 
@@ -547,32 +484,6 @@
                             <input name="price" type="number" id="editPrice" required min="0" step="0.01" class="w-full pl-8 pr-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="0.00" />
                         </div>
                     </div>
-
-                    <!-- Expiration Date -->
-                    <div>
-                        <label for="editExpirationDate" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
-                            Expiration Date
-                        </label>
-                        <input name="expirationDate" type="date" id="editExpirationDate" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" />
-                    </div>
-
-                    <!-- Dosage Form -->
-                    <div>
-                        <label for="editDosageForm" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
-                            Dosage Form
-                        </label>
-                        <select id="editDosageForm" name="dosageForm" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100">
-                            <option value>Select dosage form</option>
-                            <option value="tablet">Tablet</option>
-                            <option value="capsule">Capsule</option>
-                            <option value="liquid">Liquid</option>
-                            <option value="injection">Injection</option>
-                            <option value="cream">Cream/Ointment</option>
-                            <option value="inhaler">Inhaler</option>
-                            <option value="patch">Patch</option>
-                            <option value="drops">Drops</option>
-                        </select>
-                    </div>
                 </div>
 
                 <div class="flex items-center justify-end space-x-4 pt-6 border-t border-border-light dark:border-gray-700">
@@ -594,21 +505,20 @@
         let currentPage = 1;
         let currentFilters = {
             search: '',
-            status: '',
-            expiration: ''
+            status: ''
         };
         const pageSize = 25;
 
-        // Get base URL for API calls - handles both localhost:3000 and localhost
+        // Get base URL for API calls - use relative path
         function getApiBaseUrl() {
-            const protocol = window.location.protocol;
-            const hostname = window.location.hostname;
-            // If running on port 3000, use localhost for PHP (port 80)
-            if (window.location.port === '3000') {
-                return `${protocol}//${hostname}/INVENTORY/In/php`;
+            // Use relative path to php directory
+            const currentPath = window.location.pathname;
+            // If we're in pages/, go up one level to get to root, then to php
+            if (currentPath.includes('/pages/')) {
+                return '../php';
             }
-            // Otherwise, use current origin
-            return `${window.location.origin}/INVENTORY/In/php`;
+            // Otherwise assume we're at root level
+            return 'php';
         }
 
         // Theme management
@@ -682,6 +592,20 @@
 
         // Data fetching & rendering
         async function fetchMedicines(page = 1, filters = {}) {
+            const tbody = document.getElementById('inventoryTableBody');
+            
+            // Show loading state
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="px-6 py-12 text-center text-text-secondary dark:text-gray-400">
+                        <div class="flex flex-col items-center space-y-3">
+                            <i class="fas fa-spinner fa-spin text-4xl text-primary-600"></i>
+                            <p class="text-lg font-medium">Loading medicines...</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            
             try {
                 const baseUrl = getApiBaseUrl();
                 let url = `${baseUrl}/get_medicines.php?page=${page}&pageSize=${pageSize}`;
@@ -692,9 +616,8 @@
                 if (filters.status) {
                     url += `&status=${encodeURIComponent(filters.status)}`;
                 }
-                if (filters.expiration) {
-                    url += `&expiration=${encodeURIComponent(filters.expiration)}`;
-                }
+
+                console.log('Fetching medicines from:', url);
 
                 const response = await fetch(url, {
                     method: 'GET',
@@ -710,14 +633,16 @@
 
                 const data = await response.json();
                 
+                console.log('Medicines data received:', data);
+                
                 if (!data.success) {
                     throw new Error(data.message || 'Failed to fetch medicines');
                 }
 
-                displayMedicines(data.data);
-                updatePagination(data.total, data.page, data.pageSize || data.limit);
-                updateResultsCount(data.data.length, data.total);
-                currentPage = data.page;
+                displayMedicines(data.data || []);
+                updatePagination(data.total || 0, data.page || page, data.pageSize || data.limit || pageSize);
+                updateResultsCount(data.data ? data.data.length : 0, data.total || 0);
+                currentPage = data.page || page;
 
             } catch (error) {
                 console.error('Error fetching medicines:', error);
@@ -745,7 +670,6 @@
             }
 
             tbody.innerHTML = medicines.map(medicine => {
-                const expirationDate = formatDate(medicine.expiration_date);
                 const statusClass = getStatusClass(medicine.status);
                 const statusText = formatStatus(medicine.status);
                 const price = parseFloat(medicine.price || 0).toFixed(2);
@@ -770,9 +694,6 @@
                         <td class="px-6 py-4 text-sm text-text-primary dark:text-gray-100">
                             ${medicine.quantity || 0}
                         </td>
-                        <td class="px-6 py-4 text-sm text-text-secondary dark:text-gray-400">
-                            ${expirationDate}
-                        </td>
                         <td class="px-6 py-4 text-sm text-text-primary dark:text-gray-100">
                             $${price}
                         </td>
@@ -789,11 +710,9 @@
                                         data-name="${escapeHtml(medicine.name || '')}" 
                                         data-manufacturer="${escapeHtml(medicine.manufacturer || '')}" 
                                         data-category="${escapeHtml(medicine.category || '')}" 
-                                        data-dosage-form="${escapeHtml(medicine.dosage_form || '')}" 
                                         data-quantity="${medicine.quantity || 0}" 
-                                        data-reorder-level="${medicine.reorder_level || 10}" 
+                                        data-reorder-level="${medicine.reorder_level || medicine.reorderLevel || 10}" 
                                         data-price="${price}" 
-                                        data-expiration="${medicine.expiration_date || ''}" 
                                         title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </button>
@@ -966,6 +885,10 @@
                 
                 try {
                     const formData = new FormData(this);
+                    // Set quantity to 0 by default if not provided
+                    if (!formData.get('quantity') || formData.get('quantity') === '') {
+                        formData.set('quantity', '0');
+                    }
                     
                     // Log form data for debugging
                     console.log('Form data being sent:');
@@ -1014,9 +937,10 @@
                         // Refresh the medicines list
                         await fetchMedicines(1, currentFilters);
                     } else {
-                        // Check for duplicate
+                        // Check for duplicate or quantity update
                         if (result.duplicate || result.data?.duplicate) {
-                            alert(result.message || 'Medicine already exists. A medicine with the same NDC Code or Name already exists in the database.');
+                            const message = result.message || 'Medicine already exists. A medicine with this NDC Code already exists.';
+                            alert(message);
                         } else {
                             showError(result.message || 'Failed to add medicine');
                         }
@@ -1065,11 +989,9 @@
                         name: btn.dataset.name,
                         manufacturer: btn.dataset.manufacturer || '',
                         category: btn.dataset.category || '',
-                        dosageForm: btn.dataset.dosageForm || '',
                         quantity: btn.dataset.quantity,
                         reorderLevel: btn.dataset.reorderLevel || '10',
-                        price: btn.dataset.price,
-                        expirationDate: btn.dataset.expiration || ''
+                        price: btn.dataset.price
                     };
 
                     // Populate edit form
@@ -1078,11 +1000,9 @@
                     document.getElementById('editMedicineName').value = medicineData.name;
                     document.getElementById('editManufacturer').value = medicineData.manufacturer;
                     document.getElementById('editCategory').value = medicineData.category;
-                    document.getElementById('editDosageForm').value = medicineData.dosageForm;
                     document.getElementById('editQuantity').value = medicineData.quantity;
                     document.getElementById('editReorderLevel').value = medicineData.reorderLevel;
                     document.getElementById('editPrice').value = medicineData.price;
-                    document.getElementById('editExpirationDate').value = medicineData.expirationDate;
 
                     // Show modal
                     editMedicineModal.classList.remove('hidden');
@@ -1179,7 +1099,8 @@
                     } else {
                         // Check for duplicate
                         if (result.duplicate || result.data?.duplicate) {
-                            alert(result.message || 'Medicine already exists. A medicine with the same NDC Code or Name already exists in the database.');
+                            const message = result.message || 'Cannot update medicine. A medicine with this NDC Code already exists.';
+                            alert(message);
                         } else {
                             showError(result.message || 'Failed to update medicine');
                         }
@@ -1232,17 +1153,11 @@
                 fetchMedicines(currentPage, currentFilters);
             });
 
-            document.getElementById('expirationFilter').addEventListener('change', function() {
-                currentFilters.expiration = this.value;
-                currentPage = 1;
-                fetchMedicines(currentPage, currentFilters);
-            });
 
             // Clear filters
             document.getElementById('clearFiltersBtn').addEventListener('click', function() {
-                currentFilters = { search: '', status: '', expiration: '' };
+                currentFilters = { search: '', status: '' };
                 document.getElementById('stockStatusFilter').value = '';
-                document.getElementById('expirationFilter').value = '';
                 searchInputs.forEach(input => input.value = '');
                 currentPage = 1;
                 fetchMedicines(currentPage, currentFilters);
@@ -1282,16 +1197,34 @@
                 }
             });
 
-            // Check for low stock filter from dashboard
+            // Check for URL parameters (filter, search, etc.)
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('filter') === 'low-stock') {
+            
+            // Handle filter parameter
+            const filterParam = urlParams.get('filter');
+            if (filterParam === 'low-stock') {
                 document.getElementById('stockStatusFilter').value = 'low-stock';
                 currentFilters.status = 'low-stock';
-                fetchMedicines(1, currentFilters);
-            } else {
-                // Initial load
-                fetchMedicines(1, currentFilters);
+            } else if (filterParam === 'expired') {
+                // Set status filter for expired medicines
+                document.getElementById('stockStatusFilter').value = 'expired';
+                currentFilters.status = 'expired';
+            } else if (filterParam === 'recent') {
+                // For recent filter, we could add a date filter or just show all
+                // For now, just show all medicines
             }
+            
+            // Handle search parameter
+            const searchParam = urlParams.get('search');
+            if (searchParam) {
+                const searchValue = decodeURIComponent(searchParam);
+                document.getElementById('tableSearch').value = searchValue;
+                document.getElementById('globalSearch').value = searchValue;
+                currentFilters.search = searchValue;
+            }
+            
+            // Initial load with any URL parameters applied
+            fetchMedicines(1, currentFilters);
 
             // Select all checkbox functionality
             document.getElementById('selectAll').addEventListener('change', function() {

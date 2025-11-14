@@ -122,41 +122,99 @@ try {
         $expiration_date = null;
     }
 
-    // Check for duplicate entries (same NDC OR same name) but exclude current medicine
-    $duplicateCheckSql = "SELECT id, ndc, name FROM medicines WHERE (ndc = ? OR name = ?) AND id != ? LIMIT 1";
-    $duplicateStmt = mysqli_prepare($conn, $duplicateCheckSql);
-    if (!$duplicateStmt) {
-        error_log("Duplicate check prepare error: " . mysqli_error($conn));
-        sendJsonResponse(false, 'Database error during duplicate check', null, 500);
-    }
+    // Get current medicine data to check if NDC is being changed
+    $currentSql = "SELECT ndc, name FROM medicines WHERE id = ?";
+    $currentStmt = mysqli_prepare($conn, $currentSql);
+    $currentNdc = null;
+    $currentName = null;
     
-    mysqli_stmt_bind_param($duplicateStmt, 'ssi', $ndc, $name, $medicine_id);
-    mysqli_stmt_execute($duplicateStmt);
-    $duplicateResult = mysqli_stmt_get_result($duplicateStmt);
-    
-    if ($duplicateResult && mysqli_num_rows($duplicateResult) > 0) {
-        $duplicate = mysqli_fetch_assoc($duplicateResult);
-        mysqli_stmt_close($duplicateStmt);
-        
-        $duplicateField = '';
-        if (strcasecmp($duplicate['ndc'], $ndc) === 0) {
-            $duplicateField = 'NDC Code';
-        } elseif (strcasecmp($duplicate['name'], $name) === 0) {
-            $duplicateField = 'Medicine Name';
+    if ($currentStmt) {
+        mysqli_stmt_bind_param($currentStmt, 'i', $medicine_id);
+        mysqli_stmt_execute($currentStmt);
+        $currentResult = mysqli_stmt_get_result($currentStmt);
+        if ($currentResult && mysqli_num_rows($currentResult) > 0) {
+            $current = mysqli_fetch_assoc($currentResult);
+            $currentNdc = $current['ndc'];
+            $currentName = $current['name'];
         }
-        
-        ob_clean();
-        http_response_code(409);
-        echo json_encode([
-            'success' => false,
-            'duplicate' => true,
-            'message' => "Medicine already exists. A medicine with the same {$duplicateField} already exists in the database.",
-            'data' => ['duplicate' => true, 'field' => $duplicateField]
-        ], JSON_UNESCAPED_UNICODE);
-        ob_end_flush();
-        exit;
+        mysqli_stmt_close($currentStmt);
     }
-    mysqli_stmt_close($duplicateStmt);
+    
+    // Check if NDC is being changed
+    if ($currentNdc !== null && strcasecmp($currentNdc, $ndc) !== 0) {
+        // NDC is being changed - check if new NDC already exists
+        $ndcCheckSql = "SELECT id, ndc, name FROM medicines WHERE ndc = ? AND id != ? LIMIT 1";
+        $ndcCheckStmt = mysqli_prepare($conn, $ndcCheckSql);
+        
+        if ($ndcCheckStmt) {
+            mysqli_stmt_bind_param($ndcCheckStmt, 'si', $ndc, $medicine_id);
+            mysqli_stmt_execute($ndcCheckStmt);
+            $ndcCheckResult = mysqli_stmt_get_result($ndcCheckStmt);
+            
+            if ($ndcCheckResult && mysqli_num_rows($ndcCheckResult) > 0) {
+                $existing = mysqli_fetch_assoc($ndcCheckResult);
+                mysqli_stmt_close($ndcCheckStmt);
+                
+                // New NDC already exists - check if name matches
+                if (strcasecmp($existing['name'], $name) !== 0) {
+                    // Same NDC + Different Name → Error
+                    ob_clean();
+                    http_response_code(409);
+                    echo json_encode([
+                        'success' => false,
+                        'duplicate' => true,
+                        'message' => "Cannot change NDC Code. A medicine with NDC Code '{$ndc}' already exists with a different name ('{$existing['name']}'). Each NDC Code must refer to only one medicine.",
+                        'data' => [
+                            'duplicate' => true, 
+                            'field' => 'NDC Code',
+                            'existing_id' => (int)$existing['id'],
+                            'existing_name' => $existing['name'],
+                            'new_name' => $name
+                        ]
+                    ], JSON_UNESCAPED_UNICODE);
+                    ob_end_flush();
+                    exit;
+                }
+                // If name matches, it's the same medicine - allow the update
+            }
+            mysqli_stmt_close($ndcCheckStmt);
+        }
+    } else {
+        // NDC not being changed - check if another medicine with same NDC has different name
+        // (This handles the case where name is being changed but NDC stays the same)
+        $ndcCheckSql = "SELECT id, ndc, name FROM medicines WHERE ndc = ? AND name != ? AND id != ? LIMIT 1";
+        $ndcCheckStmt = mysqli_prepare($conn, $ndcCheckSql);
+        
+        if ($ndcCheckStmt) {
+            mysqli_stmt_bind_param($ndcCheckStmt, 'ssi', $ndc, $name, $medicine_id);
+            mysqli_stmt_execute($ndcCheckStmt);
+            $ndcCheckResult = mysqli_stmt_get_result($ndcCheckStmt);
+            
+            if ($ndcCheckResult && mysqli_num_rows($ndcCheckResult) > 0) {
+                $existing = mysqli_fetch_assoc($ndcCheckResult);
+                mysqli_stmt_close($ndcCheckStmt);
+                
+                // Same NDC exists with different name → Error
+                ob_clean();
+                http_response_code(409);
+                echo json_encode([
+                    'success' => false,
+                    'duplicate' => true,
+                    'message' => "Cannot change medicine name. A medicine with NDC Code '{$ndc}' already exists with a different name ('{$existing['name']}'). Each NDC Code must refer to only one medicine.",
+                    'data' => [
+                        'duplicate' => true, 
+                        'field' => 'NDC Code',
+                        'existing_id' => (int)$existing['id'],
+                        'existing_name' => $existing['name'],
+                        'new_name' => $name
+                    ]
+                ], JSON_UNESCAPED_UNICODE);
+                ob_end_flush();
+                exit;
+            }
+            mysqli_stmt_close($ndcCheckStmt);
+        }
+    }
 
     // Calculate status based on quantity, reorder_level, and expiration date
     $currentDate = date('Y-m-d');
@@ -170,6 +228,34 @@ try {
         $status = 'low-stock';
     }
 
+    // Get current medicine to check if expiration_date changed
+    $currentSql = "SELECT expiration_date, batch_number FROM medicines WHERE id = ?";
+    $currentStmt = mysqli_prepare($conn, $currentSql);
+    $old_expiration_date = null;
+    $old_batch_number = null;
+    
+    if ($currentStmt) {
+        mysqli_stmt_bind_param($currentStmt, 'i', $medicine_id);
+        mysqli_stmt_execute($currentStmt);
+        $currentResult = mysqli_stmt_get_result($currentStmt);
+        if ($currentResult && mysqli_num_rows($currentResult) > 0) {
+            $current = mysqli_fetch_assoc($currentResult);
+            $old_expiration_date = $current['expiration_date'];
+            $old_batch_number = $current['batch_number'];
+        }
+        mysqli_stmt_close($currentStmt);
+    }
+
+    // Get or create batch number based on new expiration date
+    require_once __DIR__ . '/batch_helper.php';
+    $batch_number = getOrCreateBatchNumber($conn, $expiration_date);
+    
+    // If expiration_date changed, update batch_number
+    // If expiration_date is being set to NULL, set batch_number to NULL
+    if ($expiration_date === null) {
+        $batch_number = null;
+    }
+
     // Update SQL statement
     $sql = "UPDATE medicines SET 
         ndc = ?, 
@@ -180,7 +266,8 @@ try {
         quantity = ?, 
         reorder_level = ?,
         price = ?, 
-        expiration_date = ?, 
+        expiration_date = ?,
+        batch_number = ?,
         status = ?
     WHERE id = ?";
 
@@ -191,10 +278,10 @@ try {
         sendJsonResponse(false, 'Database preparation error: ' . $error, ['sql_error' => $error], 500);
     }
 
-    // Bind parameters: 10 values + 1 ID
+    // Bind parameters: 11 values + 1 ID
     $bound = mysqli_stmt_bind_param(
         $stmt, 
-        'sssssiidssi',  // 11 parameters
+        'sssssiidsisi',  // 12 parameters
         $ndc, 
         $name, 
         $manufacturer, 
@@ -203,7 +290,8 @@ try {
         $quantity, 
         $reorder_level,
         $price, 
-        $expiration_date, 
+        $expiration_date,
+        $batch_number,
         $status,
         $medicine_id
     );
@@ -222,6 +310,17 @@ try {
         error_log("MySQL execute error [$errorCode]: " . $error);
         
         mysqli_stmt_close($stmt);
+        
+        // Check for specific error types - handle unique constraint violation on NDC
+        if (strpos($error, 'Duplicate') !== false || strpos($error, 'duplicate') !== false || $errorCode === 1062) {
+            // Unique constraint on NDC column was violated
+            $errorMessage = 'A medicine with this NDC Code already exists. Each NDC Code must refer to only one medicine.';
+            if (strpos($error, 'ndc') !== false) {
+                $errorMessage = 'A medicine with this NDC Code already exists with a different name. Each NDC Code must refer to only one medicine.';
+            }
+            sendJsonResponse(false, $errorMessage, ['error_code' => $errorCode, 'error' => $error, 'duplicate' => true], 409);
+        }
+        
         sendJsonResponse(false, 'Database error: ' . $error, ['error_code' => $errorCode, 'error' => $error], 500);
     }
 
@@ -243,7 +342,8 @@ try {
         quantity, 
         reorder_level,
         price, 
-        expiration_date, 
+        expiration_date,
+        batch_number,
         status,
         created_at,
         updated_at

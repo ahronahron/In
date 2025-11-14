@@ -44,6 +44,9 @@ try {
         case 'low-stock':
             getLowStockData($conn);
             break;
+        case 'expiration-alerts':
+            getExpirationAlerts($conn);
+            break;
         case 'activities':
             getRecentActivities($conn);
             break;
@@ -192,6 +195,78 @@ function getRecentActivities($conn) {
     echo json_encode([
         'success' => true,
         'data' => $activities
+    ], JSON_UNESCAPED_UNICODE);
+}
+
+function getExpirationAlerts($conn) {
+    $currentDate = date('Y-m-d');
+    $thirtyDaysFromNow = date('Y-m-d', strtotime('+30 days'));
+    
+    // Get expired medicines count
+    $expiredSql = "SELECT COUNT(*) as count FROM medicines 
+                   WHERE expiration_date IS NOT NULL 
+                   AND expiration_date < ?";
+    $expiredStmt = mysqli_prepare($conn, $expiredSql);
+    mysqli_stmt_bind_param($expiredStmt, 's', $currentDate);
+    mysqli_stmt_execute($expiredStmt);
+    $expiredResult = mysqli_stmt_get_result($expiredStmt);
+    $expiredCount = 0;
+    if ($expiredResult) {
+        $row = mysqli_fetch_assoc($expiredResult);
+        $expiredCount = (int)($row['count'] ?? 0);
+    }
+    mysqli_stmt_close($expiredStmt);
+    
+    // Get expiring soon (within 30 days)
+    $expiringSoonSql = "SELECT COUNT(*) as count FROM medicines 
+                        WHERE expiration_date IS NOT NULL 
+                        AND expiration_date >= ? 
+                        AND expiration_date <= ?";
+    $expiringSoonStmt = mysqli_prepare($conn, $expiringSoonSql);
+    mysqli_stmt_bind_param($expiringSoonStmt, 'ss', $currentDate, $thirtyDaysFromNow);
+    mysqli_stmt_execute($expiringSoonStmt);
+    $expiringSoonResult = mysqli_stmt_get_result($expiringSoonStmt);
+    $expiringSoonCount = 0;
+    if ($expiringSoonResult) {
+        $row = mysqli_fetch_assoc($expiringSoonResult);
+        $expiringSoonCount = (int)($row['count'] ?? 0);
+    }
+    mysqli_stmt_close($expiringSoonStmt);
+    
+    // Get expired medicines list (top 5)
+    $expiredListSql = "SELECT id, name, expiration_date, batch_number, quantity
+                       FROM medicines 
+                       WHERE expiration_date IS NOT NULL 
+                       AND expiration_date < ?
+                       ORDER BY expiration_date ASC
+                       LIMIT 5";
+    $expiredListStmt = mysqli_prepare($conn, $expiredListSql);
+    mysqli_stmt_bind_param($expiredListStmt, 's', $currentDate);
+    mysqli_stmt_execute($expiredListStmt);
+    $expiredListResult = mysqli_stmt_get_result($expiredListStmt);
+    
+    $expiredMedicines = [];
+    if ($expiredListResult) {
+        while ($row = mysqli_fetch_assoc($expiredListResult)) {
+            $expiredMedicines[] = [
+                'id' => (int)$row['id'],
+                'name' => $row['name'],
+                'expirationDate' => $row['expiration_date'],
+                'batchNumber' => $row['batch_number'] ? (int)$row['batch_number'] : null,
+                'quantity' => (int)$row['quantity']
+            ];
+        }
+    }
+    mysqli_stmt_close($expiredListStmt);
+    
+    echo json_encode([
+        'success' => true,
+        'data' => [
+            'expiredCount' => $expiredCount,
+            'expiringSoonCount' => $expiringSoonCount,
+            'totalAlerts' => $expiredCount + $expiringSoonCount,
+            'expiredMedicines' => $expiredMedicines
+        ]
     ], JSON_UNESCAPED_UNICODE);
 }
 

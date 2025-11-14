@@ -78,6 +78,12 @@ try {
     $dosage_form = isset($_POST['dosageForm']) ? trim($_POST['dosageForm']) : '';
     $dosage_form = $dosage_form !== '' ? $dosage_form : null;
     
+    // Get supplier_id if provided
+    $supplier_id = isset($_POST['supplier_id']) ? (int)$_POST['supplier_id'] : null;
+    if ($supplier_id !== null && $supplier_id <= 0) {
+        $supplier_id = null;
+    }
+    
     $quantity = isset($_POST['quantity']) ? (int)$_POST['quantity'] : 0;
     $price = isset($_POST['price']) ? (float)$_POST['price'] : 0.00;
     
@@ -119,41 +125,117 @@ try {
         $expiration_date = null; // Ensure it's NULL, not empty string
     }
 
-    // Check for duplicate entries (same NDC OR same name)
-    $duplicateCheckSql = "SELECT id, ndc, name FROM medicines WHERE ndc = ? OR name = ? LIMIT 1";
-    $duplicateStmt = mysqli_prepare($conn, $duplicateCheckSql);
-    if (!$duplicateStmt) {
-        error_log("Duplicate check prepare error: " . mysqli_error($conn));
-        sendJsonResponse(false, 'Database error during duplicate check', null, 500);
+    // Check for existing medicine with same NDC
+    // Database has UNIQUE constraint on ndc column
+    // Rules:
+    // - Same NDC + Same Name → Increment quantity (update existing)
+    // - Same NDC + Different Name → Error (not allowed)
+    // - Different NDC → Create new medicine
+    $ndcCheckSql = "SELECT id, ndc, name, quantity, expiration_date, batch_number FROM medicines 
+                    WHERE ndc = ? 
+                    LIMIT 1";
+    $ndcCheckStmt = mysqli_prepare($conn, $ndcCheckSql);
+    if (!$ndcCheckStmt) {
+        error_log("NDC check prepare error: " . mysqli_error($conn));
+        sendJsonResponse(false, 'Database error during NDC check', null, 500);
     }
     
-    mysqli_stmt_bind_param($duplicateStmt, 'ss', $ndc, $name);
-    mysqli_stmt_execute($duplicateStmt);
-    $duplicateResult = mysqli_stmt_get_result($duplicateStmt);
+    mysqli_stmt_bind_param($ndcCheckStmt, 's', $ndc);
+    mysqli_stmt_execute($ndcCheckStmt);
+    $ndcCheckResult = mysqli_stmt_get_result($ndcCheckStmt);
     
-    if ($duplicateResult && mysqli_num_rows($duplicateResult) > 0) {
-        $duplicate = mysqli_fetch_assoc($duplicateResult);
-        mysqli_stmt_close($duplicateStmt);
+    if ($ndcCheckResult && mysqli_num_rows($ndcCheckResult) > 0) {
+        $existing = mysqli_fetch_assoc($ndcCheckResult);
+        mysqli_stmt_close($ndcCheckStmt);
         
-        $duplicateField = '';
-        if (strcasecmp($duplicate['ndc'], $ndc) === 0) {
-            $duplicateField = 'NDC Code';
-        } elseif (strcasecmp($duplicate['name'], $name) === 0) {
-            $duplicateField = 'Medicine Name';
+        // Check if name matches
+        if (strcasecmp($existing['name'], $name) === 0) {
+            // Same NDC + Same Name → Increment quantity
+            $existingId = (int)$existing['id'];
+            $existingQuantity = (int)$existing['quantity'];
+            $newQuantity = $existingQuantity + $quantity;
+            
+            // Get or create batch number based on expiration date
+            require_once __DIR__ . '/batch_helper.php';
+            $batch_number = getOrCreateBatchNumber($conn, $expiration_date);
+            
+            // Calculate status based on new quantity, reorder_level, and expiration date
+            $currentDate = date('Y-m-d');
+            $status = 'in-stock';
+            
+            if ($expiration_date !== null && $expiration_date < $currentDate) {
+                $status = 'expired';
+            } elseif ($newQuantity === 0) {
+                $status = 'out-of-stock';
+            } elseif ($newQuantity > 0 && $newQuantity <= $reorder_level) {
+                $status = 'low-stock';
+            }
+            
+            // Update existing medicine: increment quantity and update expiration/batch if different
+            $updateSql = "UPDATE medicines SET 
+                          quantity = ?,
+                          expiration_date = ?,
+                          batch_number = ?,
+                          status = ?,
+                          updated_at = CURRENT_TIMESTAMP
+                          WHERE id = ?";
+            
+            $updateStmt = mysqli_prepare($conn, $updateSql);
+            if (!$updateStmt) {
+                error_log("Update prepare error: " . mysqli_error($conn));
+                sendJsonResponse(false, 'Database error during quantity update', null, 500);
+            }
+            
+            mysqli_stmt_bind_param($updateStmt, 'isisi', $newQuantity, $expiration_date, $batch_number, $status, $existingId);
+            
+            if (!mysqli_stmt_execute($updateStmt)) {
+                $error = mysqli_stmt_error($updateStmt);
+                error_log("Update execute error: " . $error);
+                mysqli_stmt_close($updateStmt);
+                sendJsonResponse(false, 'Failed to update medicine quantity: ' . $error, null, 500);
+            }
+            
+            mysqli_stmt_close($updateStmt);
+            
+            // Fetch updated medicine data
+            $selectSql = "SELECT id, ndc, name, manufacturer, category, dosage_form, quantity, reorder_level, price, expiration_date, batch_number, status, created_at, updated_at
+                          FROM medicines WHERE id = ?";
+            $selectStmt = mysqli_prepare($conn, $selectSql);
+            mysqli_stmt_bind_param($selectStmt, 'i', $existingId);
+            mysqli_stmt_execute($selectStmt);
+            $selectResult = mysqli_stmt_get_result($selectStmt);
+            $updatedMedicine = mysqli_fetch_assoc($selectResult);
+            mysqli_stmt_close($selectStmt);
+            
+            if (isset($updatedMedicine['price'])) {
+                $updatedMedicine['price'] = number_format((float)$updatedMedicine['price'], 2, '.', '');
+            }
+            
+            // Return success with updated medicine
+            sendJsonResponse(true, "Medicine quantity updated successfully. Quantity increased from {$existingQuantity} to {$newQuantity}.", $updatedMedicine, 200);
+            exit;
+        } else {
+            // Same NDC + Different Name → Error
+            mysqli_stmt_close($ndcCheckStmt);
+            ob_clean();
+            http_response_code(409);
+            echo json_encode([
+                'success' => false,
+                'duplicate' => true,
+                'message' => "A medicine with NDC Code '{$ndc}' already exists with a different name ('{$existing['name']}'). Each NDC Code must refer to only one medicine.",
+                'data' => [
+                    'duplicate' => true, 
+                    'field' => 'NDC Code',
+                    'existing_id' => (int)$existing['id'],
+                    'existing_name' => $existing['name'],
+                    'new_name' => $name
+                ]
+            ], JSON_UNESCAPED_UNICODE);
+            ob_end_flush();
+            exit;
         }
-        
-        ob_clean();
-        http_response_code(409);
-        echo json_encode([
-            'success' => false,
-            'duplicate' => true,
-            'message' => "Medicine already exists. A medicine with the same {$duplicateField} already exists in the database.",
-            'data' => ['duplicate' => true, 'field' => $duplicateField]
-        ], JSON_UNESCAPED_UNICODE);
-        ob_end_flush();
-        exit;
     }
-    mysqli_stmt_close($duplicateStmt);
+    mysqli_stmt_close($ndcCheckStmt);
 
     // Calculate status based on quantity, reorder_level, and expiration date
     $currentDate = date('Y-m-d');
@@ -173,20 +255,46 @@ try {
     }
     // Otherwise, it's in-stock (already set above)
 
+    // Get or create batch number based on expiration date
+    require_once __DIR__ . '/batch_helper.php';
+    $batch_number = getOrCreateBatchNumber($conn, $expiration_date);
+
+    // Check if supplier_id column exists
+    $checkSupplierId = mysqli_query($conn, "SHOW COLUMNS FROM medicines LIKE 'supplier_id'");
+    $hasSupplierId = mysqli_num_rows($checkSupplierId) > 0;
+
     // Prepare SQL INSERT statement - match database columns exactly
     // Note: created_at and updated_at are handled automatically by MySQL
-    $sql = "INSERT INTO medicines (
-        ndc, 
-        name, 
-        manufacturer, 
-        category, 
-        dosage_form, 
-        quantity, 
-        reorder_level,
-        price, 
-        expiration_date, 
-        status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    if ($hasSupplierId) {
+        $sql = "INSERT INTO medicines (
+            ndc, 
+            name, 
+            manufacturer, 
+            category, 
+            dosage_form, 
+            quantity, 
+            reorder_level,
+            price, 
+            expiration_date,
+            batch_number,
+            supplier_id,
+            status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    } else {
+        $sql = "INSERT INTO medicines (
+            ndc, 
+            name, 
+            manufacturer, 
+            category, 
+            dosage_form, 
+            quantity, 
+            reorder_level,
+            price, 
+            expiration_date,
+            batch_number,
+            status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    }
 
     // Prepare statement
     $stmt = mysqli_prepare($conn, $sql);
@@ -198,23 +306,41 @@ try {
 
     // Bind parameters
     // Types: s=string, i=integer, d=double/decimal
-    // Order: ndc(s), name(s), manufacturer(s/null), category(s/null), dosage_form(s/null), 
-    //        quantity(i), reorder_level(i), price(d), expiration_date(s/null), status(s)
     // Note: For NULL values, we need to pass actual NULL, not empty string
-    $bound = mysqli_stmt_bind_param(
-        $stmt, 
-        'sssssiidss',  // 10 parameters: 5 strings, 2 integers, 1 double, 2 strings
-        $ndc, 
-        $name, 
-        $manufacturer, 
-        $category, 
-        $dosage_form,
-        $quantity, 
-        $reorder_level,
-        $price, 
-        $expiration_date, 
-        $status
-    );
+    if ($hasSupplierId) {
+        $bound = mysqli_stmt_bind_param(
+            $stmt, 
+            'sssssiidsiis',  // 12 parameters: 5 strings, 4 integers, 1 double, 2 strings
+            $ndc, 
+            $name, 
+            $manufacturer, 
+            $category, 
+            $dosage_form,
+            $quantity, 
+            $reorder_level,
+            $price, 
+            $expiration_date,
+            $batch_number,
+            $supplier_id,
+            $status
+        );
+    } else {
+        $bound = mysqli_stmt_bind_param(
+            $stmt, 
+            'sssssiidsis',  // 11 parameters: 5 strings, 3 integers, 1 double, 2 strings
+            $ndc, 
+            $name, 
+            $manufacturer, 
+            $category, 
+            $dosage_form,
+            $quantity, 
+            $reorder_level,
+            $price, 
+            $expiration_date,
+            $batch_number,
+            $status
+        );
+    }
     
     // Verify binding was successful
     if (!$bound) {
@@ -232,9 +358,14 @@ try {
         
         mysqli_stmt_close($stmt);
         
-        // Check for specific error types
-        if (strpos($error, 'Duplicate') !== false || strpos($error, 'duplicate') !== false) {
-            sendJsonResponse(false, 'A medicine with this NDC code already exists', ['error_code' => $errorCode, 'error' => $error], 409);
+        // Check for specific error types - handle unique constraint violation on NDC
+        if (strpos($error, 'Duplicate') !== false || strpos($error, 'duplicate') !== false || $errorCode === 1062) {
+            // Unique constraint on NDC column was violated
+            $errorMessage = 'A medicine with this NDC Code already exists. Each NDC Code must refer to only one medicine.';
+            if (strpos($error, 'ndc') !== false) {
+                $errorMessage = 'A medicine with this NDC Code already exists with a different name. Each NDC Code must refer to only one medicine.';
+            }
+            sendJsonResponse(false, $errorMessage, ['error_code' => $errorCode, 'error' => $error, 'duplicate' => true], 409);
         }
         
         sendJsonResponse(false, 'Database error: ' . $error, ['error_code' => $errorCode, 'error' => $error], 500);
@@ -249,22 +380,44 @@ try {
     }
 
     // Fetch the inserted medicine data to return
-    $selectSql = "SELECT 
-        id, 
-        ndc, 
-        name, 
-        manufacturer, 
-        category, 
-        dosage_form,
-        quantity, 
-        reorder_level,
-        price, 
-        expiration_date, 
-        status,
-        created_at,
-        updated_at
-    FROM medicines 
-    WHERE id = ?";
+    if ($hasSupplierId) {
+        $selectSql = "SELECT 
+            id, 
+            ndc, 
+            name, 
+            manufacturer, 
+            category, 
+            dosage_form, 
+            quantity, 
+            reorder_level,
+            price, 
+            expiration_date,
+            batch_number,
+            supplier_id,
+            status,
+            created_at,
+            updated_at
+        FROM medicines 
+        WHERE id = ?";
+    } else {
+        $selectSql = "SELECT 
+            id, 
+            ndc, 
+            name, 
+            manufacturer, 
+            category, 
+            dosage_form, 
+            quantity, 
+            reorder_level,
+            price, 
+            expiration_date,
+            batch_number,
+            status,
+            created_at,
+            updated_at
+        FROM medicines 
+        WHERE id = ?";
+    }
     
     $selectStmt = mysqli_prepare($conn, $selectSql);
     if (!$selectStmt) {
@@ -281,6 +434,7 @@ try {
             'reorder_level' => $reorder_level,
             'price' => number_format($price, 2, '.', ''),
             'expiration_date' => $expiration_date,
+            'batch_number' => $batch_number,
             'status' => $status
         ], 200);
     }
@@ -302,6 +456,7 @@ try {
             'reorder_level' => $reorder_level,
             'price' => number_format($price, 2, '.', ''),
             'expiration_date' => $expiration_date,
+            'batch_number' => $batch_number,
             'status' => $status
         ], 200);
     }
@@ -323,6 +478,7 @@ try {
             'reorder_level' => $reorder_level,
             'price' => number_format($price, 2, '.', ''),
             'expiration_date' => $expiration_date,
+            'batch_number' => $batch_number,
             'status' => $status
         ], 200);
     }

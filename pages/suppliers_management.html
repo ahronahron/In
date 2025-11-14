@@ -51,21 +51,21 @@
                     </a>
                 </li>
                 <li>
-                    <a href="inventory_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
-                        <i class="fas fa-capsules w-5"></i>
-                        <span>Medicine Inventory</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="suppliers_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white bg-primary dark:bg-primary-600 rounded-xl transition-all duration-200">
-                        <i class="fas fa-truck-medical w-5"></i>
-                        <span>Suppliers</span>
-                    </a>
-                </li>
-                <li>
                     <a href="orders_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
                         <i class="fas fa-prescription-bottle w-5"></i>
                         <span>Orders</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="batches_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-boxes w-5"></i>
+                        <span>Batches</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="inventory_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-capsules w-5"></i>
+                        <span>Inventory List</span>
                     </a>
                 </li>
                 <li>
@@ -75,9 +75,9 @@
                     </a>
                 </li>
                 <li>
-                    <a href="user_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
-                        <i class="fas fa-users w-5"></i>
-                        <span>User Management</span>
+                    <a href="suppliers_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white bg-primary dark:bg-primary-600 rounded-xl transition-all duration-200">
+                        <i class="fas fa-truck-medical w-5"></i>
+                        <span>Suppliers</span>
                     </a>
                 </li>
                 <li>
@@ -359,6 +359,34 @@
                         </label>
                         <textarea id="notes" name="notes" rows="3" class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 resize-none" placeholder="Additional notes about the supplier..."></textarea>
                     </div>
+
+                    <!-- Medicines Section -->
+                    <div class="md:col-span-2 border-t border-border-light pt-4">
+                        <label class="block text-sm font-medium text-text-primary mb-2">
+                            Available Medicines <span class="text-text-secondary text-xs font-normal">(Select medicines this supplier offers)</span>
+                        </label>
+                        <p class="text-xs text-text-secondary mb-3">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Select medicines from your inventory that this supplier can provide. These medicines will be linked to the supplier and available when creating orders.
+                        </p>
+                        
+                        <!-- Loading State -->
+                        <div id="medicinesLoading" class="text-center py-4">
+                            <i class="fas fa-spinner fa-spin text-primary-600"></i>
+                            <span class="ml-2 text-text-secondary">Loading medicines...</span>
+                        </div>
+
+                        <!-- Medicines by Category -->
+                        <div id="medicinesByCategory" class="hidden space-y-4 max-h-96 overflow-y-auto border border-border-light rounded-lg p-4 bg-surface-hover">
+                            <!-- Medicines grouped by category will be populated here -->
+                        </div>
+                        
+                        <!-- Selected Count -->
+                        <div id="selectedMedicinesCount" class="hidden mt-3 text-sm text-primary-600 font-medium">
+                            <i class="fas fa-check-circle mr-1"></i>
+                            <span id="selectedCount">0</span> medicine(s) selected
+                        </div>
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-end space-x-4 pt-6 border-t border-border-light">
@@ -433,6 +461,34 @@
                             Notes (Optional)
                         </label>
                         <textarea id="editNotes" name="notes" rows="3" class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 resize-none"></textarea>
+                    </div>
+
+                    <!-- Medicines Section -->
+                    <div class="md:col-span-2 border-t border-border-light pt-4">
+                        <label class="block text-sm font-medium text-text-primary mb-2">
+                            Available Medicines <span class="text-text-secondary text-xs font-normal">(Select medicines this supplier offers)</span>
+                        </label>
+                        <p class="text-xs text-text-secondary mb-3">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Select medicines from your inventory that this supplier can provide. These medicines will be linked to the supplier and available when creating orders.
+                        </p>
+                        
+                        <!-- Loading State -->
+                        <div id="editMedicinesLoading" class="text-center py-4">
+                            <i class="fas fa-spinner fa-spin text-primary-600"></i>
+                            <span class="ml-2 text-text-secondary">Loading medicines...</span>
+                        </div>
+
+                        <!-- Medicines by Category -->
+                        <div id="editMedicinesByCategory" class="hidden space-y-4 max-h-96 overflow-y-auto border border-border-light rounded-lg p-4 bg-surface-hover">
+                            <!-- Medicines grouped by category will be populated here -->
+                        </div>
+                        
+                        <!-- Selected Count -->
+                        <div id="editSelectedMedicinesCount" class="hidden mt-3 text-sm text-primary-600 font-medium">
+                            <i class="fas fa-check-circle mr-1"></i>
+                            <span id="editSelectedCount">0</span> medicine(s) selected
+                        </div>
                     </div>
                 </div>
 
@@ -536,133 +592,81 @@
     </div>
 
     <script>
-        // Mock supplier data
-        const suppliersData = [
-            {
-                id: 1,
-                name: "PharmaSupply Corp",
-                contact: "Dr. John Smith",
-                email: "john@pharmasupply.com",
-                phone: "+1 (555) 123-4567",
-                location: "New York",
-                website: "https://pharmasupply.com",
-                notes: "Primary supplier for prescription medications"
-            },
-            {
-                id: 2,
-                name: "MedDistribution Ltd",
-                contact: "Sarah Johnson",
-                email: "sarah@meddistribution.com",
-                phone: "+1 (555) 234-5678",
-                location: "California",
-                website: "https://meddistribution.com",
-                notes: "Reliable supplier for over-the-counter medicines"
-            },
-            {
-                id: 3,
-                name: "Healthcare Solutions Inc",
-                contact: "Dr. Mike Davis",
-                email: "mike@healthcaresolutions.com",
-                phone: "+1 (555) 345-6789",
-                location: "Texas",
-                website: "https://healthcaresolutions.com",
-                notes: "Medical supplies and equipment"
-            },
-            {
-                id: 4,
-                name: "Pharma Wholesale Co",
-                contact: "Lisa Wilson",
-                email: "lisa@pharmawholesale.com",
-                phone: "+1 (555) 456-7890",
-                location: "Florida",
-                website: "https://pharmawholesale.com",
-                notes: "Specialized in bulk pharmaceutical products"
-            },
-            {
-                id: 5,
-                name: "Vitamin & Supplement Supply",
-                contact: "Dr. David Brown",
-                email: "david@vitaminsupply.com",
-                phone: "+1 (555) 567-8901",
-                location: "California",
-                website: "https://vitaminsupply.com",
-                notes: "Natural health and vitamin supplements"
-            },
-            {
-                id: 6,
-                name: "Medical Device Plus",
-                contact: "Jennifer Lee",
-                email: "jennifer@meddeviceplus.com",
-                phone: "+1 (555) 678-9012",
-                location: "New York",
-                website: "https://meddeviceplus.com",
-                notes: "Medical devices and diagnostic equipment"
-            },
-            {
-                id: 7,
-                name: "Generic Medicines Hub",
-                contact: "Dr. Robert Taylor",
-                email: "robert@genericmedicines.com",
-                phone: "+1 (555) 789-0123",
-                location: "Texas",
-                website: "https://genericmedicines.com",
-                notes: "Generic and branded pharmaceutical products"
-            },
-            {
-                id: 8,
-                name: "Specialty Pharma Distributors",
-                contact: "Amanda White",
-                email: "amanda@specialtypharma.com",
-                phone: "+1 (555) 890-1234",
-                location: "Florida",
-                website: "https://specialtypharma.com",
-                notes: "Rare and specialty pharmaceutical medications"
-            },
-            {
-                id: 9,
-                name: "Diabetes Care Direct",
-                contact: "Chris Martinez",
-                email: "chris@diabetescare.com",
-                phone: "+1 (555) 901-2345",
-                location: "California",
-                website: "https://diabetescare.com",
-                notes: "Diabetes medications and testing supplies"
-            },
-            {
-                id: 10,
-                name: "Antibiotic Solutions Ltd",
-                contact: "Dr. Patricia Garcia",
-                email: "patricia@antibioticsolutions.com",
-                phone: "+1 (555) 012-3456",
-                location: "New York",
-                website: "https://antibioticsolutions.com",
-                notes: "Antibiotic and antimicrobial medications"
-            },
-            {
-                id: 11,
-                name: "Pediatric Medicine Co",
-                contact: "Dr. Kevin Rodriguez",
-                email: "kevin@pediatricmeds.com",
-                phone: "+1 (555) 123-4567",
-                location: "Texas",
-                website: "https://pediatricmeds.com",
-                notes: "Children's medications and pediatric supplies"
-            },
-            {
-                id: 12,
-                name: "OTC Pharmacy Wholesale",
-                contact: "Michelle Thompson",
-                email: "michelle@otcwholesale.com",
-                phone: "+1 (555) 234-5678",
-                location: "Florida",
-                website: "https://otcwholesale.com",
-                notes: "Over-the-counter drugs and pharmacy supplies"
-            }
-        ];
-
-        let filteredSuppliers = [...suppliersData];
+        // Suppliers data - will be loaded from database
+        let suppliersData = [];
+        let filteredSuppliers = [];
         let currentEditId = null;
-
+        
+        // Medicine selection for supplier form
+        let allMedicines = [];
+        let medicinesByCategory = []; // Array of {category, medicines: []}
+        let selectedMedicines = []; // Array of medicine IDs
+        let medicineSearchResults = [];
+        let medicineSearchTimeout = null;
+        
+        // API Base URL
+        function getApiBaseUrl() {
+            const currentPath = window.location.pathname;
+            if (currentPath.includes('/pages/')) {
+                return '../php';
+            }
+            return 'php';
+        }
+        
+        // Fetch suppliers from database
+        async function fetchSuppliers(page = 1, search = '') {
+            try {
+                const baseUrl = getApiBaseUrl();
+                let url = `${baseUrl}/get_suppliers.php?page=${page}&pageSize=100`;
+                
+                if (search) {
+                    url += `&search=${encodeURIComponent(search)}`;
+                }
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to fetch suppliers');
+                }
+                
+                // Transform database data to match frontend format
+                suppliersData = (data.data || []).map(supplier => ({
+                    id: supplier.id,
+                    name: supplier.name,
+                    contact: supplier.contact_person || '',
+                    email: supplier.email || '',
+                    phone: supplier.phone || '',
+                    location: supplier.address || '',
+                    website: supplier.website || '',
+                    notes: supplier.notes || ''
+                }));
+                
+                filteredSuppliers = [...suppliersData];
+                filterSuppliers();
+                updateCounts();
+                
+            } catch (error) {
+                console.error('Error fetching suppliers:', error);
+                // Show error but don't break the page
+                suppliersData = [];
+                filteredSuppliers = [];
+                filterSuppliers();
+                showError('Failed to load suppliers: ' + error.message);
+            }
+        }
+        
         // DOM Elements
         const menuToggle = document.getElementById('menuToggle');
         const sidebar = document.getElementById('sidebar');
@@ -695,6 +699,11 @@
 
         // Modal functionality
         addSupplierBtn.addEventListener('click', () => {
+            // Reset form and selected medicines
+            selectedMedicines = [];
+            document.getElementById('addSupplierForm').reset();
+            // Refresh medicines list when opening modal
+            fetchMedicinesByCategory();
             addSupplierModal.classList.remove('hidden');
         });
 
@@ -737,8 +746,13 @@
         });
 
         // Search and filter functionality
-        tableSearch.addEventListener('input', filterSuppliers);
-        locationFilter.addEventListener('change', filterSuppliers);
+        tableSearch.addEventListener('input', function() {
+            filterSuppliers();
+        });
+        
+        locationFilter.addEventListener('change', function() {
+            filterSuppliers();
+        });
 
         function filterSuppliers() {
             const searchTerm = tableSearch.value.toLowerCase();
@@ -905,73 +919,304 @@
             supplierDetailModal.classList.remove('hidden');
         }
 
-        function editSupplier(id) {
-            const supplier = suppliersData.find(s => s.id === id);
-            if (!supplier) return;
+        // Make editSupplier globally accessible for onclick handlers
+        window.editSupplier = async function(id) {
+            console.log('editSupplier called with ID:', id, 'Type:', typeof id);
+            console.log('Current suppliersData length:', suppliersData.length);
+            
+            // Convert ID to number for comparison
+            const supplierId = parseInt(id);
+            if (isNaN(supplierId) || supplierId <= 0) {
+                alert('Invalid supplier ID: ' + id);
+                return;
+            }
 
-            currentEditId = id;
-            document.getElementById('editSupplierName').value = supplier.name;
-            document.getElementById('editContactPerson').value = supplier.contact;
-            document.getElementById('editEmail').value = supplier.email;
-            document.getElementById('editPhoneNumber').value = supplier.phone;
-            document.getElementById('editLocation').value = supplier.location;
+            // Try to find supplier in local data (check both string and number)
+            let supplier = suppliersData.find(s => {
+                const sId = parseInt(s.id);
+                return sId === supplierId || s.id === supplierId || s.id === id;
+            });
+            
+            console.log('Supplier found in local data:', supplier ? 'Yes' : 'No');
+            
+            // If not found locally, fetch from API
+            if (!supplier) {
+                console.log('Fetching suppliers from API...');
+                try {
+                    const baseUrl = getApiBaseUrl();
+                    const url = `${baseUrl}/get_suppliers.php?page=1&pageSize=1000`;
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' },
+                        credentials: 'include'
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('API response:', data);
+                        if (data.success && data.data) {
+                            // Update suppliersData
+                            suppliersData = data.data.map(s => ({
+                                id: s.id,
+                                name: s.name,
+                                contact: s.contact_person || '',
+                                email: s.email || '',
+                                phone: s.phone || '',
+                                location: s.address || '',
+                                website: s.website || '',
+                                notes: s.notes || ''
+                            }));
+                            
+                            console.log('Updated suppliersData length:', suppliersData.length);
+                            
+                            // Try to find again
+                            supplier = suppliersData.find(s => {
+                                const sId = parseInt(s.id);
+                                return sId === supplierId || s.id === supplierId || s.id === id;
+                            });
+                            
+                            console.log('Supplier found after API fetch:', supplier ? 'Yes' : 'No');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching suppliers:', error);
+                }
+            }
+            
+            if (!supplier) {
+                console.error('Supplier not found. ID:', supplierId, 'Available IDs:', suppliersData.map(s => s.id));
+                alert('Supplier not found. Please refresh the page and try again.');
+                return;
+            }
+            
+            console.log('Loading supplier for edit:', supplier);
+
+            currentEditId = supplierId;
+            document.getElementById('editSupplierName').value = supplier.name || '';
+            document.getElementById('editContactPerson').value = supplier.contact || '';
+            document.getElementById('editEmail').value = supplier.email || '';
+            document.getElementById('editPhoneNumber').value = supplier.phone || '';
+            document.getElementById('editLocation').value = supplier.location || '';
             document.getElementById('editWebsite').value = supplier.website || '';
             document.getElementById('editNotes').value = supplier.notes || '';
 
+            // Load existing medicines for this supplier
+            selectedMedicines = [];
+            try {
+                const baseUrl = getApiBaseUrl();
+                const url = `${baseUrl}/get_supplier_medicines.php?supplier_id=${supplierId}`;
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' },
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        selectedMedicines = data.data.map(med => med.id);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading supplier medicines:', error);
+            }
+            
+            // Refresh medicines list to ensure we have the latest data
+            await fetchMedicinesByCategory();
             editSupplierModal.classList.remove('hidden');
-        }
+        };
 
-        function deleteSupplier(id) {
-            if (confirm('Are you sure you want to delete this supplier?')) {
-                const index = suppliersData.findIndex(s => s.id === id);
-                if (index > -1) {
-                    suppliersData.splice(index, 1);
-                    filterSuppliers();
+        async function deleteSupplier(id) {
+            const supplier = suppliersData.find(s => s.id === id);
+            if (!supplier) return;
+            
+            if (confirm(`Are you sure you want to delete "${supplier.name}"?`)) {
+                try {
+                    const formData = new FormData();
+                    formData.append('id', id);
+                    
+                    const baseUrl = getApiBaseUrl();
+                    const url = `${baseUrl}/delete_supplier.php`;
+                    
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'Accept': 'application/json'
+                        },
+                        credentials: 'include'
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showSuccess('Supplier deleted successfully!');
+                        // Refresh suppliers list
+                        await fetchSuppliers(1, '');
+                    } else {
+                        showError(result.message || 'Failed to delete supplier');
+                    }
+                } catch (error) {
+                    console.error('Error deleting supplier:', error);
+                    showError('Server error: ' + error.message);
                 }
             }
         }
 
         // Form submissions
-        document.getElementById('addSupplierForm').addEventListener('submit', function(e) {
+        document.getElementById('addSupplierForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const formData = new FormData(this);
-            const newSupplier = {
-                id: Math.max(...suppliersData.map(s => s.id)) + 1,
-                name: formData.get('supplierName'),
-                contact: formData.get('contactPerson'),
-                email: formData.get('email'),
-                phone: formData.get('phoneNumber'),
-                location: formData.get('location'),
-                website: formData.get('website'),
-                notes: formData.get('notes')
-            };
-
-            suppliersData.push(newSupplier);
-            filterSuppliers();
-            addSupplierModal.classList.add('hidden');
-            this.reset();
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+            
+            try {
+                const formData = new FormData(this);
+                const baseUrl = getApiBaseUrl();
+                const url = `${baseUrl}/add_supplier.php`;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const supplierId = result.data?.id;
+                    
+                    // Link medicines to supplier if any were selected
+                    if (selectedMedicines.length > 0 && supplierId) {
+                        try {
+                            const linkData = new FormData();
+                            linkData.append('supplier_id', supplierId);
+                            linkData.append('medicine_ids', JSON.stringify(selectedMedicines));
+                            
+                            const linkResponse = await fetch(`${baseUrl}/link_medicines_to_supplier.php`, {
+                                method: 'POST',
+                                body: linkData,
+                                headers: {
+                                    'Accept': 'application/json'
+                                },
+                                credentials: 'include'
+                            });
+                            
+                            const linkResult = await linkResponse.json();
+                            if (linkResult.success) {
+                                showSuccess(`✓ Supplier added successfully! Linked ${selectedMedicines.length} medicine(s) to this supplier. These medicines are now available when creating orders with this supplier.`);
+                            } else {
+                                showSuccess('✓ Supplier added successfully, but some medicines could not be linked: ' + (linkResult.message || 'Unknown error'));
+                            }
+                        } catch (linkError) {
+                            console.error('Error linking medicines:', linkError);
+                            showSuccess('✓ Supplier added successfully, but there was an error linking medicines: ' + linkError.message);
+                        }
+                    } else {
+                        showSuccess('✓ Supplier added successfully! You can link medicines later by editing this supplier.');
+                    }
+                    
+                    this.reset();
+                    selectedMedicines = [];
+                    renderMedicinesByCategory();
+                    addSupplierModal.classList.add('hidden');
+                    // Refresh suppliers list
+                    await fetchSuppliers(1, '');
+                } else {
+                    showError(result.message || 'Failed to add supplier');
+                }
+            } catch (error) {
+                console.error('Error adding supplier:', error);
+                showError('Server error: ' + error.message);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalText;
+            }
         });
 
-        document.getElementById('editSupplierForm').addEventListener('submit', function(e) {
+        document.getElementById('editSupplierForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const formData = new FormData(this);
-            const supplier = suppliersData.find(s => s.id === currentEditId);
+            if (!currentEditId) return;
             
-            if (supplier) {
-                supplier.name = formData.get('supplierName');
-                supplier.contact = formData.get('contactPerson');
-                supplier.email = formData.get('email');
-                supplier.phone = formData.get('phoneNumber');
-                supplier.location = formData.get('location');
-                supplier.website = formData.get('website');
-                supplier.notes = formData.get('notes');
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+            
+            try {
+                const formData = new FormData(this);
+                formData.append('id', currentEditId);
+                
+                const baseUrl = getApiBaseUrl();
+                const url = `${baseUrl}/edit_supplier.php`;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const supplierId = currentEditId;
+                    
+                    // Link medicines to supplier if any were selected
+                    if (selectedMedicines.length > 0 && supplierId) {
+                        try {
+                            const linkData = new FormData();
+                            linkData.append('supplier_id', supplierId);
+                            linkData.append('medicine_ids', JSON.stringify(selectedMedicines));
+                            
+                            const linkResponse = await fetch(`${baseUrl}/link_medicines_to_supplier.php`, {
+                                method: 'POST',
+                                body: linkData,
+                                headers: {
+                                    'Accept': 'application/json'
+                                },
+                                credentials: 'include'
+                            });
+                            
+                            const linkResult = await linkResponse.json();
+                            if (linkResult.success) {
+                                showSuccess(`Supplier updated successfully! Linked ${selectedMedicines.length} medicine(s) to this supplier.`);
+                            } else {
+                                showSuccess('Supplier updated successfully, but some medicines could not be linked.');
+                            }
+                        } catch (linkError) {
+                            console.error('Error linking medicines:', linkError);
+                            showSuccess('Supplier updated successfully, but there was an error linking medicines.');
+                        }
+                    } else {
+                        showSuccess('Supplier updated successfully!');
+                    }
+                    
+                    this.reset();
+                    selectedMedicines = [];
+                    renderMedicinesByCategory();
+                    editSupplierModal.classList.add('hidden');
+                    currentEditId = null;
+                    // Refresh suppliers list
+                    await fetchSuppliers(1, '');
+                } else {
+                    showError(result.message || 'Failed to update supplier');
+                }
+            } catch (error) {
+                console.error('Error updating supplier:', error);
+                showError('Server error: ' + error.message);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalText;
             }
-
-            filterSuppliers();
-            editSupplierModal.classList.add('hidden');
-            currentEditId = null;
         });
 
         // Select all functionality
@@ -1044,6 +1289,194 @@
             });
         }
 
+        // Helper functions for notifications
+        function showSuccess(message) {
+            // Simple alert for now, can be enhanced with toast notifications
+            alert('✓ ' + message);
+        }
+
+        function showError(message) {
+            // Simple alert for now, can be enhanced with toast notifications
+            alert('✗ ' + message);
+        }
+        
+        // Fetch all medicines grouped by category
+        async function fetchMedicinesByCategory() {
+            try {
+                const baseUrl = getApiBaseUrl();
+                const url = `${baseUrl}/get_medicines_by_category.php`;
+                
+                console.log('Fetching medicines from:', url);
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Medicines data received:', data);
+                
+                if (data.success && data.data) {
+                    medicinesByCategory = data.data;
+                    allMedicines = data.data.flatMap(cat => cat.medicines);
+                    console.log('Total medicines:', allMedicines.length);
+                    console.log('Categories:', medicinesByCategory.length);
+                    renderMedicinesByCategory();
+                } else {
+                    console.error('API returned unsuccessful response:', data);
+                    const loading = document.getElementById('medicinesLoading');
+                    const editLoading = document.getElementById('editMedicinesLoading');
+                    if (loading) {
+                        loading.innerHTML = `<div class="text-center py-4 text-error-600">${data.message || 'Failed to load medicines'}</div>`;
+                    }
+                    if (editLoading) {
+                        editLoading.innerHTML = `<div class="text-center py-4 text-error-600">${data.message || 'Failed to load medicines'}</div>`;
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching medicines by category:', error);
+                const loading = document.getElementById('medicinesLoading');
+                const editLoading = document.getElementById('editMedicinesLoading');
+                if (loading) {
+                    loading.innerHTML = `<div class="text-center py-4 text-error-600">Error: ${error.message}</div>`;
+                }
+                if (editLoading) {
+                    editLoading.innerHTML = `<div class="text-center py-4 text-error-600">Error: ${error.message}</div>`;
+                }
+                showError('Failed to load medicines. Please check console for details.');
+            }
+        }
+        
+        // Render medicines grouped by category with checkboxes
+        function renderMedicinesByCategory() {
+            const container = document.getElementById('medicinesByCategory');
+            const editContainer = document.getElementById('editMedicinesByCategory');
+            const loading = document.getElementById('medicinesLoading');
+            const editLoading = document.getElementById('editMedicinesLoading');
+            
+            const render = (cont, loadEl) => {
+                if (!cont || !loadEl) return;
+                
+                loadEl.classList.add('hidden');
+                cont.classList.remove('hidden');
+                
+                if (!medicinesByCategory || medicinesByCategory.length === 0) {
+                    cont.innerHTML = '<div class="text-center py-4 text-text-secondary">No medicines available. Please add medicines to the inventory first.</div>';
+                    return;
+                }
+                
+                let html = '';
+                medicinesByCategory.forEach(categoryGroup => {
+                    if (!categoryGroup.medicines || categoryGroup.medicines.length === 0) {
+                        return; // Skip empty categories
+                    }
+                    
+                    html += `
+                        <div class="border border-border-light rounded-lg p-4 mb-3">
+                            <h4 class="font-semibold text-text-primary mb-3 flex items-center">
+                                <i class="fas fa-pills mr-2 text-primary-600"></i>
+                                ${escapeHtml(categoryGroup.category || 'Uncategorized')}
+                                <span class="ml-2 text-xs font-normal text-text-secondary">(${categoryGroup.medicines.length})</span>
+                            </h4>
+                            <div class="space-y-2">
+                    `;
+                    
+                    categoryGroup.medicines.forEach(med => {
+                        const isChecked = selectedMedicines.includes(parseInt(med.id));
+                        html += `
+                            <label class="flex items-center space-x-3 p-2 hover:bg-surface-hover rounded-lg cursor-pointer transition-colors">
+                                <input type="checkbox" 
+                                       value="${med.id}" 
+                                       ${isChecked ? 'checked' : ''}
+                                       onchange="toggleMedicineSelection(${med.id}, this.checked)"
+                                       class="w-4 h-4 text-primary-600 border-border-medium rounded focus:ring-primary-200 cursor-pointer" />
+                                <div class="flex-1">
+                                    <div class="text-sm font-medium text-text-primary">${escapeHtml(med.name || 'N/A')}</div>
+                                    <div class="text-xs text-text-secondary">NDC: ${med.ndc || 'N/A'} | Price: $${parseFloat(med.price || 0).toFixed(2)}</div>
+                                </div>
+                            </label>
+                        `;
+                    });
+                    
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                if (html === '') {
+                    cont.innerHTML = '<div class="text-center py-4 text-text-secondary"><i class="fas fa-exclamation-triangle mr-2"></i>No medicines available. Please add medicines to the inventory first.</div>';
+                } else {
+                    cont.innerHTML = html;
+                }
+            };
+            
+            render(container, loading);
+            render(editContainer, editLoading);
+            
+            // Update selected count after rendering
+            updateSelectedMedicinesCount();
+        }
+        
+        // Toggle medicine selection
+        function toggleMedicineSelection(medicineId, isSelected) {
+            const medId = parseInt(medicineId);
+            if (isSelected) {
+                if (!selectedMedicines.includes(medId)) {
+                    selectedMedicines.push(medId);
+                }
+            } else {
+                selectedMedicines = selectedMedicines.filter(id => id !== medId);
+            }
+            console.log('Selected medicines:', selectedMedicines);
+            updateSelectedMedicinesCount();
+        }
+        
+        // Update selected medicines count display
+        function updateSelectedMedicinesCount() {
+            const countElement = document.getElementById('selectedMedicinesCount');
+            const countText = document.getElementById('selectedCount');
+            const editCountElement = document.getElementById('editSelectedMedicinesCount');
+            const editCountText = document.getElementById('editSelectedCount');
+            
+            if (countElement && countText) {
+                if (selectedMedicines.length > 0) {
+                    countElement.classList.remove('hidden');
+                    countText.textContent = selectedMedicines.length;
+                } else {
+                    countElement.classList.add('hidden');
+                }
+            }
+            
+            if (editCountElement && editCountText) {
+                if (selectedMedicines.length > 0) {
+                    editCountElement.classList.remove('hidden');
+                    editCountText.textContent = selectedMedicines.length;
+                } else {
+                    editCountElement.classList.add('hidden');
+                }
+            }
+        }
+        
+        // Make function globally accessible
+        window.toggleMedicineSelection = toggleMedicineSelection;
+        
+        
+        // Escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize theme
@@ -1067,8 +1500,46 @@
             };
             document.getElementById('userDisplayName').textContent = displayNames[userEmail] || 'Pharmacist';
 
-            renderSuppliers();
-            updateCounts();
+            // Load suppliers from database
+            fetchSuppliers(1, '');
+            
+            // Load medicines grouped by category
+            fetchMedicinesByCategory();
+            
+            // Reset selected medicines when modals open/close
+            const addSupplierModal = document.getElementById('addSupplierModal');
+            const editSupplierModal = document.getElementById('editSupplierModal');
+            
+            const resetMedicines = () => {
+                selectedMedicines = [];
+                renderMedicinesByCategory();
+            };
+            
+            if (addSupplierModal) {
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                            if (addSupplierModal.classList.contains('hidden')) {
+                                resetMedicines();
+                            }
+                        }
+                    });
+                });
+                observer.observe(addSupplierModal, { attributes: true });
+            }
+            
+            if (editSupplierModal) {
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                            if (editSupplierModal.classList.contains('hidden')) {
+                                resetMedicines();
+                            }
+                        }
+                    });
+                });
+                observer.observe(editSupplierModal, { attributes: true });
+            }
         });
 
         // Theme toggle functionality

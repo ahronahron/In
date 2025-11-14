@@ -57,21 +57,21 @@
                     </a>
                 </li>
                 <li>
-                    <a href="inventory_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
-                        <i class="fas fa-capsules w-5"></i>
-                        <span>Medicine Inventory</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="suppliers_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
-                        <i class="fas fa-truck-medical w-5"></i>
-                        <span>Suppliers</span>
-                    </a>
-                </li>
-                <li>
                     <a href="orders_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
                         <i class="fas fa-prescription-bottle w-5"></i>
                         <span>Orders</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="batches_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
+                        <i class="fas fa-boxes w-5"></i>
+                        <span>Batches</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="inventory_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
+                        <i class="fas fa-capsules w-5"></i>
+                        <span>Inventory List</span>
                     </a>
                 </li>
                 <li>
@@ -81,9 +81,9 @@
                     </a>
                 </li>
                 <li>
-                    <a href="user_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
-                        <i class="fas fa-users w-5"></i>
-                        <span>User Management</span>
+                    <a href="suppliers_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
+                        <i class="fas fa-truck-medical w-5"></i>
+                        <span>Suppliers</span>
                     </a>
                 </li>
                 <li>
@@ -229,7 +229,7 @@
                     </div>
 
                     <!-- Low Stock Warning -->
-                    <button onclick="filterLowStock()" class="w-full bg-error-50 dark:bg-error-900 border border-error-200 dark:border-error-700 rounded-xl p-4 hover:bg-error-100 dark:hover:bg-error-800 transition-all duration-200 cursor-pointer">
+                    <button onclick="filterLowStock()" class="w-full bg-error-50 dark:bg-error-900 border border-error-200 dark:border-error-700 rounded-xl p-4 hover:bg-error-100 dark:hover:bg-error-800 transition-all duration-200 cursor-pointer mb-4">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-sm font-medium text-error-700 dark:text-error-300">Low Stock Alert</h3>
                             <span class="text-xs text-error-600 dark:text-error-400" id="lowStockCount">-- items</span>
@@ -243,6 +243,24 @@
                                         <div class="text-xs text-error-600 dark:text-error-400">Critical</div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </button>
+
+                    <!-- Expiration Alerts -->
+                    <button onclick="filterExpired()" class="w-full bg-warning-50 dark:bg-warning-900 border border-warning-200 dark:border-warning-700 rounded-xl p-4 hover:bg-warning-100 dark:hover:bg-warning-800 transition-all duration-200 cursor-pointer">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-sm font-medium text-warning-700 dark:text-warning-300">Expiration Alerts</h3>
+                            <span class="text-xs text-warning-600 dark:text-warning-400" id="expirationAlertsCount">-- items</span>
+                        </div>
+                        <div class="text-left space-y-1">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-warning-600 dark:text-warning-400">Expired:</span>
+                                <span class="font-semibold text-warning-700 dark:text-warning-300" id="expiredCount">0</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-warning-600 dark:text-warning-400">Expiring Soon:</span>
+                                <span class="font-semibold text-warning-700 dark:text-warning-300" id="expiringSoonCount">0</span>
                             </div>
                         </div>
                     </button>
@@ -555,6 +573,7 @@
                 await Promise.all([
                     loadMetrics(),
                     loadLowStockChart(),
+                    loadExpirationAlerts(),
                     loadRecentActivities(),
                     loadCalendarEvents()
                 ]);
@@ -579,6 +598,92 @@
             } catch (error) {
                 console.error('Error loading metrics:', error);
             }
+        }
+
+        // Load Expiration Alerts
+        async function loadExpirationAlerts() {
+            try {
+                const response = await fetch(`${DASHBOARD_API}?action=expiration-alerts`);
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    const expiredCount = result.data.expiredCount || 0;
+                    const expiringSoonCount = result.data.expiringSoonCount || 0;
+                    const totalAlerts = expiredCount + expiringSoonCount;
+
+                    document.getElementById('expiredCount').textContent = expiredCount;
+                    document.getElementById('expiringSoonCount').textContent = expiringSoonCount;
+                    document.getElementById('expirationAlertsCount').textContent = `${totalAlerts} items`;
+
+                    // Show notification if there are expired medicines
+                    if (expiredCount > 0) {
+                        showExpirationNotification(expiredCount, expiringSoonCount);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading expiration alerts:', error);
+            }
+        }
+
+        // Show expiration notification
+        function showExpirationNotification(expiredCount, expiringSoonCount) {
+            // Check if notification already shown in this session
+            const notificationKey = 'expiration_notification_shown';
+            const lastShown = sessionStorage.getItem(notificationKey);
+            const now = Date.now();
+            
+            // Show notification if not shown in last 5 minutes
+            if (!lastShown || (now - parseInt(lastShown)) > 300000) {
+                const message = expiredCount > 0 
+                    ? `⚠️ Alert: ${expiredCount} medicine(s) have expired${expiringSoonCount > 0 ? ` and ${expiringSoonCount} are expiring soon` : ''}!`
+                    : `${expiringSoonCount} medicine(s) are expiring within 30 days!`;
+                
+                // Show visual notification
+                showNotification(message, 'warning');
+                
+                sessionStorage.setItem(notificationKey, now.toString());
+            }
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            // Remove any existing notifications
+            const existing = document.querySelector('.expiration-notification');
+            if (existing) existing.remove();
+
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `expiration-notification fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg text-white transform transition-all duration-300 ${
+                type === 'success' ? 'bg-success-600' : 
+                type === 'error' ? 'bg-error-600' : 
+                type === 'warning' ? 'bg-warning-600' : 
+                'bg-primary-600'
+            }`;
+            notification.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <i class="fas ${type === 'warning' ? 'fa-exclamation-triangle' : type === 'error' ? 'fa-times-circle' : 'fa-info-circle'}"></i>
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        // Filter expired medicines
+        function filterExpired() {
+            window.location.href = 'inventory_management.html?filter=expired';
         }
 
         // Load Low Stock Chart
