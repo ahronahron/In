@@ -410,7 +410,6 @@
                         <input name="quantity" type="number" id="quantity" required min="0" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="0" />
                     </div>
 
-
                     <!-- Unit Price -->
                     <div>
                         <label for="price" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
@@ -457,6 +456,131 @@
                     </button>
                     <button type="submit" class="btn-primary px-6 py-3 rounded-xl font-medium">
                         Add Medicine
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Medicine Modal -->
+    <div id="editMedicineModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animation-slide-up">
+            <div class="flex items-center justify-between p-6 border-b border-border-light dark:border-gray-700">
+                <h2 class="text-xl font-semibold text-text-primary dark:text-gray-100">Edit Medicine</h2>
+                <button id="closeEditMedicineModal" class="text-text-tertiary dark:text-gray-400 hover:text-text-secondary dark:hover:text-gray-200 transition-colors duration-200">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <form id="editMedicineForm" class="p-6 space-y-6">
+                <input type="hidden" id="editMedicineId" name="id" />
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- NDC Code -->
+                    <div>
+                        <label for="editNdcCode" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            NDC Code *
+                        </label>
+                        <input name="ndcCode" type="text" id="editNdcCode" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="e.g., 0069-2587-68" />
+                    </div>
+
+                    <!-- Medicine Name -->
+                    <div>
+                        <label for="editMedicineName" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Medicine Name *
+                        </label>
+                        <input name="medicineName" type="text" id="editMedicineName" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter medicine name" />
+                    </div>
+
+                    <!-- Manufacturer -->
+                    <div>
+                        <label for="editManufacturer" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Manufacturer
+                        </label>
+                        <input name="manufacturer" type="text" id="editManufacturer" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter manufacturer name" />
+                    </div>
+
+                    <!-- Category -->
+                    <div>
+                        <label for="editCategory" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Category
+                        </label>
+                        <select id="editCategory" name="category" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100">
+                            <option value>Select category</option>
+                            <option value="antibiotics">Antibiotics</option>
+                            <option value="analgesics">Analgesics</option>
+                            <option value="cardiovascular">Cardiovascular</option>
+                            <option value="diabetes">Diabetes</option>
+                            <option value="respiratory">Respiratory</option>
+                            <option value="vitamins">Vitamins & Supplements</option>
+                            <option value="otc">Over-the-Counter</option>
+                            <option value="prescription">Prescription</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div>
+                        <label for="editQuantity" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Quantity *
+                        </label>
+                        <input name="quantity" type="number" id="editQuantity" required min="0" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="0" />
+                    </div>
+
+                    <!-- Reorder Level -->
+                    <div>
+                        <label for="editReorderLevel" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Reorder Level
+                        </label>
+                        <input name="reorderLevel" type="number" id="editReorderLevel" min="0" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="10" value="10" />
+                    </div>
+
+                    <!-- Unit Price -->
+                    <div>
+                        <label for="editPrice" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Unit Price *
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-text-tertiary dark:text-gray-500">$</span>
+                            </div>
+                            <input name="price" type="number" id="editPrice" required min="0" step="0.01" class="w-full pl-8 pr-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="0.00" />
+                        </div>
+                    </div>
+
+                    <!-- Expiration Date -->
+                    <div>
+                        <label for="editExpirationDate" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Expiration Date
+                        </label>
+                        <input name="expirationDate" type="date" id="editExpirationDate" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" />
+                    </div>
+
+                    <!-- Dosage Form -->
+                    <div>
+                        <label for="editDosageForm" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Dosage Form
+                        </label>
+                        <select id="editDosageForm" name="dosageForm" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100">
+                            <option value>Select dosage form</option>
+                            <option value="tablet">Tablet</option>
+                            <option value="capsule">Capsule</option>
+                            <option value="liquid">Liquid</option>
+                            <option value="injection">Injection</option>
+                            <option value="cream">Cream/Ointment</option>
+                            <option value="inhaler">Inhaler</option>
+                            <option value="patch">Patch</option>
+                            <option value="drops">Drops</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end space-x-4 pt-6 border-t border-border-light dark:border-gray-700">
+                    <button type="button" id="cancelEditMedicine" class="px-6 py-3 border border-border-medium dark:border-gray-600 text-text-secondary dark:text-gray-300 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-primary px-6 py-3 rounded-xl font-medium">
+                        Update Medicine
                     </button>
                 </div>
             </form>
@@ -659,10 +783,24 @@
                         </td>
                         <td class="px-6 py-4 text-sm">
                             <div class="flex items-center space-x-2">
-                                <button class="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 transition-colors duration-200" title="Edit">
+                                <button class="edit-medicine-btn text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 transition-colors duration-200" 
+                                        data-id="${medicine.id}" 
+                                        data-ndc="${escapeHtml(medicine.ndc || '')}" 
+                                        data-name="${escapeHtml(medicine.name || '')}" 
+                                        data-manufacturer="${escapeHtml(medicine.manufacturer || '')}" 
+                                        data-category="${escapeHtml(medicine.category || '')}" 
+                                        data-dosage-form="${escapeHtml(medicine.dosage_form || '')}" 
+                                        data-quantity="${medicine.quantity || 0}" 
+                                        data-reorder-level="${medicine.reorder_level || 10}" 
+                                        data-price="${price}" 
+                                        data-expiration="${medicine.expiration_date || ''}" 
+                                        title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="text-error-600 hover:text-error-800 dark:text-error-400 dark:hover:text-error-300 transition-colors duration-200" title="Delete">
+                                <button class="delete-medicine-btn text-error-600 hover:text-error-800 dark:text-error-400 dark:hover:text-error-300 transition-colors duration-200" 
+                                        data-id="${medicine.id}" 
+                                        data-name="${escapeHtml(medicine.name || '')}" 
+                                        title="Delete">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -876,7 +1014,12 @@
                         // Refresh the medicines list
                         await fetchMedicines(1, currentFilters);
                     } else {
-                        showError(result.message || 'Failed to add medicine');
+                        // Check for duplicate
+                        if (result.duplicate || result.data?.duplicate) {
+                            alert(result.message || 'Medicine already exists. A medicine with the same NDC Code or Name already exists in the database.');
+                        } else {
+                            showError(result.message || 'Failed to add medicine');
+                        }
                     }
                 } catch (error) {
                     console.error('Full error:', error);
@@ -898,6 +1041,157 @@
                     errorDiv.className = 'text-red-600 p-4 hidden';
                 }, 3000);
             }
+
+            // Edit Medicine Modal
+            const editMedicineModal = document.getElementById('editMedicineModal');
+            const closeEditMedicineModal = document.getElementById('closeEditMedicineModal');
+            const cancelEditMedicine = document.getElementById('cancelEditMedicine');
+
+            closeEditMedicineModal.addEventListener('click', () => {
+                editMedicineModal.classList.add('hidden');
+            });
+
+            cancelEditMedicine.addEventListener('click', () => {
+                editMedicineModal.classList.add('hidden');
+            });
+
+            // Edit button click handler (delegated event listener)
+            document.addEventListener('click', async function(e) {
+                if (e.target.closest('.edit-medicine-btn')) {
+                    const btn = e.target.closest('.edit-medicine-btn');
+                    const medicineData = {
+                        id: btn.dataset.id,
+                        ndc: btn.dataset.ndc,
+                        name: btn.dataset.name,
+                        manufacturer: btn.dataset.manufacturer || '',
+                        category: btn.dataset.category || '',
+                        dosageForm: btn.dataset.dosageForm || '',
+                        quantity: btn.dataset.quantity,
+                        reorderLevel: btn.dataset.reorderLevel || '10',
+                        price: btn.dataset.price,
+                        expirationDate: btn.dataset.expiration || ''
+                    };
+
+                    // Populate edit form
+                    document.getElementById('editMedicineId').value = medicineData.id;
+                    document.getElementById('editNdcCode').value = medicineData.ndc;
+                    document.getElementById('editMedicineName').value = medicineData.name;
+                    document.getElementById('editManufacturer').value = medicineData.manufacturer;
+                    document.getElementById('editCategory').value = medicineData.category;
+                    document.getElementById('editDosageForm').value = medicineData.dosageForm;
+                    document.getElementById('editQuantity').value = medicineData.quantity;
+                    document.getElementById('editReorderLevel').value = medicineData.reorderLevel;
+                    document.getElementById('editPrice').value = medicineData.price;
+                    document.getElementById('editExpirationDate').value = medicineData.expirationDate;
+
+                    // Show modal
+                    editMedicineModal.classList.remove('hidden');
+                }
+
+                // Delete button click handler
+                if (e.target.closest('.delete-medicine-btn')) {
+                    const btn = e.target.closest('.delete-medicine-btn');
+                    const medicineId = btn.dataset.id;
+                    const medicineName = btn.dataset.name;
+
+                    if (confirm(`Are you sure you want to delete "${medicineName}"?`)) {
+                        try {
+                            const baseUrl = getApiBaseUrl();
+                            const url = `${baseUrl}/delete_medicine.php`;
+                            console.log('Delete URL:', url);
+                            
+                            const formData = new FormData();
+                            formData.append('id', medicineId);
+
+                            const response = await fetch(url, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'Accept': 'application/json'
+                                }
+                            });
+                            
+                            console.log('Delete response status:', response.status);
+
+                            const responseText = await response.text();
+                            let result;
+                            try {
+                                result = JSON.parse(responseText);
+                            } catch (parseError) {
+                                console.error('JSON parse error:', parseError);
+                                throw new Error('Server returned invalid response.');
+                            }
+
+                            if (result.success) {
+                                showSuccess(result.message || 'Medicine deleted successfully!');
+                                // Refresh the medicines list
+                                await fetchMedicines(currentPage, currentFilters);
+                            } else {
+                                showError(result.message || 'Failed to delete medicine');
+                            }
+                        } catch (error) {
+                            console.error('Delete error:', error);
+                            showError('Server error: ' + error.message);
+                        }
+                    }
+                }
+            });
+
+            // Edit form submission
+            document.getElementById('editMedicineForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalText = submitButton.innerHTML;
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Updating...';
+                
+                try {
+                    const formData = new FormData(this);
+                    const baseUrl = getApiBaseUrl();
+                    const url = `${baseUrl}/edit_medicine.php`;
+                    console.log('Edit URL:', url);
+                    
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    console.log('Edit response status:', response.status);
+                    
+                    const responseText = await response.text();
+                    let result;
+                    try {
+                        result = JSON.parse(responseText);
+                    } catch (parseError) {
+                        console.error('JSON parse error:', parseError);
+                        throw new Error('Server returned invalid response.');
+                    }
+                    
+                    if (result.success) {
+                        showSuccess(result.message || 'Medicine updated successfully!');
+                        this.reset();
+                        editMedicineModal.classList.add('hidden');
+                        await fetchMedicines(currentPage, currentFilters);
+                    } else {
+                        // Check for duplicate
+                        if (result.duplicate || result.data?.duplicate) {
+                            alert(result.message || 'Medicine already exists. A medicine with the same NDC Code or Name already exists in the database.');
+                        } else {
+                            showError(result.message || 'Failed to update medicine');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Edit error:', error);
+                    showError('Server error: ' + error.message);
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalText;
+                }
+            });
 
             // Logout functionality
             document.getElementById('logoutBtn').addEventListener('click', function() {
