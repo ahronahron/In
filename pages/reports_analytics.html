@@ -271,33 +271,46 @@
                 </div>
             </div>
 
-            <!-- Main Chart Section -->
+            <!-- Low Stock Medicines Section -->
             <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-border-light dark:border-gray-700 p-6">
                 <div class="flex items-center justify-between mb-6">
                     <div>
-                        <h2 class="text-lg font-semibold text-text-primary dark:text-gray-100">Top Selling Medicines</h2>
-                        <p class="text-sm text-text-secondary dark:text-gray-400">Best performing pharmaceutical products</p>
+                        <h2 class="text-lg font-semibold text-text-primary dark:text-gray-100">Low Stock Medicines</h2>
+                        <p class="text-sm text-text-secondary dark:text-gray-400">Medicines that require restocking soon</p>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <button id="monthlyView" class="px-3 py-1 text-sm bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 rounded-lg">Monthly</button>
-                        <button id="weeklyView" class="px-3 py-1 text-sm text-text-secondary dark:text-gray-400 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-lg">Weekly</button>
-                        <button id="dailyView" class="px-3 py-1 text-sm text-text-secondary dark:text-gray-400 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-lg">Daily</button>
-                    </div>
+                    <button onclick="window.location.href='inventory_management.html?filter=low-stock'" class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium">View All</button>
                 </div>
 
                 <!-- Loading Indicator -->
-                <div id="chartLoading" class="hidden flex items-center justify-center h-96">
+                <div id="lowStockLoading" class="hidden flex items-center justify-center py-12">
                     <div class="flex items-center space-x-2">
                         <div class="w-4 h-4 bg-primary-600 rounded-full animate-pulse"></div>
                         <div class="w-4 h-4 bg-primary-600 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
                         <div class="w-4 h-4 bg-primary-600 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
-                        <span class="text-text-secondary dark:text-gray-400 ml-2">Loading chart data...</span>
+                        <span class="text-text-secondary dark:text-gray-400 ml-2">Loading low stock data...</span>
                     </div>
                 </div>
 
-                <!-- Chart Container -->
-                <div class="relative h-96">
-                    <canvas id="salesChart" class="w-full h-full"></canvas>
+                <!-- Low Stock Table -->
+                <div id="lowStockTableContainer" class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-border-light dark:border-gray-700">
+                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-primary dark:text-gray-100">Medicine Name</th>
+                                <th class="text-right py-3 px-4 text-sm font-semibold text-text-primary dark:text-gray-100">Current Quantity</th>
+                                <th class="text-right py-3 px-4 text-sm font-semibold text-text-primary dark:text-gray-100">Minimum Required</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lowStockTableBody" class="divide-y divide-border-light dark:divide-gray-700">
+                            <!-- Data will be populated here -->
+                        </tbody>
+                    </table>
+                    
+                    <!-- Empty State -->
+                    <div id="lowStockEmpty" class="hidden text-center py-12">
+                        <i class="fas fa-check-circle text-4xl text-success-600 dark:text-success-400 mb-3"></i>
+                        <p class="text-text-secondary dark:text-gray-400">All medicines are well stocked!</p>
+                    </div>
                 </div>
             </div>
 
@@ -522,6 +535,16 @@
     </div>
 
     <script>
+        // API Base URL
+        const API_BASE = '../php/get_reports.php';
+
+        // Global state
+        let currentFilters = {
+            dateRange: 'monthly',
+            category: '',
+            reportType: 'sales'
+        };
+
         // Theme management
         function initializeTheme() {
             const savedTheme = localStorage.getItem('theme') || 'light';
@@ -599,83 +622,261 @@
             }
         });
 
-        // Initialize placeholder chart
-        let salesChart;
-        function initializeChart() {
-            const ctx = document.getElementById('salesChart');
-            if (!ctx) return;
+        // API Functions
+        async function fetchDashboardData() {
+            try {
+                const params = new URLSearchParams({
+                    action: 'dashboard',
+                    dateRange: currentFilters.dateRange,
+                    category: currentFilters.category,
+                    reportType: currentFilters.reportType
+                });
 
-            salesChart = new Chart(ctx.getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: ['No data available'],
-                    datasets: [{
-                        label: 'Units Sold',
-                        data: [0],
-                        backgroundColor: ['#E0E0E0'],
-                        borderColor: ['#BDBDBD'],
-                        borderWidth: 1,
-                        borderRadius: 4,
-                        borderSkipped: false,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 20
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleColor: '#fff',
-                            bodyColor: '#fff',
-                            borderColor: '#2E7D32',
-                            borderWidth: 1,
-                            cornerRadius: 8,
-                            displayColors: false,
-                            callbacks: {
-                                label: function(context) {
-                                    return context.parsed.y === 0 ? 'Ready for database integration' : `Units Sold: ${context.parsed.y.toLocaleString()}`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: '#E0E0E0',
-                                drawBorder: false
-                            },
-                            ticks: {
-                                color: '#666666',
-                                callback: function(value) {
-                                    return value === 0 ? 'No data' : value.toLocaleString();
-                                }
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                color: '#666666'
-                            }
-                        }
-                    },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
+                const response = await fetch(`${API_BASE}?${params}`);
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    updateKPIMetrics(result.data);
+                } else {
+                    console.error('Failed to fetch dashboard data:', result.message);
+                    showError('Failed to load dashboard data');
+                }
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+                showError('Error loading dashboard data');
+            }
+        }
+
+        async function fetchLowStockMedicines() {
+            try {
+                const response = await fetch(`${API_BASE}?action=low-stock`);
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    updateLowStockTable(result.data);
+                } else {
+                    console.error('Failed to fetch low stock data:', result.message);
+                    showError('Failed to load low stock data');
+                }
+            } catch (error) {
+                console.error('Error fetching low stock data:', error);
+                showError('Error loading low stock data');
+            }
+        }
+
+        async function fetchStockAvailability() {
+            try {
+                const response = await fetch(`${API_BASE}?action=stock-availability`);
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    updateStockBars(result.data);
+                } else {
+                    console.error('Failed to fetch stock availability:', result.message);
+                }
+            } catch (error) {
+                console.error('Error fetching stock availability:', error);
+            }
+        }
+
+        // Update KPI Metrics
+        function updateKPIMetrics(data) {
+            const revenueEl = document.getElementById('totalRevenue');
+            const turnoverEl = document.getElementById('medicineTurnover');
+            const profitEl = document.getElementById('profitMargin');
+            const topSellingEl = document.getElementById('topSellingItems');
+
+            if (revenueEl) {
+                revenueEl.textContent = `$${data.totalRevenue || '0.00'}`;
+                revenueEl.parentElement.querySelector('.text-text-tertiary').textContent = 'Total inventory value';
+            }
+
+            if (turnoverEl) {
+                turnoverEl.textContent = data.medicineTurnover || '0';
+                turnoverEl.parentElement.querySelector('.text-text-tertiary').textContent = 'Total units in stock';
+            }
+
+            if (profitEl) {
+                profitEl.textContent = `${data.profitMarginPercent || '0'}%`;
+                profitEl.parentElement.querySelector('.text-text-tertiary').textContent = `Est. profit: $${data.profitMargin || '0.00'}`;
+            }
+
+            if (topSellingEl) {
+                topSellingEl.textContent = data.topSellingItems || '0';
+                topSellingEl.parentElement.querySelector('.text-text-tertiary').textContent = 'Active medicines';
+            }
+        }
+
+        // Update Low Stock Table
+        function updateLowStockTable(medicines) {
+            const tableBody = document.getElementById('lowStockTableBody');
+            const emptyState = document.getElementById('lowStockEmpty');
+            const loadingIndicator = document.getElementById('lowStockLoading');
+            const tableContainer = document.getElementById('lowStockTableContainer');
+
+            // Hide loading indicator
+            if (loadingIndicator) loadingIndicator.classList.add('hidden');
+
+            if (!medicines || medicines.length === 0) {
+                if (tableBody) tableBody.innerHTML = '';
+                if (tableContainer) tableContainer.classList.add('hidden');
+                if (emptyState) emptyState.classList.remove('hidden');
+                return;
+            }
+
+            // Show table and hide empty state
+            if (tableContainer) tableContainer.classList.remove('hidden');
+            if (emptyState) emptyState.classList.add('hidden');
+
+            // Clear existing rows
+            if (tableBody) {
+                tableBody.innerHTML = '';
+
+                medicines.forEach(medicine => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-surface-hover dark:hover:bg-gray-800 transition-colors duration-200';
+
+                    // Determine row color based on quantity
+                    let rowClass = '';
+                    let quantityClass = '';
+                    if (medicine.quantity <= 2) {
+                        // Critical - Red
+                        rowClass = 'bg-error-50 dark:bg-error-900/20';
+                        quantityClass = 'text-error-600 dark:text-error-400 font-semibold';
+                    } else if (medicine.quantity < medicine.reorderLevel) {
+                        // Below minimum - Orange
+                        rowClass = 'bg-warning-50 dark:bg-warning-900/20';
+                        quantityClass = 'text-warning-600 dark:text-warning-400 font-semibold';
                     }
+
+                    row.className += ` ${rowClass}`;
+
+                    row.innerHTML = `
+                        <td class="py-3 px-4 text-sm text-text-primary dark:text-gray-100">
+                            ${medicine.name}
+                        </td>
+                        <td class="py-3 px-4 text-sm text-right ${quantityClass}">
+                            ${medicine.quantity.toLocaleString()}
+                        </td>
+                        <td class="py-3 px-4 text-sm text-right text-text-secondary dark:text-gray-400">
+                            ${medicine.reorderLevel.toLocaleString()}
+                        </td>
+                    `;
+
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+
+        // Update Stock Availability Bars
+        function updateStockBars(stockData) {
+            const categoryNameMap = {
+                'antibiotics': 'Antibiotics',
+                'analgesics': 'Analgesics',
+                'cardiovascular': 'Cardiovascular',
+                'diabetes': 'Diabetes',
+                'respiratory': 'Respiratory',
+                'vitamins': 'Vitamins & Supplements'
+            };
+
+            stockData.forEach(item => {
+                const categoryDisplayName = categoryNameMap[item.category];
+                if (!categoryDisplayName) return;
+
+                // Find the section by category name
+                const categorySections = document.querySelectorAll('.space-y-6 > div');
+                let targetSection = null;
+
+                categorySections.forEach(section => {
+                    const categorySpan = section.querySelector('span.text-sm.font-medium');
+                    if (categorySpan && categorySpan.textContent.trim() === categoryDisplayName) {
+                        targetSection = section;
+                    }
+                });
+
+                if (!targetSection) return;
+
+                // Update percentage and counts
+                const countSpans = targetSection.querySelectorAll('.text-text-secondary');
+                const percentSpans = targetSection.querySelectorAll('[class*="text-primary-600"], [class*="text-accent-600"], [class*="text-secondary-600"], [class*="text-warning-600"], [class*="text-error-600"], [class*="text-success-600"]');
+                const progressBar = targetSection.querySelector('.rounded-full > div');
+
+                // Update count (first text-text-secondary span in the flex container)
+                if (countSpans.length > 0) {
+                    countSpans[0].textContent = `${item.inStockItems} / ${item.totalItems}`;
+                }
+
+                // Update percentage (the colored percentage span)
+                if (percentSpans.length > 0) {
+                    percentSpans[0].textContent = `${item.percentage}%`;
+                }
+
+                // Update progress bar
+                if (progressBar) {
+                    progressBar.style.width = `${item.percentage}%`;
                 }
             });
         }
+
+        // Refresh Data
+        async function refreshAllData() {
+            const refreshBtn = document.getElementById('refreshBtn');
+            const icon = refreshBtn?.querySelector('i');
+            
+            if (icon) icon.classList.add('fa-spin');
+            
+            // Show loading indicator
+            document.getElementById('lowStockLoading')?.classList.remove('hidden');
+
+            try {
+                await Promise.all([
+                    fetchDashboardData(),
+                    fetchLowStockMedicines(),
+                    fetchStockAvailability()
+                ]);
+
+                // Hide loading indicator
+                document.getElementById('lowStockLoading')?.classList.add('hidden');
+
+                showNotification('Data refreshed successfully!', 'success');
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+                showError('Error refreshing data');
+            } finally {
+                if (icon) icon.classList.remove('fa-spin');
+            }
+        }
+
+        // Notification System
+        function showNotification(message, type = 'info') {
+            // Simple notification - you can enhance this with a toast library
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 
+                'bg-blue-500'
+            } text-white`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function showError(message) {
+            showNotification(message, 'error');
+        }
+
+        // Filter Handlers
+        function handleFilterChange() {
+            currentFilters.dateRange = document.getElementById('dateRangeFilter')?.value || 'monthly';
+            currentFilters.category = document.getElementById('categoryFilter')?.value || '';
+            currentFilters.reportType = document.getElementById('reportTypeSelect')?.value || 'sales';
+
+            refreshAllData();
+        }
+
 
         // Export modal functionality
         const exportModal = document.getElementById('exportModal');
@@ -708,14 +909,14 @@
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Exporting...';
             submitBtn.disabled = true;
             
-            // Simulate export process
+            // Simulate export process (in real implementation, this would call an export API)
             setTimeout(() => {
                 // Reset button
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
                 
                 // Show success message
-                alert(`Report exported successfully as ${format.toUpperCase()}! Ready for database integration.`);
+                showNotification(`Report exported successfully as ${format.toUpperCase()}!`, 'success');
                 
                 // Close modal
                 exportModal?.classList.add('hidden');
@@ -726,66 +927,12 @@
             }, 2000);
         });
 
-        // Refresh data functionality
-        document.getElementById('refreshBtn')?.addEventListener('click', function() {
-            const icon = this.querySelector('i');
-            
-            // Add spinning animation
-            icon?.classList.add('fa-spin');
-            
-            // Show loading indicator
-            document.getElementById('chartLoading')?.classList.remove('hidden');
-            const chartEl = document.getElementById('salesChart');
-            if (chartEl) chartEl.style.display = 'none';
-            
-            // Simulate data refresh
-            setTimeout(() => {
-                // Remove spinning animation
-                icon?.classList.remove('fa-spin');
-                
-                // Hide loading indicator
-                document.getElementById('chartLoading')?.classList.add('hidden');
-                if (chartEl) chartEl.style.display = 'block';
-                
-                // Show success message
-                alert('Data refreshed! Ready for database integration.');
-            }, 1500);
-        });
+        // Event Listeners
+        document.getElementById('refreshBtn')?.addEventListener('click', refreshAllData);
 
-        // Report type change functionality
-        document.getElementById('reportTypeSelect')?.addEventListener('change', function() {
-            const reportType = this.value;
-            // TODO: Update chart based on report type and database data
-            console.log('Report type changed to:', reportType);
-        });
-
-        // Filter change functionality
-        const filters = document.querySelectorAll('#dateRangeFilter, #categoryFilter');
-        filters.forEach(filter => {
-            filter?.addEventListener('change', function() {
-                // TODO: Apply filters to database queries
-                console.log('Filter changed:', this.id, this.value);
-            });
-        });
-
-        // View buttons functionality
-        const viewButtons = document.querySelectorAll('#monthlyView, #weeklyView, #dailyView');
-        viewButtons.forEach(button => {
-            button?.addEventListener('click', function() {
-                // Remove active class from all buttons
-                viewButtons.forEach(btn => {
-                    btn.classList.remove('bg-primary-100', 'dark:bg-primary-900', 'text-primary-700', 'dark:text-primary-300');
-                    btn.classList.add('text-text-secondary', 'dark:text-gray-400');
-                });
-                
-                // Add active class to clicked button
-                this.classList.add('bg-primary-100', 'dark:bg-primary-900', 'text-primary-700', 'dark:text-primary-300');
-                this.classList.remove('text-text-secondary', 'dark:text-gray-400');
-                
-                // TODO: Update chart view
-                console.log('View changed to:', this.textContent);
-            });
-        });
+        document.getElementById('reportTypeSelect')?.addEventListener('change', handleFilterChange);
+        document.getElementById('dateRangeFilter')?.addEventListener('change', handleFilterChange);
+        document.getElementById('categoryFilter')?.addEventListener('change', handleFilterChange);
 
         // Initialize everything when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
@@ -810,14 +957,8 @@
             };
             document.getElementById('userDisplayName').textContent = displayNames[userEmail] || 'Pharmacist';
             
-            // Initialize chart
-            initializeChart();
-            
-            // Initialize placeholder data
-            document.getElementById('totalRevenue').textContent = '--';
-            document.getElementById('medicineTurnover').textContent = '--';
-            document.getElementById('profitMargin').textContent = '--';
-            document.getElementById('topSellingItems').textContent = '--';
+            // Load initial data
+            refreshAllData();
             
             // Close modals on ESC key
             document.addEventListener('keydown', (e) => {

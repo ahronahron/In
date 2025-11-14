@@ -307,37 +307,7 @@
     </div>
 
 <script>
-// Settings Modal Tabs Logic
-(function() {
-  const tabBtns = document.querySelectorAll('.settings-tab');
-  const panels = document.querySelectorAll('.settings-panel');
-  function showTab(tab) {
-    panels.forEach(panel => {
-      panel.style.display = (panel.getAttribute('data-tab-panel') === tab) ? 'block' : 'none';
-    });
-    tabBtns.forEach(btn => {
-      if (btn.dataset.tab === tab) {
-        btn.classList.add('bg-primary-100', 'dark:bg-primary-700', 'text-primary-900', 'dark:text-white');
-      } else {
-        btn.classList.remove('bg-primary-100', 'dark:bg-primary-700', 'text-primary-900', 'dark:text-white');
-      }
-    });
-  }
-  tabBtns.forEach(btn => {
-    btn.onclick = () => showTab(btn.dataset.tab);
-  });
-  // initial tab
-  showTab('profile');
-
-  // Save/cancel demo
-  document.getElementById('saveSettings').onclick = function() {
-    alert('Settings saved! (Demo only)');
-    document.getElementById('settingsModal').classList.add('hidden');
-  };
-  document.getElementById('cancelSettings').onclick = function() {
-    document.getElementById('settingsModal').classList.add('hidden');
-  }
-})();
+// Settings Modal - Simplified (no tabs needed for basic settings)
 </script>
 
     <script>
@@ -412,8 +382,8 @@
         }
 
         function viewAllActivities() {
-            // In a real implementation, this would show a modal or navigate to activities page
-            alert('Activities page - Ready for database integration');
+            // Navigate to inventory management with activities filter
+            window.location.href = 'inventory_management.html?filter=recent';
         }
 
         function openSettings() {
@@ -460,19 +430,20 @@
 
             // Initialize FullCalendar
             const calendarEl = document.getElementById('calendar');
-            const calendar = new FullCalendar.Calendar(calendarEl, {
+            window.calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek'
                 },
-                events: [
-                    // Empty - ready for database integration
-                ],
+                events: [],
                 height: 'auto',
                 eventClick: function(info) {
-                    alert('Medicine Schedule: ' + info.event.title + '\nReady for database integration');
+                    const props = info.event.extendedProps;
+                    const status = props.status || 'unknown';
+                    const quantity = props.quantity || 0;
+                    alert(`Medicine: ${info.event.title}\nExpiry Date: ${info.event.startStr}\nStatus: ${status}\nQuantity: ${quantity}`);
                 },
                 dayHeaderContent: function(arg) {
                     return arg.text;
@@ -487,35 +458,9 @@
                     };
                 }
             });
-            calendar.render();
+            window.calendar.render();
 
-            // Initialize placeholder chart
-            const ctx = document.getElementById('lowStockChart');
-            if (ctx) {
-                new Chart(ctx.getContext('2d'), {
-                    type: 'doughnut',
-                    data: {
-                        datasets: [{
-                            data: [0, 100],
-                            backgroundColor: ['#F44336', '#E0E0E0'],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: false,
-                        maintainAspectRatio: false,
-                        cutout: '70%',
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                enabled: false
-                            }
-                        }
-                    }
-                });
-            }
+            // Low stock chart will be initialized in loadLowStockChart()
 
             // Sidebar functionality
             const sidebar = document.getElementById('sidebar');
@@ -539,15 +484,10 @@
 
             // Theme toggle functionality
             const themeToggle = document.getElementById('themeToggle');
-            const settingsThemeToggle = document.getElementById('settingsThemeToggle');
             const headerThemeToggle = document.getElementById('headerThemeToggle');
             
             if (themeToggle) {
                 themeToggle.addEventListener('click', toggleTheme);
-            }
-            
-            if (settingsThemeToggle) {
-                settingsThemeToggle.addEventListener('click', toggleTheme);
             }
             
             if (headerThemeToggle) {
@@ -570,11 +510,28 @@
             });
 
             // Global search functionality
-            document.getElementById('globalSearch').addEventListener('input', function(e) {
-                const searchTerm = e.target.value.toLowerCase();
+            const searchInput = document.getElementById('globalSearch');
+            let searchTimeout;
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.trim();
+                
+                clearTimeout(searchTimeout);
+                
                 if (searchTerm.length > 2) {
-                    // Ready for database integration
-                    console.log('Searching for:', searchTerm);
+                    searchTimeout = setTimeout(() => {
+                        // Navigate to inventory with search filter
+                        window.location.href = `inventory_management.html?search=${encodeURIComponent(searchTerm)}`;
+                    }, 500);
+                }
+            });
+            
+            // Allow Enter key to search immediately
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const searchTerm = e.target.value.trim();
+                    if (searchTerm.length > 0) {
+                        window.location.href = `inventory_management.html?search=${encodeURIComponent(searchTerm)}`;
+                    }
                 }
             });
 
@@ -585,13 +542,180 @@
                 }
             });
 
-            // Initialize placeholder data (will be replaced with database data)
-            document.getElementById('totalMedicines').textContent = '--';
-            document.getElementById('pendingOrders').textContent = '--';
-            document.getElementById('totalValue').textContent = '--';
-            document.getElementById('lowStockCount').textContent = '-- items';
-            document.getElementById('lowStockPercentage').textContent = '--%';
+            // Load dashboard data
+            loadDashboardData();
         });
+
+        // API Base URL
+        const DASHBOARD_API = '../php/get_dashboard.php';
+
+        // Load Dashboard Data
+        async function loadDashboardData() {
+            try {
+                await Promise.all([
+                    loadMetrics(),
+                    loadLowStockChart(),
+                    loadRecentActivities(),
+                    loadCalendarEvents()
+                ]);
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Load Metrics
+        async function loadMetrics() {
+            try {
+                const response = await fetch(`${DASHBOARD_API}?action=metrics`);
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    document.getElementById('totalMedicines').textContent = result.data.totalMedicines || '0';
+                    document.getElementById('pendingOrders').textContent = result.data.pendingOrders || '0';
+                    document.getElementById('totalValue').textContent = `$${result.data.totalValue || '0.00'}`;
+                    document.getElementById('lowStockCount').textContent = `${result.data.lowStockCount || 0} items`;
+                    document.getElementById('lowStockPercentage').textContent = `${result.data.lowStockPercentage || 0}%`;
+                }
+            } catch (error) {
+                console.error('Error loading metrics:', error);
+            }
+        }
+
+        // Load Low Stock Chart
+        let lowStockChart = null;
+        async function loadLowStockChart() {
+            try {
+                const response = await fetch(`${DASHBOARD_API}?action=low-stock`);
+                const result = await response.json();
+
+                const ctx = document.getElementById('lowStockChart');
+                if (!ctx) return;
+
+                if (result.success && result.data) {
+                    const lowStockCount = result.data.length;
+                    const totalMedicines = parseInt(document.getElementById('totalMedicines').textContent) || 1;
+                    const lowStockPercentage = Math.round((lowStockCount / totalMedicines) * 100);
+
+                    if (lowStockChart) {
+                        lowStockChart.destroy();
+                    }
+
+                    lowStockChart = new Chart(ctx.getContext('2d'), {
+                        type: 'doughnut',
+                        data: {
+                            datasets: [{
+                                data: [lowStockPercentage, 100 - lowStockPercentage],
+                                backgroundColor: ['#F44336', '#E0E0E0'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: false,
+                            maintainAspectRatio: false,
+                            cutout: '70%',
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    enabled: false
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading low stock chart:', error);
+            }
+        }
+
+        // Load Recent Activities
+        async function loadRecentActivities() {
+            try {
+                const response = await fetch(`${DASHBOARD_API}?action=activities`);
+                const result = await response.json();
+
+                const activitiesList = document.getElementById('recentActivitiesList');
+                if (!activitiesList) return;
+
+                if (result.success && result.data && result.data.length > 0) {
+                    activitiesList.innerHTML = '';
+                    result.data.forEach(activity => {
+                        const activityEl = document.createElement('div');
+                        activityEl.className = 'flex items-start space-x-3 p-3 bg-surface-hover dark:bg-gray-800 rounded-xl';
+                        
+                        const iconClass = activity.type === 'medicine_added' ? 'fa-plus-circle text-green-600' : 'fa-edit text-blue-600';
+                        const iconBg = activity.type === 'medicine_added' ? 'bg-green-100 dark:bg-green-900' : 'bg-blue-100 dark:bg-blue-900';
+                        
+                        const date = new Date(activity.date);
+                        const timeAgo = getTimeAgo(date);
+                        
+                        activityEl.innerHTML = `
+                            <div class="w-8 h-8 ${iconBg} rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas ${iconClass} text-xs"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-text-primary dark:text-gray-100">${activity.description}</p>
+                                <p class="text-xs text-text-tertiary dark:text-gray-400">${activity.name} • ${timeAgo}</p>
+                            </div>
+                        `;
+                        activitiesList.appendChild(activityEl);
+                    });
+                } else {
+                    activitiesList.innerHTML = `
+                        <div class="flex items-start space-x-3 p-3 bg-surface-hover dark:bg-gray-800 rounded-xl">
+                            <div class="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-database text-gray-600 dark:text-gray-400 text-xs"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-text-primary dark:text-gray-100">No recent activities</p>
+                                <p class="text-xs text-text-tertiary dark:text-gray-400">Activities will appear here</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading recent activities:', error);
+            }
+        }
+
+        // Load Calendar Events
+        async function loadCalendarEvents() {
+            try {
+                const response = await fetch(`${DASHBOARD_API}?action=calendar`);
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    const calendarEl = document.getElementById('calendar');
+                    if (calendarEl && window.calendar) {
+                        window.calendar.removeAllEvents();
+                        result.data.forEach(event => {
+                            window.calendar.addEvent({
+                                title: event.title,
+                                start: event.start,
+                                color: event.color,
+                                extendedProps: event.extendedProps
+                            });
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading calendar events:', error);
+            }
+        }
+
+        // Helper function for time ago
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            if (seconds < 60) return 'just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+            const days = Math.floor(hours / 24);
+            if (days < 7) return `${days} day${days > 1 ? 's' : ''} ago`;
+            return date.toLocaleDateString();
+        }
 
         // Global functions
         window.openSettings = openSettings;
