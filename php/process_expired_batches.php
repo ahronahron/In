@@ -11,6 +11,7 @@ ini_set('log_errors', 1);
 
 require_once __DIR__ . '/conn.php';
 require_once __DIR__ . '/order_batch_helper.php';
+require_once __DIR__ . '/archive_helper.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -21,6 +22,12 @@ try {
 
     // Process expired batch items
     $stats = processExpiredBatchItems($conn);
+
+    // Archive expired items
+    $archived = archiveExpiredItems($conn);
+    if ($archived > 0) {
+        $stats['archived'] = $archived;
+    }
 
     echo json_encode([
         'success' => true,

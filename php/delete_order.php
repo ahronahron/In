@@ -47,6 +47,7 @@ function sendJsonResponse($success, $message, $data = null, $httpCode = 200) {
 
 try {
     require_once __DIR__ . '/conn.php';
+require_once __DIR__ . '/archive_helper.php';
 
     // Check database connection
     if (!isset($conn) || !$conn) {
@@ -78,6 +79,17 @@ try {
     $order = mysqli_fetch_assoc($checkResult);
     $order_status = $order['status'];
     mysqli_stmt_close($checkStmt);
+
+    // Archive cancelled orders before deleting
+    if ($order_status === 'cancelled') {
+        $cancelled_by = isset($_POST['cancelled_by']) ? $_POST['cancelled_by'] : null;
+        $reason = isset($_POST['reason']) ? $_POST['reason'] : null;
+        
+        if (!archiveOrder($conn, $order_id, $cancelled_by, $reason)) {
+            error_log("Warning: Failed to archive cancelled order before deletion");
+            // Continue with deletion even if archiving fails
+        }
+    }
 
     // Start transaction
     mysqli_begin_transaction($conn);

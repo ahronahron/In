@@ -35,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once __DIR__ . '/conn.php';
+require_once __DIR__ . '/archive_helper.php';
 
 // Function to send JSON response
 function sendJsonResponse($success, $message, $data = null, $statusCode = 200) {
@@ -88,6 +89,15 @@ try {
     
     $medicine = mysqli_fetch_assoc($checkResult);
     mysqli_stmt_close($checkStmt);
+
+    // Archive the medicine before deleting
+    $deleted_by = isset($_POST['deleted_by']) ? $_POST['deleted_by'] : null;
+    $reason = isset($_POST['reason']) ? $_POST['reason'] : null;
+    
+    if (!archiveMedicine($conn, $medicine_id, $deleted_by, $reason)) {
+        error_log("Warning: Failed to archive medicine before deletion");
+        // Continue with deletion even if archiving fails
+    }
 
     // Delete the medicine
     $sql = "DELETE FROM medicines WHERE id = ?";

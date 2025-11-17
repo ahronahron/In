@@ -81,6 +81,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="archive.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-archive w-5"></i>
+                        <span>Archive</span>
+                    </a>
+                </li>
+                <li>
                     <a href="javascript:void(0)" onclick="openSettings()" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
                         <i class="fas fa-cog w-5"></i>
                         <span>Settings</span>
@@ -175,10 +181,10 @@
                         <div class="flex items-center space-x-2">
                             <label for="statusFilter" class="text-sm font-medium text-text-secondary dark:text-gray-400">Status:</label>
                             <select id="statusFilter" class="px-3 py-2 border border-border-light dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100">
-                                <option value>All Status</option>
+                                <option value="">All Status</option>
                                 <option value="pending">Pending</option>
-                                <option value="confirmed">Confirmed</option>
-                                <option value="shipped">Shipped</option>
+                                <option value="shipping">Shipping</option>
+                                <option value="completed">Completed</option>
                                 <option value="cancelled">Cancelled</option>
                             </select>
                         </div>
@@ -284,7 +290,7 @@
                     </div>
                     <h3 class="text-lg font-medium text-text-primary mb-2">No orders found</h3>
                     <p class="text-text-secondary mb-6">Get started by creating your first order</p>
-                    <button class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors duration-200">
+                    <button id="createOrderBtnEmpty" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors duration-200">
                         <i class="fas fa-plus mr-2"></i>
                         Create Order
                     </button>
@@ -463,19 +469,19 @@
                 </p>
                 
                 <div class="space-y-3">
-                    <button class="w-full px-4 py-3 text-left text-text-secondary hover:text-primary hover:bg-primary-50 rounded-lg transition-all duration-200">
+                    <button id="bulkMarkCompleted" class="w-full px-4 py-3 text-left text-text-secondary hover:text-primary hover:bg-primary-50 rounded-lg transition-all duration-200">
                         <i class="fas fa-check-circle mr-3 text-success"></i>
-                        Mark as Confirmed
+                        Mark as Completed
                     </button>
-                    <button class="w-full px-4 py-3 text-left text-text-secondary hover:text-primary hover:bg-primary-50 rounded-lg transition-all duration-200">
+                    <button id="bulkMarkShipped" class="w-full px-4 py-3 text-left text-text-secondary hover:text-primary hover:bg-primary-50 rounded-lg transition-all duration-200">
                         <i class="fas fa-shipping-fast mr-3 text-accent"></i>
                         Mark as Shipped
                     </button>
-                    <button class="w-full px-4 py-3 text-left text-text-secondary hover:text-error hover:bg-error-50 rounded-lg transition-all duration-200">
+                    <button id="bulkCancelOrders" class="w-full px-4 py-3 text-left text-text-secondary hover:text-error hover:bg-error-50 rounded-lg transition-all duration-200">
                         <i class="fas fa-times-circle mr-3 text-error"></i>
                         Cancel Orders
                     </button>
-                    <button class="w-full px-4 py-3 text-left text-text-secondary hover:text-primary hover:bg-primary-50 rounded-lg transition-all duration-200">
+                    <button id="bulkExportSelected" class="w-full px-4 py-3 text-left text-text-secondary hover:text-primary hover:bg-primary-50 rounded-lg transition-all duration-200">
                         <i class="fas fa-download mr-3 text-primary"></i>
                         Export Selected
                     </button>
@@ -495,6 +501,7 @@
         let sortField = '';
         let sortDirection = 'asc';
         let currentOrderItems = []; // For order creation
+        let totalOrdersCount = 0; // Total orders from server (for pagination)
         
         // API Base URL
         function getApiBaseUrl() {
@@ -506,7 +513,7 @@
         }
         
         // Fetch orders from database
-        async function fetchOrders(page = 1, search = '', status = '', supplier_id = 0) {
+        async function fetchOrders(page = 1, search = '', status = '', supplier_id = 0, dateFrom = '', dateTo = '') {
             try {
                 const baseUrl = getApiBaseUrl();
                 let url = `${baseUrl}/get_orders.php?page=${page}&pageSize=${pageSize}`;
@@ -519,6 +526,12 @@
                 }
                 if (supplier_id > 0) {
                     url += `&supplier_id=${supplier_id}`;
+                }
+                if (dateFrom) {
+                    url += `&dateFrom=${encodeURIComponent(dateFrom)}`;
+                }
+                if (dateTo) {
+                    url += `&dateTo=${encodeURIComponent(dateTo)}`;
                 }
                 
                 const response = await fetch(url, {
@@ -555,6 +568,8 @@
                 }));
                 
                 filteredOrders = [...ordersData];
+                totalOrdersCount = data.total || 0; // Store total from server
+                currentPage = data.page || 1;
                 renderOrders();
                 updatePagination();
                 
@@ -907,7 +922,13 @@
                 const closeBtnEl = document.getElementById(closeBtn);
                 const cancelBtnEl = document.getElementById(cancelBtn);
 
-                openBtnEl?.addEventListener('click', () => modalEl.classList.remove('hidden'));
+                openBtnEl?.addEventListener('click', () => {
+                    modalEl.classList.remove('hidden');
+                    // Update selected count when bulk actions modal opens
+                    if (modal === 'bulkActionsModal') {
+                        document.getElementById('selectedCount').textContent = selectedOrders.size;
+                    }
+                });
                 closeBtnEl?.addEventListener('click', () => modalEl.classList.add('hidden'));
                 cancelBtnEl?.addEventListener('click', () => modalEl.classList.add('hidden'));
 
@@ -924,6 +945,15 @@
                     });
                 }
             });
+
+            // Empty state create order button
+            const createOrderBtnEmpty = document.getElementById('createOrderBtnEmpty');
+            const createOrderModal = document.getElementById('createOrderModal');
+            if (createOrderBtnEmpty && createOrderModal) {
+                createOrderBtnEmpty.addEventListener('click', () => {
+                    createOrderModal.classList.remove('hidden');
+                });
+            }
         }
 
         // Make functions globally accessible for onclick handlers
@@ -943,11 +973,14 @@
             document.getElementById('resetFilters').addEventListener('click', resetFilters);
             
             // Page size change
-            document.getElementById('pageSize').addEventListener('change', (e) => {
+            document.getElementById('pageSize').addEventListener('change', async (e) => {
                 pageSize = parseInt(e.target.value);
                 currentPage = 1;
-                renderOrders();
-                updatePagination();
+                const statusFilter = document.getElementById('statusFilter').value;
+                const dateFrom = document.getElementById('dateFrom').value;
+                const dateTo = document.getElementById('dateTo').value;
+                const searchTerm = document.getElementById('globalSearch')?.value || '';
+                await fetchOrders(currentPage, searchTerm, statusFilter, 0, dateFrom, dateTo);
             });
 
             // Select all functionality
@@ -963,48 +996,47 @@
 
             // Export functionality
             document.getElementById('exportBtn').addEventListener('click', exportOrders);
+
+            // Bulk actions
+            document.getElementById('bulkMarkCompleted').addEventListener('click', () => bulkUpdateStatus('completed'));
+            document.getElementById('bulkMarkShipped').addEventListener('click', () => bulkUpdateStatus('shipping'));
+            document.getElementById('bulkCancelOrders').addEventListener('click', () => bulkUpdateStatus('cancelled'));
+            document.getElementById('bulkExportSelected').addEventListener('click', bulkExportSelected);
         }
 
-        function handleSearch(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            filteredOrders = ordersData.filter(order => 
-                order.id.toLowerCase().includes(searchTerm) ||
-                order.product.toLowerCase().includes(searchTerm) ||
-                order.status.toLowerCase().includes(searchTerm)
-            );
-            currentPage = 1;
-            renderOrders();
-            updatePagination();
-        }
-
-        function applyFilters() {
+        async function handleSearch(e) {
+            const searchTerm = e.target.value;
             const statusFilter = document.getElementById('statusFilter').value;
             const dateFrom = document.getElementById('dateFrom').value;
             const dateTo = document.getElementById('dateTo').value;
-
-            filteredOrders = ordersData.filter(order => {
-                const matchesStatus = !statusFilter || order.status === statusFilter;
-                const matchesDateFrom = !dateFrom || order.date >= dateFrom;
-                const matchesDateTo = !dateTo || order.date <= dateTo;
-                
-                return matchesStatus && matchesDateFrom && matchesDateTo;
-            });
-
+            
+            // Refetch orders from server with search and filters
             currentPage = 1;
-            renderOrders();
-            updatePagination();
+            await fetchOrders(currentPage, searchTerm, statusFilter, 0, dateFrom, dateTo);
         }
 
-        function resetFilters() {
+        async function applyFilters() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+            const searchTerm = document.getElementById('globalSearch')?.value || '';
+
+            // Refetch orders from server with filters
+            currentPage = 1;
+            await fetchOrders(currentPage, searchTerm, statusFilter, 0, dateFrom, dateTo);
+        }
+
+        async function resetFilters() {
             document.getElementById('statusFilter').value = '';
             document.getElementById('dateFrom').value = '';
             document.getElementById('dateTo').value = '';
-            document.getElementById('globalSearch').value = '';
+            if (document.getElementById('globalSearch')) {
+                document.getElementById('globalSearch').value = '';
+            }
             
-            filteredOrders = [...ordersData];
+            // Refetch all orders without filters
             currentPage = 1;
-            renderOrders();
-            updatePagination();
+            await fetchOrders(currentPage, '', '', 0, '', '');
         }
 
         function handleSort(field) {
@@ -1137,7 +1169,7 @@
                     <div class="flex items-center space-x-3">
                         <input type="checkbox" class="order-checkbox h-4 w-4 text-primary-600 focus:ring-primary-200 border-border-medium rounded" data-order-id="${order.id}">
                         <div class="text-sm font-medium text-text-primary">${order.id}</div>
-                    </div>
+                    </div>  
                     <span class="status-badge ${getStatusClass(order.status)}">
                         ${getStatusIcon(order.status)}
                         ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
@@ -1168,19 +1200,25 @@
         }
 
         function getStatusClass(status) {
+            // Normalize status to lowercase for consistent matching
+            const normalizedStatus = (status || '').toLowerCase().trim();
+            
             const statusClasses = {
                 'pending': 'bg-warning-100 dark:bg-warning-900 text-warning-700 dark:text-warning-300',
-                'confirmed': 'bg-accent-100 dark:bg-accent-900 text-accent-700 dark:text-accent-300',
-                'shipped': 'bg-success-100 dark:bg-success-900 text-success-700 dark:text-success-300',
-                'cancelled': 'bg-error-100 dark:bg-error-900 text-error-700 dark:text-error-300'
+                'completed': 'status-success bg-success-100 dark:bg-success-900 text-success-700 dark:text-success-300',
+                'shipping': 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300',
+                'shipped': 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300',
+                'cancelled': 'bg-error-100 dark:bg-error-900 text-error-700 dark:text-error-300',
+                'canceled': 'bg-error-100 dark:bg-error-900 text-error-700 dark:text-error-300'
             };
-            return statusClasses[status] || 'bg-surface-hover dark:bg-gray-800 text-text-secondary dark:text-gray-400';
+            return statusClasses[normalizedStatus] || 'bg-surface-hover dark:bg-gray-800 text-text-secondary dark:text-gray-400';
         }
 
         function getStatusIcon(status) {
             const statusIcons = {
                 'pending': '<i class="fas fa-clock mr-1"></i>',
-                'confirmed': '<i class="fas fa-check mr-1"></i>',
+                'completed': '<i class="fas fa-check mr-1"></i>',
+                'Completed': '<i class="fas fa-check mr-1"></i>',
                 'shipped': '<i class="fas fa-shipping-fast mr-1"></i>',
                 'cancelled': '<i class="fas fa-times mr-1"></i>'
             };
@@ -1257,13 +1295,15 @@
         }
 
         function updatePagination() {
-            const totalPages = Math.ceil(filteredOrders.length / pageSize);
-            const startIndex = (currentPage - 1) * pageSize + 1;
-            const endIndex = Math.min(currentPage * pageSize, filteredOrders.length);
+            // Use server total for pagination when filtering, otherwise use filteredOrders length
+            const totalForPagination = totalOrdersCount > 0 ? totalOrdersCount : filteredOrders.length;
+            const totalPages = Math.ceil(totalForPagination / pageSize);
+            const startIndex = filteredOrders.length > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+            const endIndex = Math.min(currentPage * pageSize, totalForPagination);
 
             document.getElementById('showingFrom').textContent = startIndex;
             document.getElementById('showingTo').textContent = endIndex;
-            document.getElementById('totalOrders').textContent = filteredOrders.length;
+            document.getElementById('totalOrders').textContent = totalForPagination;
 
             // Update pagination buttons
             document.getElementById('prevPage').disabled = currentPage === 1;
@@ -1282,10 +1322,13 @@
                             : 'text-text-secondary hover:text-primary border border-border-light hover:border-primary-300'
                     }`;
                     pageBtn.textContent = i;
-                    pageBtn.addEventListener('click', () => {
+                    pageBtn.addEventListener('click', async () => {
                         currentPage = i;
-                        renderOrders();
-                        updatePagination();
+                        const statusFilter = document.getElementById('statusFilter').value;
+                        const dateFrom = document.getElementById('dateFrom').value;
+                        const dateTo = document.getElementById('dateTo').value;
+                        const searchTerm = document.getElementById('globalSearch')?.value || '';
+                        await fetchOrders(currentPage, searchTerm, statusFilter, 0, dateFrom, dateTo);
                     });
                     pageNumbers.appendChild(pageBtn);
                 } else if (i === currentPage - 2 || i === currentPage + 2) {
@@ -1297,19 +1340,25 @@
             }
 
             // Pagination navigation
-            document.getElementById('prevPage').onclick = () => {
+            document.getElementById('prevPage').onclick = async () => {
                 if (currentPage > 1) {
                     currentPage--;
-                    renderOrders();
-                    updatePagination();
+                    const statusFilter = document.getElementById('statusFilter').value;
+                    const dateFrom = document.getElementById('dateFrom').value;
+                    const dateTo = document.getElementById('dateTo').value;
+                    const searchTerm = document.getElementById('globalSearch')?.value || '';
+                    await fetchOrders(currentPage, searchTerm, statusFilter, 0, dateFrom, dateTo);
                 }
             };
 
-            document.getElementById('nextPage').onclick = () => {
+            document.getElementById('nextPage').onclick = async () => {
                 if (currentPage < totalPages) {
                     currentPage++;
-                    renderOrders();
-                    updatePagination();
+                    const statusFilter = document.getElementById('statusFilter').value;
+                    const dateFrom = document.getElementById('dateFrom').value;
+                    const dateTo = document.getElementById('dateTo').value;
+                    const searchTerm = document.getElementById('globalSearch')?.value || '';
+                    await fetchOrders(currentPage, searchTerm, statusFilter, 0, dateFrom, dateTo);
                 }
             };
         }
@@ -1702,32 +1751,268 @@
             }
         }
 
-        function exportOrders() {
-            const dataToExport = selectedOrders.size > 0 
-                ? ordersData.filter(order => selectedOrders.has(order.id))
-                : filteredOrders;
+        async function exportOrders() {
+            try {
+                let dataToExport;
+                
+                if (selectedOrders.size > 0) {
+                    // Export only selected orders - get from all available data
+                    const allAvailableOrders = [...filteredOrders, ...ordersData].filter((order, index, self) => 
+                        index === self.findIndex(o => o.id === order.id)
+                    );
+                    dataToExport = allAvailableOrders.filter(order => 
+                        selectedOrders.has(String(order.id)) || selectedOrders.has(order.id.toString())
+                    );
+                    console.log('Selected orders export:', selectedOrders.size, 'found:', dataToExport.length);
+                } else {
+                    // Export all filtered orders - fetch all pages with current filters
+                    const statusFilter = document.getElementById('statusFilter').value;
+                    const dateFrom = document.getElementById('dateFrom').value;
+                    const dateTo = document.getElementById('dateTo').value;
+                    const searchTerm = document.getElementById('globalSearch')?.value || '';
+                    
+                    // Fetch all orders with current filters (use large page size to get all)
+                    const baseUrl = getApiBaseUrl();
+                    let url = `${baseUrl}/get_orders.php?page=1&pageSize=10000`;
+                    
+                    if (searchTerm) {
+                        url += `&search=${encodeURIComponent(searchTerm)}`;
+                    }
+                    if (statusFilter) {
+                        url += `&status=${encodeURIComponent(statusFilter)}`;
+                    }
+                    if (dateFrom) {
+                        url += `&dateFrom=${encodeURIComponent(dateFrom)}`;
+                    }
+                    if (dateTo) {
+                        url += `&dateTo=${encodeURIComponent(dateTo)}`;
+                    }
+                    
+                    showNotification('Fetching orders for export...', 'info');
+                    
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' },
+                        credentials: 'include'
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (!data.success) {
+                        throw new Error(data.message || 'Failed to fetch orders for export');
+                    }
+                    
+                    // Transform the fetched data
+                    dataToExport = (data.data || []).map(order => ({
+                        id: order.id,
+                        supplier_name: order.supplier_name || 'Unknown Supplier',
+                        order_date: order.order_date,
+                        date: order.order_date,
+                        total_amount: parseFloat(order.total_amount || 0),
+                        status: order.status,
+                        item_count: order.item_count || 0,
+                        notes: order.notes || ''
+                    }));
+                }
 
+                if (!dataToExport || dataToExport.length === 0) {
+                    showError('No orders to export');
+                    return;
+                }
+
+                console.log('Exporting orders:', dataToExport.length, dataToExport);
+
+                // Prepare CSV content with actual table columns
+                const csvRows = [
+                    ['Order ID', 'Supplier', 'Order Date', 'Total Amount', 'Status', 'Item Count', 'Notes']
+                ];
+
+                // Add data rows
+                dataToExport.forEach(order => {
+                    // Ensure all fields are properly formatted
+                    const orderId = order.id ? String(order.id) : '';
+                    const supplier = order.supplier_name ? String(order.supplier_name) : 'Unknown Supplier';
+                    const orderDate = order.order_date || order.date || '';
+                    const totalAmount = order.total_amount ? parseFloat(order.total_amount).toFixed(2) : '0.00';
+                    const status = order.status ? String(order.status).charAt(0).toUpperCase() + String(order.status).slice(1) : '';
+                    const itemCount = order.item_count ? String(order.item_count) : '0';
+                    const notes = order.notes ? String(order.notes) : '';
+                    
+                    const row = [
+                        orderId,
+                        supplier,
+                        orderDate,
+                        totalAmount,
+                        status,
+                        itemCount,
+                        notes
+                    ];
+                    csvRows.push(row);
+                });
+
+                // Convert to CSV format
+                const csvContent = csvRows.map(row => {
+                    return row.map(field => {
+                        // Escape quotes and wrap in quotes if contains comma, quote, or newline
+                        const fieldStr = String(field || '');
+                        if (fieldStr.includes(',') || fieldStr.includes('"') || fieldStr.includes('\n')) {
+                            return `"${fieldStr.replace(/"/g, '""')}"`;
+                        }
+                        return fieldStr;
+                    }).join(',');
+                }).join('\r\n'); // Use \r\n for Excel compatibility
+
+                // Add UTF-8 BOM for Excel compatibility
+                const BOM = '\uFEFF';
+                const csvWithBOM = BOM + csvContent;
+
+                // Create and download file
+                const blob = new Blob([csvWithBOM], { type: 'text/csv;charset=utf-8;' });
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = `orders_export_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(blobUrl);
+
+                const exportCount = dataToExport.length;
+                const message = selectedOrders.size > 0 
+                    ? `Exported ${exportCount} selected order(s) successfully!`
+                    : `Exported ${exportCount} order(s) successfully!`;
+                showNotification(message, 'success');
+            } catch (error) {
+                console.error('Error exporting orders:', error);
+                showError('Failed to export orders: ' + error.message);
+            }
+        }
+
+        // Bulk Actions Functions
+        async function bulkUpdateStatus(newStatus) {
+            if (selectedOrders.size === 0) {
+                showError('No orders selected');
+                return;
+            }
+
+            const statusLabels = {
+                'completed': 'Completed',
+                'shipping': 'Shipped',
+                'cancelled': 'Cancelled'
+            };
+
+            const statusLabel = statusLabels[newStatus] || newStatus;
+            const confirmMessage = `Are you sure you want to mark ${selectedOrders.size} order(s) as ${statusLabel}?`;
+            
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+
+            const baseUrl = getApiBaseUrl();
+            const orderIds = Array.from(selectedOrders);
+            let successCount = 0;
+            let failCount = 0;
+
+            // Close modal
+            document.getElementById('bulkActionsModal').classList.add('hidden');
+
+            // Show loading notification
+            showNotification(`Updating ${orderIds.length} order(s)...`, 'info');
+
+            // Update each order
+            for (const orderId of orderIds) {
+                try {
+                    const formData = new FormData();
+                    formData.append('id', String(orderId)); // Ensure it's a string
+                    formData.append('status', newStatus);
+
+                    const response = await fetch(`${baseUrl}/edit_order.php`, {
+                        method: 'POST',
+                        body: formData,
+                        headers: { 'Accept': 'application/json' },
+                        credentials: 'include'
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        successCount++;
+                    } else {
+                        failCount++;
+                        console.error(`Failed to update order ${orderId}:`, result.message);
+                    }
+                } catch (error) {
+                    failCount++;
+                    console.error(`Error updating order ${orderId}:`, error);
+                }
+            }
+
+            // Clear selections
+            selectedOrders.clear();
+            document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = false);
+            document.getElementById('selectAll').checked = false;
+            updateBulkActionsVisibility();
+
+            // Refresh orders list
+            const statusFilter = document.getElementById('statusFilter').value;
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+            const searchTerm = document.getElementById('globalSearch')?.value || '';
+            await fetchOrders(currentPage, searchTerm, statusFilter, 0, dateFrom, dateTo);
+
+            // Show result notification
+            if (failCount === 0) {
+                showNotification(`Successfully updated ${successCount} order(s) to ${statusLabel}`, 'success');
+            } else {
+                showNotification(`Updated ${successCount} order(s), ${failCount} failed`, 'warning');
+            }
+        }
+
+        function bulkExportSelected() {
+            if (selectedOrders.size === 0) {
+                showError('No orders selected');
+                return;
+            }
+
+            // Get selected orders (convert IDs to strings for comparison)
+            const selectedOrdersArray = ordersData.filter(order => 
+                selectedOrders.has(String(order.id))
+            );
+
+            if (selectedOrdersArray.length === 0) {
+                showError('Selected orders not found in current data');
+                return;
+            }
+
+            // Prepare CSV content
             const csvContent = [
-                ['Order ID', 'Product', 'Order Date', 'Quantity', 'Status', 'Notes'],
-                ...dataToExport.map(order => [
+                ['Order ID', 'Supplier', 'Order Date', 'Status', 'Total Amount', 'Items', 'Notes'],
+                ...selectedOrdersArray.map(order => [
                     order.id,
-                    order.product,
-                    order.date,
-                    order.quantity,
+                    order.supplier_name || 'Unknown',
+                    order.order_date || order.date,
                     order.status,
-                    order.notes
+                    `$${parseFloat(order.total_amount || 0).toFixed(2)}`,
+                    order.item_count || 0,
+                    (order.notes || '').replace(/"/g, '""') // Escape quotes
                 ])
             ].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
 
-            const blob = new Blob([csvContent], { type: 'text/csv' });
+            // Create and download file
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `orders_export_${new Date().toISOString().split('T')[0]}.csv`;
+            a.download = `selected_orders_export_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
 
-            showNotification('Orders exported successfully!', 'success');
+            // Close modal
+            document.getElementById('bulkActionsModal').classList.add('hidden');
+
+            showNotification(`Exported ${selectedOrders.size} order(s) successfully!`, 'success');
         }
 
         // Modal close handlers

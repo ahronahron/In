@@ -42,6 +42,8 @@ try {
     $search = isset($_GET['search']) ? trim($_GET['search']) : '';
     $status = isset($_GET['status']) ? trim($_GET['status']) : '';
     $supplier_id = isset($_GET['supplier_id']) ? (int)$_GET['supplier_id'] : 0;
+    $dateFrom = isset($_GET['dateFrom']) ? trim($_GET['dateFrom']) : '';
+    $dateTo = isset($_GET['dateTo']) ? trim($_GET['dateTo']) : '';
 
     // Build where clause safely
     $where = " WHERE 1=1 ";
@@ -60,8 +62,22 @@ try {
         $where .= " AND o.supplier_id = {$supplier_id} ";
     }
 
-    // Get total count
-    $countSql = "SELECT COUNT(*) AS cnt FROM orders o" . $where;
+    if ($dateFrom !== '') {
+        $df = mysqli_real_escape_string($conn, $dateFrom);
+        $where .= " AND o.order_date >= '{$df}' ";
+    }
+
+    if ($dateTo !== '') {
+        $dt = mysqli_real_escape_string($conn, $dateTo);
+        $where .= " AND o.order_date <= '{$dt}' ";
+    }
+
+    // Get total count (need to join suppliers if search is used)
+    if ($search !== '') {
+        $countSql = "SELECT COUNT(*) AS cnt FROM orders o LEFT JOIN suppliers s ON o.supplier_id = s.id" . $where;
+    } else {
+        $countSql = "SELECT COUNT(*) AS cnt FROM orders o" . $where;
+    }
     $countRes = mysqli_query($conn, $countSql);
     $total = 0;
     if ($countRes) {

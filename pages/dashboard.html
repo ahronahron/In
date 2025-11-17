@@ -87,6 +87,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="archive.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
+                        <i class="fas fa-archive w-5"></i>
+                        <span>Archive</span>
+                    </a>
+                </li>
+                <li>
                     <a href="javascript:void(0)" onclick="openSettings()" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
                         <i class="fas fa-cog w-5"></i>
                         <span>Settings</span>
@@ -292,6 +298,25 @@
                 </section>
             </div>
 
+            <!-- Orders Overview Section -->
+            <section class="bg-white dark:bg-gray-900 rounded-2xl shadow-md border border-border-light dark:border-gray-700 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-text-primary dark:text-gray-100 flex items-center">
+                        <i class="fas fa-shopping-cart text-primary-600 dark:text-primary-400 mr-2"></i>
+                        Orders Overview
+                    </h2>
+                    <a href="orders_management.html" class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors duration-200">
+                        View All
+                    </a>
+                </div>
+                <div id="ordersOverviewList" class="space-y-3">
+                    <div class="text-center py-8 text-text-secondary dark:text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                        <p>Loading orders...</p>
+                    </div>
+                </div>
+            </section>
+
             <!-- Calendar Section -->
             <section class="bg-white dark:bg-gray-900 rounded-2xl shadow-md border border-border-light dark:border-gray-700 p-6">
                 <h2 class="text-lg font-semibold text-text-primary dark:text-gray-100 mb-4 flex items-center">
@@ -302,6 +327,22 @@
             </section>
         </div>
     </main>
+
+    <!-- Order Details Modal -->
+    <div id="orderDetailsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-3xl w-full p-6 animation-slide-up max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-text-primary dark:text-gray-100">Order Details</h2>
+                <button id="closeDetailsModal" class="text-text-tertiary hover:text-text-secondary dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <div id="orderDetailsContent">
+                <!-- Order details will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
 
     <!-- Settings Modal -->
     <div id="settingsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
@@ -560,12 +601,47 @@
                 }
             });
 
+            // Setup order details modal
+            const orderDetailsModal = document.getElementById('orderDetailsModal');
+            const closeDetailsModal = document.getElementById('closeDetailsModal');
+            if (closeDetailsModal) {
+                closeDetailsModal.addEventListener('click', () => {
+                    orderDetailsModal.classList.add('hidden');
+                });
+            }
+            if (orderDetailsModal) {
+                orderDetailsModal.addEventListener('click', (e) => {
+                    if (e.target === orderDetailsModal) {
+                        orderDetailsModal.classList.add('hidden');
+                    }
+                });
+            }
+
+            // ESC key to close modals
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.getElementById('settingsModal').classList.add('hidden');
+                    if (orderDetailsModal) {
+                        orderDetailsModal.classList.add('hidden');
+                    }
+                }
+            });
+
             // Load dashboard data
             loadDashboardData();
         });
 
         // API Base URL
         const DASHBOARD_API = '../php/get_dashboard.php';
+        
+        // Get API Base URL helper
+        function getApiBaseUrl() {
+            const currentPath = window.location.pathname;
+            if (currentPath.includes('/pages/')) {
+                return '../php';
+            }
+            return 'php';
+        }
 
         // Load Dashboard Data
         async function loadDashboardData() {
@@ -575,7 +651,8 @@
                     loadLowStockChart(),
                     loadExpirationAlerts(),
                     loadRecentActivities(),
-                    loadCalendarEvents()
+                    loadCalendarEvents(),
+                    loadOrdersOverview()
                 ]);
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
@@ -822,10 +899,350 @@
             return date.toLocaleDateString();
         }
 
+        // Load Orders Overview
+        async function loadOrdersOverview() {
+            try {
+                const baseUrl = getApiBaseUrl();
+                const response = await fetch(`${baseUrl}/get_orders.php?page=1&pageSize=5`, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' },
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+                const ordersList = document.getElementById('ordersOverviewList');
+                if (!ordersList) return;
+
+                if (data.success && data.data && data.data.length > 0) {
+                    // Store orders data for quick access
+                    ordersOverviewData = data.data;
+                    
+                    ordersList.innerHTML = '';
+                    data.data.forEach(order => {
+                        const orderEl = document.createElement('div');
+                        orderEl.className = 'flex items-center justify-between p-4 bg-surface-hover dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200';
+                        
+                        const statusClass = getStatusClass(order.status);
+                        const statusIcon = getStatusIcon(order.status);
+                        const orderId = order.id;
+                        
+                        orderEl.innerHTML = `
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center space-x-3">
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-text-primary dark:text-gray-100">Order #${orderId}</p>
+                                        <p class="text-xs text-text-secondary dark:text-gray-400 mt-1">${order.supplier_name || 'Unknown Supplier'} • ${formatDate(order.order_date)}</p>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="text-right mr-3">
+                                            <p class="text-sm font-semibold text-text-primary dark:text-gray-100">$${(order.total_amount || 0).toFixed(2)}</p>
+                                            <span class="status-badge ${statusClass} text-xs mt-1 inline-block">
+                                                ${statusIcon}
+                                                ${(order.status || '').charAt(0).toUpperCase() + (order.status || '').slice(1)}
+                                            </span>
+                                        </div>
+                                        <button onclick="event.stopPropagation(); viewOrderDetails('${orderId}'); return false;" class="text-primary dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-200 p-2 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        ordersList.appendChild(orderEl);
+                    });
+                } else {
+                    ordersList.innerHTML = `
+                        <div class="text-center py-8 text-text-secondary dark:text-gray-400">
+                            <i class="fas fa-shopping-cart text-3xl mb-2 opacity-50"></i>
+                            <p>No orders found</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading orders overview:', error);
+                const ordersList = document.getElementById('ordersOverviewList');
+                if (ordersList) {
+                    ordersList.innerHTML = `
+                        <div class="text-center py-8 text-text-secondary dark:text-gray-400">
+                            <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+                            <p>Failed to load orders</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Helper functions for status
+        function getStatusClass(status) {
+            const normalizedStatus = (status || '').toLowerCase().trim();
+            const statusClasses = {
+                'pending': 'bg-warning-100 dark:bg-warning-900 text-warning-700 dark:text-warning-300',
+                'completed': 'status-success bg-success-100 dark:bg-success-900 text-success-700 dark:text-success-300',
+                'shipping': 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300',
+                'shipped': 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300',
+                'cancelled': 'bg-error-100 dark:bg-error-900 text-error-700 dark:text-error-300',
+                'canceled': 'bg-error-100 dark:bg-error-900 text-error-700 dark:text-error-300'
+            };
+            return statusClasses[normalizedStatus] || 'bg-surface-hover dark:bg-gray-800 text-text-secondary dark:text-gray-400';
+        }
+
+        function getStatusIcon(status) {
+            const normalizedStatus = (status || '').toLowerCase().trim();
+            const statusIcons = {
+                'pending': '<i class="fas fa-clock mr-1"></i>',
+                'completed': '<i class="fas fa-check mr-1"></i>',
+                'shipping': '<i class="fas fa-shipping-fast mr-1"></i>',
+                'shipped': '<i class="fas fa-truck mr-1"></i>',
+                'cancelled': '<i class="fas fa-times mr-1"></i>',
+                'canceled': '<i class="fas fa-times mr-1"></i>'
+            };
+            return statusIcons[normalizedStatus] || '';
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric',
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Store orders data for quick access
+        let ordersOverviewData = [];
+
+        // View Order Details Function
+        async function viewOrderDetails(orderId) {
+            // Normalize orderId to number for consistent comparison
+            const normalizedOrderId = typeof orderId === 'string' ? parseInt(orderId, 10) : orderId;
+            
+            const detailsContent = document.getElementById('orderDetailsContent');
+            if (!detailsContent) {
+                console.error('Order details content element not found');
+                return;
+            }
+
+            detailsContent.innerHTML = '<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-2xl text-primary"></i><p class="mt-2 text-text-secondary">Loading order details...</p></div>';
+
+            const orderDetailsModal = document.getElementById('orderDetailsModal');
+            if (orderDetailsModal) {
+                orderDetailsModal.classList.remove('hidden');
+            }
+
+            let order = null;
+            let orderItems = [];
+
+            try {
+                const baseUrl = getApiBaseUrl();
+                console.log('Fetching order details for ID:', normalizedOrderId, 'Base URL:', baseUrl);
+                
+                // Try to find order in cached data first
+                order = ordersOverviewData.find(o => {
+                    const oId = typeof o.id === 'string' ? parseInt(o.id, 10) : o.id;
+                    return oId === normalizedOrderId;
+                });
+                
+                // If not found in cache, fetch from API
+                if (!order) {
+                    console.log('Order not in cache, fetching from API...');
+                    const orderResponse = await fetch(`${baseUrl}/get_orders.php?page=1&pageSize=1000`, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' },
+                        credentials: 'include'
+                    });
+                    
+                    if (!orderResponse.ok) {
+                        throw new Error(`HTTP error! status: ${orderResponse.status}`);
+                    }
+                    
+                    const orderData = await orderResponse.json();
+                    console.log('Order API response:', orderData);
+                    
+                    if (!orderData.success) {
+                        throw new Error(orderData.message || 'Failed to fetch order');
+                    }
+                    
+                    if (orderData.data && Array.isArray(orderData.data)) {
+                        order = orderData.data.find(o => {
+                            const oId = typeof o.id === 'string' ? parseInt(o.id, 10) : o.id;
+                            return oId === normalizedOrderId;
+                        });
+                    }
+                }
+
+                if (!order) {
+                    detailsContent.innerHTML = `
+                        <div class="text-center py-8">
+                            <i class="fas fa-exclamation-triangle text-2xl text-error mb-2"></i>
+                            <p class="text-text-secondary dark:text-gray-400">Order not found.</p>
+                            <p class="text-xs text-text-tertiary dark:text-gray-500 mt-2">Order ID: ${normalizedOrderId}</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                console.log('Order found:', order);
+
+                // Fetch order items
+                try {
+                    const itemsUrl = `${baseUrl}/get_order_items.php?order_id=${normalizedOrderId}`;
+                    console.log('Fetching items from:', itemsUrl);
+                    
+                    const itemsResponse = await fetch(itemsUrl, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' },
+                        credentials: 'include'
+                    });
+
+                    console.log('Items response status:', itemsResponse.status, itemsResponse.ok);
+
+                    if (!itemsResponse.ok) {
+                        const errorText = await itemsResponse.text();
+                        console.warn(`Failed to fetch items: HTTP ${itemsResponse.status}`, errorText);
+                        orderItems = [];
+                    } else {
+                        const itemsData = await itemsResponse.json();
+                        console.log('Items API response:', itemsData);
+                        console.log('Items data array:', itemsData.data);
+                        console.log('Items count:', itemsData.data ? itemsData.data.length : 0);
+                        
+                        if (itemsData.success && itemsData.data && Array.isArray(itemsData.data)) {
+                            orderItems = itemsData.data;
+                            console.log('Order items set:', orderItems.length, 'items');
+                        } else {
+                            console.warn('Items fetch returned unsuccessful or invalid data:', itemsData);
+                            orderItems = [];
+                        }
+                    }
+                } catch (itemsError) {
+                    console.error('Error fetching order items:', itemsError);
+                    console.error('Error stack:', itemsError.stack);
+                    orderItems = []; // Continue with empty items array
+                }
+                
+                console.log('Final orderItems before rendering:', orderItems);
+
+                detailsContent.innerHTML = `
+                    <div class="space-y-6">
+                        <!-- Order Header Info -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-text-secondary dark:text-gray-400 mb-1">Order ID</label>
+                                <p class="text-text-primary dark:text-gray-100 font-medium">#${order.id}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-text-secondary dark:text-gray-400 mb-1">Status</label>
+                                <span class="status-badge ${getStatusClass(order.status)}">
+                                    ${getStatusIcon(order.status)}
+                                    ${(order.status || '').charAt(0).toUpperCase() + (order.status || '').slice(1)}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-text-secondary dark:text-gray-400 mb-1">Supplier</label>
+                                <p class="text-text-primary dark:text-gray-100">${escapeHtml(order.supplier_name || 'Unknown')}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-text-secondary dark:text-gray-400 mb-1">Order Date</label>
+                                <p class="text-text-primary dark:text-gray-100">${formatDate(order.order_date || order.date)}</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-text-secondary dark:text-gray-400 mb-1">Total Amount</label>
+                                <p class="text-text-primary dark:text-gray-100 font-semibold text-lg">$${(order.total_amount || 0).toFixed(2)}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-text-secondary dark:text-gray-400 mb-1">Items Count</label>
+                                <p class="text-text-primary dark:text-gray-100">${orderItems.length} item(s)</p>
+                            </div>
+                        </div>
+
+                        ${order.notes ? `
+                            <div>
+                                <label class="block text-sm font-medium text-text-secondary dark:text-gray-400 mb-1">Notes</label>
+                                <p class="text-text-primary dark:text-gray-100 bg-surface-hover dark:bg-gray-800 p-3 rounded-lg">${escapeHtml(order.notes)}</p>
+                            </div>
+                        ` : ''}
+                        
+                        <!-- Order Items Table -->
+                        <div class="pt-4 border-t border-border-light dark:border-gray-700">
+                            <h3 class="text-lg font-medium text-text-primary dark:text-gray-100 mb-4">Order Items</h3>
+                            ${orderItems && orderItems.length > 0 ? `
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-border-light dark:divide-gray-700">
+                                        <thead class="bg-surface-hover dark:bg-gray-800">
+                                            <tr>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-400 uppercase">Medicine</th>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-400 uppercase">NDC</th>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-400 uppercase">Quantity</th>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-400 uppercase">Unit Price</th>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-400 uppercase">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white dark:bg-gray-900 divide-y divide-border-light dark:border-gray-700">
+                                            ${orderItems.map(item => {
+                                                const itemTotal = (parseFloat(item.quantity) || 0) * (parseFloat(item.price) || 0);
+                                                const medicineName = item.medicine_name || item.name || 'N/A';
+                                                const ndc = item.ndc || 'N/A';
+                                                const quantity = item.quantity || 0;
+                                                const price = parseFloat(item.price) || 0;
+                                                return `
+                                                    <tr>
+                                                        <td class="px-4 py-3 text-sm text-text-primary dark:text-gray-100">${escapeHtml(medicineName)}</td>
+                                                        <td class="px-4 py-3 text-sm text-text-secondary dark:text-gray-400">${escapeHtml(ndc)}</td>
+                                                        <td class="px-4 py-3 text-sm text-text-primary dark:text-gray-100 font-medium">${quantity}</td>
+                                                        <td class="px-4 py-3 text-sm text-text-secondary dark:text-gray-400">$${price.toFixed(2)}</td>
+                                                        <td class="px-4 py-3 text-sm text-text-primary dark:text-gray-100 font-semibold">$${itemTotal.toFixed(2)}</td>
+                                                    </tr>
+                                                `;
+                                            }).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ` : `
+                                <div class="text-center py-8">
+                                    <i class="fas fa-box-open text-3xl text-text-tertiary dark:text-gray-500 mb-2 opacity-50"></i>
+                                    <p class="text-text-secondary dark:text-gray-400">No items found for this order.</p>
+                                    <p class="text-xs text-text-tertiary dark:text-gray-500 mt-2">Items count: ${orderItems ? orderItems.length : 0}</p>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error fetching order details:', error);
+                console.error('Order ID:', orderId);
+                console.error('API Base URL:', getApiBaseUrl());
+                detailsContent.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fas fa-exclamation-triangle text-2xl text-error mb-2"></i>
+                        <p class="text-text-secondary dark:text-gray-400">Failed to load order details.</p>
+                        <p class="text-xs text-text-tertiary dark:text-gray-500 mt-2">${error.message || 'Unknown error'}</p>
+                        <button onclick="viewOrderDetails('${orderId}')" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors duration-200 text-sm">
+                            <i class="fas fa-redo mr-2"></i>Retry
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
         // Global functions
         window.openSettings = openSettings;
         window.filterLowStock = filterLowStock;
         window.viewAllActivities = viewAllActivities;
+        window.viewOrderDetails = viewOrderDetails;
     </script>
 <script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
 </body>

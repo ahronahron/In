@@ -47,6 +47,7 @@ function sendJsonResponse($success, $message, $data = null, $httpCode = 200) {
 
 try {
     require_once __DIR__ . '/conn.php';
+require_once __DIR__ . '/archive_helper.php';
 
     // Check database connection
     if (!isset($conn) || !$conn) {
@@ -105,6 +106,17 @@ try {
             $old_status = $oldRow['status'];
         }
         mysqli_stmt_close($oldStatusStmt);
+    }
+
+    // Archive order if status is being changed to cancelled
+    if ($status === 'cancelled' && $old_status !== 'cancelled') {
+        $cancelled_by = isset($_POST['cancelled_by']) ? $_POST['cancelled_by'] : null;
+        $reason = isset($_POST['cancellation_reason']) ? $_POST['cancellation_reason'] : (isset($_POST['notes']) ? $_POST['notes'] : null);
+        
+        if (!archiveOrder($conn, $order_id, $cancelled_by, $reason)) {
+            error_log("Warning: Failed to archive order when cancelling");
+            // Continue with status update even if archiving fails
+        }
     }
 
     // Check if total_amount and notes columns exist
