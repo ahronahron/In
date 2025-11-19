@@ -1167,7 +1167,7 @@
             });
         }
 
-        // Function to filter inventory by category
+        // Function to filter inventory by category (make it globally available)
         function filterInventoryByCategory(category) {
             // Update current filters and refresh
             currentFilters.category = category;
@@ -1185,6 +1185,9 @@
                 searchInput.placeholder = `Filtered by category: ${category}`;
             }
         }
+        
+        // Make function globally available for onclick handlers
+        window.filterInventoryByCategory = filterInventoryByCategory;
 
         function displayMedicines(medicines) {
             const tbody = document.getElementById('inventoryTableBody');
@@ -1702,33 +1705,23 @@
 
 
             // Clear filters
-<<<<<<< HEAD
             const clearFiltersBtn = document.getElementById('clearFiltersBtn');
             if (clearFiltersBtn) {
                 clearFiltersBtn.addEventListener('click', function() {
-                    currentFilters = { search: '', status: '' };
+                    currentFilters = { search: '', status: '', category: '' };
                     if (stockStatusFilter) stockStatusFilter.value = '';
-                    searchInputs.forEach(input => input.value = '');
+                    searchInputs.forEach(input => {
+                        input.value = '';
+                        input.placeholder = 'Search medicines by name, NDC, manufacturer...';
+                    });
+                    // Clear category from URL
+                    const url = new URL(window.location);
+                    url.searchParams.delete('category');
+                    window.history.replaceState({}, '', url);
                     currentPage = 1;
                     fetchMedicines(currentPage, currentFilters);
                 });
             }
-=======
-            document.getElementById('clearFiltersBtn').addEventListener('click', function() {
-                currentFilters = { search: '', status: '', category: '' };
-                document.getElementById('stockStatusFilter').value = '';
-                searchInputs.forEach(input => {
-                    input.value = '';
-                    input.placeholder = 'Search medicines by name, NDC, manufacturer...';
-                });
-                // Clear category from URL
-                const url = new URL(window.location);
-                url.searchParams.delete('category');
-                window.history.replaceState({}, '', url);
-                currentPage = 1;
-                fetchMedicines(currentPage, currentFilters);
-            });
->>>>>>> 161e38a227494c55204d8dff817d57a62f8276cf
 
             // Bulk actions
             const bulkEditBtn = document.getElementById('bulkEditBtn');
@@ -1757,35 +1750,26 @@
             }
 
             // Refresh table
-<<<<<<< HEAD
             const refreshTableBtn = document.getElementById('refreshTableBtn');
             if (refreshTableBtn) {
-                refreshTableBtn.addEventListener('click', function() {
+                refreshTableBtn.addEventListener('click', async function() {
                     const icon = this.querySelector('i');
                     if (icon) icon.classList.add('fa-spin');
                     
-                    fetchMedicines(currentPage, currentFilters).finally(() => {
-                        if (icon) icon.classList.remove('fa-spin');
-                    });
-=======
-            document.getElementById('refreshTableBtn').addEventListener('click', async function() {
-                const icon = this.querySelector('i');
-                icon.classList.add('fa-spin');
-                
-                await fetchMedicines(currentPage, currentFilters);
-                await fetchStockAvailability();
-                icon.classList.remove('fa-spin');
-            });
+                    await fetchMedicines(currentPage, currentFilters);
+                    await fetchStockAvailability();
+                    if (icon) icon.classList.remove('fa-spin');
+                });
+            }
 
             // Refresh stock availability button
             const refreshStockBtn = document.getElementById('refreshStockBtn');
             if (refreshStockBtn) {
                 refreshStockBtn.addEventListener('click', async function() {
                     const icon = this.querySelector('i');
-                    icon.classList.add('fa-spin');
+                    if (icon) icon.classList.add('fa-spin');
                     await fetchStockAvailability();
-                    icon.classList.remove('fa-spin');
->>>>>>> 161e38a227494c55204d8dff817d57a62f8276cf
+                    if (icon) icon.classList.remove('fa-spin');
                 });
             }
 
@@ -1835,22 +1819,17 @@
             }
             
             // Initial load with any URL parameters applied
-<<<<<<< HEAD
             // Use setTimeout to ensure all DOM elements are ready
             setTimeout(() => {
                 try {
                     console.log('Loading medicines on page load...');
                     fetchMedicines(1, currentFilters);
+                    fetchStockAvailability();
                 } catch (error) {
                     console.error('Error loading medicines:', error);
                     showError('Failed to load medicines: ' + error.message);
                 }
             }, 100);
-=======
-            // Initial load
-            fetchMedicines(1, currentFilters);
-            fetchStockAvailability();
->>>>>>> 161e38a227494c55204d8dff817d57a62f8276cf
 
             // Select all checkbox functionality
             const selectAll = document.getElementById('selectAll');

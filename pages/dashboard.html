@@ -918,14 +918,19 @@
 
 
             // Settings modal
-            document.getElementById('closeSettingsModal').addEventListener('click', () => {
-                document.getElementById('settingsModal').classList.add('hidden');
-            });
+            const closeSettingsModal = document.getElementById('closeSettingsModal');
+            if (closeSettingsModal) {
+                closeSettingsModal.addEventListener('click', () => {
+                    const settingsModal = document.getElementById('settingsModal');
+                    if (settingsModal) settingsModal.classList.add('hidden');
+                });
+            }
 
             // User Management Modal - Opens from Settings
             function openUserManagementModal() {
                 // Close Settings modal
-                document.getElementById('settingsModal').classList.add('hidden');
+                const settingsModal = document.getElementById('settingsModal');
+                if (settingsModal) settingsModal.classList.add('hidden');
                 
                 // Open User Management modal with smooth transition
                 setTimeout(() => {
@@ -938,16 +943,22 @@
             }
             window.openUserManagementModal = openUserManagementModal;
 
-            document.getElementById('closeUserManagementModal').addEventListener('click', () => {
-                document.getElementById('userManagementModal').classList.add('hidden');
-            });
+            const closeUserManagementModal = document.getElementById('closeUserManagementModal');
+            if (closeUserManagementModal) {
+                closeUserManagementModal.addEventListener('click', () => {
+                    const userManagementModal = document.getElementById('userManagementModal');
+                    if (userManagementModal) userManagementModal.classList.add('hidden');
+                });
+            }
 
             // Close User Management modal on backdrop click
-            document.getElementById('userManagementModal').addEventListener('click', (e) => {
-                if (e.target.id === 'userManagementModal') {
-                    document.getElementById('userManagementModal').classList.add('hidden');
-                }
-            });
+            if (userManagementModal) {
+                userManagementModal.addEventListener('click', (e) => {
+                    if (e.target.id === 'userManagementModal') {
+                        userManagementModal.classList.add('hidden');
+                    }
+                });
+            }
 
             // User Management Modal - Full Functionality
             const currentUserEmail = localStorage.getItem('userEmail') || 'admin@inventory.com';
@@ -1753,40 +1764,45 @@
             document.getElementById('tabSuppliersModal')?.addEventListener('click', () => switchArchiveTab('Suppliers'));
 
 
-            // Logout functionality
-            document.getElementById('logoutBtn').addEventListener('click', function() {
-                if (confirm('Are you sure you want to logout?')) {
-                    localStorage.removeItem('isLoggedIn');
-                    localStorage.removeItem('userEmail');
-                    window.location.href = 'login.html';
-                }
-            });
+            // Logout functionality (sidebar handles this, but keep for compatibility)
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function() {
+                    if (confirm('Are you sure you want to logout?')) {
+                        localStorage.removeItem('isLoggedIn');
+                        localStorage.removeItem('userEmail');
+                        window.location.href = 'login.html';
+                    }
+                });
+            }
 
             // Global search functionality
             const searchInput = document.getElementById('globalSearch');
-            let searchTimeout;
-            searchInput.addEventListener('input', function(e) {
+            if (searchInput) {
+                let searchTimeout;
+                searchInput.addEventListener('input', function(e) {
                 const searchTerm = e.target.value.trim();
                 
                 clearTimeout(searchTimeout);
                 
-                if (searchTerm.length > 2) {
-                    searchTimeout = setTimeout(() => {
-                        // Navigate to inventory with search filter
-                        window.location.href = `inventory_management.html?search=${encodeURIComponent(searchTerm)}`;
-                    }, 500);
-                }
-            });
-            
-            // Allow Enter key to search immediately
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    const searchTerm = e.target.value.trim();
-                    if (searchTerm.length > 0) {
-                        window.location.href = `inventory_management.html?search=${encodeURIComponent(searchTerm)}`;
+                    if (searchTerm.length > 2) {
+                        searchTimeout = setTimeout(() => {
+                            // Navigate to inventory with search filter
+                            window.location.href = `inventory_management.html?search=${encodeURIComponent(searchTerm)}`;
+                        }, 500);
                     }
-                }
-            });
+                });
+                
+                // Allow Enter key to search immediately
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        const searchTerm = e.target.value.trim();
+                        if (searchTerm.length > 0) {
+                            window.location.href = `inventory_management.html?search=${encodeURIComponent(searchTerm)}`;
+                        }
+                    }
+                });
+            }
 
             // ESC key to close modals
             document.addEventListener('keydown', function(e) {
@@ -1821,8 +1837,15 @@
                 }
             });
 
-            // Load dashboard data
-            loadDashboardData();
+            // Load dashboard data (with delay to ensure DOM is ready)
+            setTimeout(() => {
+                try {
+                    console.log('Loading dashboard data...');
+                    loadDashboardData();
+                } catch (error) {
+                    console.error('Error initializing dashboard:', error);
+                }
+            }, 200);
         });
 
         // API Base URL
@@ -1840,6 +1863,7 @@
         // Load Dashboard Data
         async function loadDashboardData() {
             try {
+                console.log('Starting dashboard data load...');
                 await Promise.all([
                     loadMetrics(),
                     loadLowStockChart(),
@@ -1848,6 +1872,7 @@
                     loadCalendarEvents(),
                     loadOrdersOverview()
                 ]);
+                console.log('Dashboard data loaded successfully');
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
             }
@@ -1856,15 +1881,30 @@
         // Load Metrics
         async function loadMetrics() {
             try {
+                console.log('Loading metrics from:', `${DASHBOARD_API}?action=metrics`);
                 const response = await fetch(`${DASHBOARD_API}?action=metrics`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const result = await response.json();
+                console.log('Metrics result:', result);
 
                 if (result.success && result.data) {
-                    document.getElementById('totalMedicines').textContent = result.data.totalMedicines || '0';
-                    document.getElementById('pendingOrders').textContent = result.data.pendingOrders || '0';
-                    document.getElementById('totalValue').textContent = `$${result.data.totalValue || '0.00'}`;
-                    document.getElementById('lowStockCount').textContent = `${result.data.lowStockCount || 0} items`;
-                    document.getElementById('lowStockPercentage').textContent = `${result.data.lowStockPercentage || 0}%`;
+                    const totalMedicinesEl = document.getElementById('totalMedicines');
+                    const pendingOrdersEl = document.getElementById('pendingOrders');
+                    const totalValueEl = document.getElementById('totalValue');
+                    const lowStockCountEl = document.getElementById('lowStockCount');
+                    const lowStockPercentageEl = document.getElementById('lowStockPercentage');
+                    
+                    if (totalMedicinesEl) totalMedicinesEl.textContent = result.data.totalMedicines || '0';
+                    if (pendingOrdersEl) pendingOrdersEl.textContent = result.data.pendingOrders || '0';
+                    if (totalValueEl) totalValueEl.textContent = `$${result.data.totalValue || '0.00'}`;
+                    if (lowStockCountEl) lowStockCountEl.textContent = `${result.data.lowStockCount || 0} items`;
+                    if (lowStockPercentageEl) lowStockPercentageEl.textContent = `${result.data.lowStockPercentage || 0}%`;
+                } else {
+                    console.error('Metrics API returned error:', result.message);
                 }
             } catch (error) {
                 console.error('Error loading metrics:', error);
@@ -1874,22 +1914,35 @@
         // Load Expiration Alerts
         async function loadExpirationAlerts() {
             try {
+                console.log('Loading expiration alerts from:', `${DASHBOARD_API}?action=expiration-alerts`);
                 const response = await fetch(`${DASHBOARD_API}?action=expiration-alerts`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const result = await response.json();
+                console.log('Expiration alerts result:', result);
 
                 if (result.success && result.data) {
                     const expiredCount = result.data.expiredCount || 0;
                     const expiringSoonCount = result.data.expiringSoonCount || 0;
                     const totalAlerts = expiredCount + expiringSoonCount;
 
-                    document.getElementById('expiredCount').textContent = expiredCount;
-                    document.getElementById('expiringSoonCount').textContent = expiringSoonCount;
-                    document.getElementById('expirationAlertsCount').textContent = `${totalAlerts} items`;
+                    const expiredCountEl = document.getElementById('expiredCount');
+                    const expiringSoonCountEl = document.getElementById('expiringSoonCount');
+                    const expirationAlertsCountEl = document.getElementById('expirationAlertsCount');
+                    
+                    if (expiredCountEl) expiredCountEl.textContent = expiredCount;
+                    if (expiringSoonCountEl) expiringSoonCountEl.textContent = expiringSoonCount;
+                    if (expirationAlertsCountEl) expirationAlertsCountEl.textContent = `${totalAlerts} items`;
 
                     // Show notification if there are expired medicines
-                    if (expiredCount > 0) {
+                    if (expiredCount > 0 && typeof showExpirationNotification === 'function') {
                         showExpirationNotification(expiredCount, expiringSoonCount);
                     }
+                } else {
+                    console.error('Expiration alerts API returned error:', result.message);
                 }
             } catch (error) {
                 console.error('Error loading expiration alerts:', error);
