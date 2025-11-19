@@ -399,7 +399,7 @@
 
     <!-- Order Details Modal -->
     <div id="orderDetailsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-3xl w-full p-6 animation-slide-up max-h-[90vh] overflow-y-auto">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-4xl w-full p-6 animation-slide-up max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-xl font-semibold text-text-primary dark:text-gray-100">Order Details</h2>
                 <button id="closeDetailsModal" class="text-text-tertiary hover:text-text-secondary dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200">
@@ -409,6 +409,33 @@
             
             <div id="orderDetailsContent">
                 <!-- Order details will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirmation Modal -->
+    <div id="confirmationModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-md w-full p-6 animation-slide-up">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-text-primary dark:text-gray-100" id="confirmationTitle">Confirm Action</h3>
+                <button id="closeConfirmationModal" class="text-text-tertiary hover:text-text-secondary dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <p class="text-text-primary dark:text-gray-100" id="confirmationMessage">
+                    <!-- Confirmation message will be populated by JavaScript -->
+                </p>
+            </div>
+            
+            <div class="flex items-center justify-end space-x-3">
+                <button id="confirmationCancel" class="px-4 py-2 text-text-secondary dark:text-gray-400 hover:text-text-primary dark:hover:text-gray-200 border border-border-light dark:border-gray-600 rounded-lg hover:bg-surface-hover dark:hover:bg-gray-800 transition-all duration-200">
+                    Cancel
+                </button>
+                <button id="confirmationConfirm" class="px-4 py-2 bg-primary hover:bg-primary-700 text-white rounded-lg transition-all duration-200">
+                    Confirm
+                </button>
             </div>
         </div>
     </div>
@@ -913,6 +940,66 @@
             
             // Event listeners
             setupEventListeners();
+        }
+
+        /**
+         * Custom Confirmation Modal Function
+         * Replaces browser confirm() with a custom modal
+         * @param {string} message - The confirmation message to display
+         * @param {string} title - Optional title for the modal (default: "Confirm Action")
+         * @returns {Promise<boolean>} - Promise that resolves to true if confirmed, false if cancelled
+         */
+        function showConfirmation(message, title = 'Confirm Action') {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('confirmationModal');
+                const titleEl = document.getElementById('confirmationTitle');
+                const messageEl = document.getElementById('confirmationMessage');
+                const confirmBtn = document.getElementById('confirmationConfirm');
+                const cancelBtn = document.getElementById('confirmationCancel');
+                const closeBtn = document.getElementById('closeConfirmationModal');
+
+                // Set content
+                titleEl.textContent = title;
+                messageEl.textContent = message;
+
+                // Handle confirmation
+                const handleConfirm = () => {
+                    cleanup();
+                    modal.classList.add('hidden');
+                    resolve(true);
+                };
+
+                // Handle cancellation
+                const handleCancel = () => {
+                    cleanup();
+                    modal.classList.add('hidden');
+                    resolve(false);
+                };
+
+                // Close on backdrop click
+                const handleBackdropClick = (e) => {
+                    if (e.target === modal) {
+                        handleCancel();
+                    }
+                };
+
+                // Cleanup function to remove event listeners
+                const cleanup = () => {
+                    confirmBtn.removeEventListener('click', handleConfirm);
+                    cancelBtn.removeEventListener('click', handleCancel);
+                    closeBtn.removeEventListener('click', handleCancel);
+                    modal.removeEventListener('click', handleBackdropClick);
+                };
+
+                // Add event listeners (one-time use)
+                confirmBtn.addEventListener('click', handleConfirm, { once: true });
+                cancelBtn.addEventListener('click', handleCancel, { once: true });
+                closeBtn.addEventListener('click', handleCancel, { once: true });
+                modal.addEventListener('click', handleBackdropClick, { once: true });
+
+                // Show modal
+                modal.classList.remove('hidden');
+            });
         }
 
         function setupModals() {
@@ -1496,7 +1583,7 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-text-secondary dark:text-gray-400 mb-1">Total Amount</label>
-                                <p class="text-text-primary dark:text-gray-100 font-semibold text-lg">$${(order.total_amount || 0).toFixed(2)}</p>
+                                <p class="text-text-primary dark:text-gray-100 font-semibold">$${(order.total_amount || 0).toFixed(2)}</p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-text-secondary dark:text-gray-400 mb-1">Items Count</label>
@@ -1521,9 +1608,8 @@
                                             <tr>
                                                 <th class="px-4 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-400 uppercase">Medicine</th>
                                                 <th class="px-4 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-400 uppercase">NDC</th>
-                                                <th class="px-4 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-400 uppercase">Batch #</th>
                                                 <th class="px-4 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-400 uppercase">Quantity</th>
-                                                <th class="px-4 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-400 uppercase">Unit Price</th>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-400 uppercase">Price</th>
                                                 <th class="px-4 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-400 uppercase">Total</th>
                                             </tr>
                                         </thead>
@@ -1537,7 +1623,6 @@
                                                     <tr>
                                                         <td class="px-4 py-3 text-sm text-text-primary dark:text-gray-100">${escapeHtml(item.medicine_name || 'N/A')}</td>
                                                         <td class="px-4 py-3 text-sm text-text-secondary dark:text-gray-400">${escapeHtml(item.ndc || 'N/A')}</td>
-                                                        <td class="px-4 py-3 text-sm text-text-secondary dark:text-gray-400">${item.batch_number || 'N/A'}</td>
                                                         <td class="px-4 py-3 text-sm text-text-primary dark:text-gray-100 font-medium">${quantity}</td>
                                                         <td class="px-4 py-3 text-sm text-text-secondary dark:text-gray-400">$${price.toFixed(2)}</td>
                                                         <td class="px-4 py-3 text-sm text-text-primary dark:text-gray-100 font-semibold">$${itemTotal.toFixed(2)}</td>
@@ -1722,7 +1807,12 @@
          * @param {number|string} orderId - The ID of the order to cancel
          */
         async function cancelOrder(orderId) {
-            if (!confirm('Are you sure you want to cancel this order? This action cannot be undone. The order will be archived and removed from the active list.')) {
+            const confirmed = await showConfirmation(
+                'Are you sure you want to cancel this order? This action cannot be undone. The order will be archived and removed from the active list.',
+                'Cancel Order'
+            );
+            
+            if (!confirmed) {
                 return;
             }
 
@@ -1772,7 +1862,7 @@
          * Routes to archiveOrder() for completed orders or cancelOrder() for pending orders
          * @param {number|string} orderId - The ID of the order to process
          */
-        function deleteOrder(orderId) {
+        async function deleteOrder(orderId) {
             // Find the order in the current data
             const order = ordersData.find(o => o.id == orderId) || filteredOrders.find(o => o.id == orderId);
             
@@ -1792,14 +1882,12 @@
                 cancelOrder(orderId);
             } else {
                 // For other statuses (shipping, etc.), ask user what to do
-                const action = confirm(
-                    `This order has status: ${order.status}\n\n` +
-                    'Would you like to:\n' +
-                    '• Click OK to cancel the order\n' +
-                    '• Click Cancel to do nothing'
+                const confirmed = await showConfirmation(
+                    `This order has status: ${order.status}\n\nWould you like to cancel this order?`,
+                    'Cancel Order'
                 );
                 
-                if (action) {
+                if (confirmed) {
                     cancelOrder(orderId);
                 }
             }
@@ -1812,7 +1900,12 @@
          */
         async function archiveOrder(orderId) {
             // Confirm archiving action
-            if (!confirm('Are you sure you want to archive this completed order? The order will be moved to the archive and removed from the active list.')) {
+            const confirmed = await showConfirmation(
+                'Are you sure you want to archive this completed order? The order will be moved to the archive and removed from the active list.',
+                'Archive Order'
+            );
+            
+            if (!confirmed) {
                 return;
             }
 
