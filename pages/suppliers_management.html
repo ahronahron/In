@@ -122,33 +122,36 @@
     <!-- Main Content -->
     <div class="lg:ml-64 min-h-screen bg-background dark:bg-gray-900">
         <!-- Top Header -->
-        <header class="bg-white dark:bg-gray-900 shadow-sm border-b border-border-light dark:border-gray-700">
-            <div class="flex items-center justify-between h-16 px-6">
+        <header class="bg-surface dark:bg-gray-900 border-b border-border-light dark:border-gray-700 sticky top-0 z-30 shadow-sm">
+            <div class="flex items-center justify-between px-6 py-4">
                 <div class="flex items-center space-x-4">
-                    <button id="menuToggle" class="lg:hidden text-text-tertiary hover:text-text-secondary dark:text-gray-400 dark:hover:text-gray-200">
-                        <i class="fas fa-bars text-lg"></i>
+                    <!-- Mobile Menu Button -->
+                    <button id="openSidebar" class="lg:hidden text-text-secondary hover:text-text-primary dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200">
+                        <i class="fas fa-bars text-xl"></i>
                     </button>
+
+                    <!-- Page Title -->
                     <div>
-                        <h1 class="text-xl font-semibold text-text-primary dark:text-gray-100">Suppliers Management</h1>
-                        <p class="text-sm text-text-tertiary dark:text-gray-400">Manage vendor relationships and contacts</p>
+                        <h1 class="text-2xl font-semibold text-text-primary dark:text-gray-100">Suppliers Management</h1>
+                        <p class="text-sm text-text-secondary dark:text-gray-400">Manage vendor relationships and contacts</p>
                     </div>
                 </div>
 
-                <!-- Search Bar -->
-                <div class="hidden md:flex items-center space-x-4">
-                    <div class="relative">
+                <!-- Header Actions -->
+                <div class="flex items-center space-x-4">
+                    <!-- Search Bar -->
+                    <div class="relative hidden md:block">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="fas fa-search text-text-tertiary dark:text-gray-400 text-sm"></i>
                         </div>
-                        <input type="text" id="globalSearch" class="w-80 pl-10 pr-4 py-2 border border-border-light dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Search suppliers, contacts, locations..." />
+                        <input type="text" id="globalSearch" placeholder="Search suppliers, contacts, locations..." class="w-64 pl-10 pr-4 py-2 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" />
                     </div>
-                    
+
                     <!-- Theme Toggle -->
                     <button id="headerThemeToggle" class="p-2 text-text-secondary dark:text-gray-400 hover:text-text-primary dark:hover:text-gray-200 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
                         <i class="fas fa-moon dark:hidden text-lg"></i>
                         <i class="fas fa-sun hidden dark:block text-lg"></i>
                     </button>
-                    
                 </div>
             </div>
         </header>
@@ -517,88 +520,17 @@
     </div>
 
     <!-- Supplier Detail Modal -->
-    <div id="supplierDetailModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animation-slide-up">
-            <div class="flex items-center justify-between p-6 border-b border-border-light">
-                <h2 class="text-xl font-semibold text-text-primary">Supplier Details</h2>
-                <button id="closeDetailModal" class="text-text-tertiary hover:text-text-secondary transition-colors duration-200">
+    <div id="supplierDetailModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-4xl w-full p-6 animation-slide-up max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-text-primary dark:text-gray-100">Supplier Details</h2>
+                <button id="closeDetailModal" class="text-text-tertiary hover:text-text-secondary dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200">
                     <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
             
-            <div class="p-6">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Supplier Information -->
-                    <div class="space-y-6">
-                        <div>
-                            <h3 class="text-lg font-medium text-text-primary mb-4">Supplier Information</h3>
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-text-secondary mb-1">Company Name</label>
-                                    <p id="detailSupplierName" class="text-text-primary">-</p>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-text-secondary mb-1">Contact Person</label>
-                                    <p id="detailContactPerson" class="text-text-primary">-</p>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-text-secondary mb-1">Email</label>
-                                    <p id="detailEmail" class="text-text-primary">-</p>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-text-secondary mb-1">Phone</label>
-                                    <p id="detailPhone" class="text-text-primary">-</p>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-text-secondary mb-1">Location</label>
-                                    <p id="detailLocation" class="text-text-primary">-</p>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-text-secondary mb-1">Website</label>
-                                    <p id="detailWebsite" class="text-text-primary">-</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Order History -->
-                    <div class="space-y-6">
-                        <div>
-                            <h3 class="text-lg font-medium text-text-primary mb-4">Recent Orders</h3>
-                            <div class="space-y-3">
-                                <div class="p-4 bg-surface-hover rounded-lg">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="font-medium text-text-primary">Order #ORD-001</span>
-                                        <span class="status-badge status-success">Completed</span>
-                                    </div>
-                                    <div class="text-sm text-text-secondary">
-                                        <p>Date: 09/15/2025</p>
-                                        <p>Amount: $2,450.00</p>
-                                    </div>
-                                </div>
-                                <div class="p-4 bg-surface-hover rounded-lg">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="font-medium text-text-primary">Order #ORD-002</span>
-                                        <span class="status-badge status-warning">Pending</span>
-                                    </div>
-                                    <div class="text-sm text-text-secondary">
-                                        <p>Date: 09/18/2025</p>
-                                        <p>Amount: $1,850.00</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-end space-x-4 pt-6 border-t border-border-light mt-8">
-                    <button type="button" id="editFromDetail" class="btn-secondary px-6 py-3 rounded-xl font-medium">
-                        Edit Supplier
-                    </button>
-                    <button type="button" id="createOrderFromDetail" class="btn-primary px-6 py-3 rounded-xl font-medium">
-                        Create Order
-                    </button>
-                </div>
+            <div id="supplierDetailsContent">
+                <!-- Supplier details will be populated by JavaScript -->
             </div>
         </div>
     </div>
@@ -916,19 +848,225 @@
             document.getElementById('totalSuppliers').textContent = suppliersData.length;
         }
 
-        // Supplier actions
-        function viewSupplier(id) {
-            const supplier = suppliersData.find(s => s.id === id);
-            if (!supplier) return;
+        /**
+         * Custom Confirmation Modal Function
+         * Replaces browser confirm() with a custom modal
+         * @param {string} message - The confirmation message to display
+         * @param {string} title - Optional title for the modal (default: "Confirm Action")
+         * @returns {Promise<boolean>} - Promise that resolves to true if confirmed, false if cancelled
+         */
+        function showConfirmation(message, title = 'Confirm Action') {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('confirmationModal');
+                const titleEl = document.getElementById('confirmationTitle');
+                const messageEl = document.getElementById('confirmationMessage');
+                const confirmBtn = document.getElementById('confirmationConfirm');
+                const cancelBtn = document.getElementById('confirmationCancel');
+                const closeBtn = document.getElementById('closeConfirmationModal');
 
-            document.getElementById('detailSupplierName').textContent = supplier.name;
-            document.getElementById('detailContactPerson').textContent = supplier.contact;
-            document.getElementById('detailEmail').textContent = supplier.email;
-            document.getElementById('detailPhone').textContent = supplier.phone;
-            document.getElementById('detailLocation').textContent = supplier.location;
-            document.getElementById('detailWebsite').textContent = supplier.website || 'Not provided';
+                // Set content
+                titleEl.textContent = title;
+                messageEl.textContent = message;
 
-            supplierDetailModal.classList.remove('hidden');
+                // Handle confirmation
+                const handleConfirm = () => {
+                    cleanup();
+                    modal.classList.add('hidden');
+                    resolve(true);
+                };
+
+                // Handle cancellation
+                const handleCancel = () => {
+                    cleanup();
+                    modal.classList.add('hidden');
+                    resolve(false);
+                };
+
+                // Close on backdrop click
+                const handleBackdropClick = (e) => {
+                    if (e.target === modal) {
+                        handleCancel();
+                    }
+                };
+
+                // Cleanup function to remove event listeners
+                const cleanup = () => {
+                    confirmBtn.removeEventListener('click', handleConfirm);
+                    cancelBtn.removeEventListener('click', handleCancel);
+                    closeBtn.removeEventListener('click', handleCancel);
+                    modal.removeEventListener('click', handleBackdropClick);
+                };
+
+                // Add event listeners (one-time use)
+                confirmBtn.addEventListener('click', handleConfirm, { once: true });
+                cancelBtn.addEventListener('click', handleCancel, { once: true });
+                closeBtn.addEventListener('click', handleCancel, { once: true });
+                modal.addEventListener('click', handleBackdropClick, { once: true });
+
+                // Show modal
+                modal.classList.remove('hidden');
+            });
+        }
+
+        /**
+         * View Supplier Details Function
+         * Opens a modal displaying supplier information
+         * @param {number|string} supplierId - The ID of the supplier to view
+         */
+        async function viewSupplier(supplierId) {
+            const supplier = suppliersData.find(s => s.id == supplierId);
+            if (!supplier) {
+                showError('Supplier not found');
+                return;
+            }
+
+            const detailsContent = document.getElementById('supplierDetailsContent');
+            detailsContent.innerHTML = '<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-2xl text-primary"></i><p class="mt-2 text-text-secondary">Loading supplier details...</p></div>';
+
+            document.getElementById('supplierDetailModal').classList.remove('hidden');
+
+            try {
+                // Fetch supplier medicines if available
+                const baseUrl = getApiBaseUrl();
+                let supplierMedicines = [];
+                
+                try {
+                    const medicinesResponse = await fetch(`${baseUrl}/get_supplier_medicines.php?supplier_id=${supplierId}`, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' },
+                        credentials: 'include'
+                    });
+                    
+                    const medicinesData = await medicinesResponse.json();
+                    if (medicinesData.success && medicinesData.data) {
+                        supplierMedicines = medicinesData.data;
+                    }
+                } catch (error) {
+                    console.warn('Could not fetch supplier medicines:', error);
+                }
+
+                // Format dates
+                const formatDate = (dateString) => {
+                    if (!dateString) return 'N/A';
+                    const date = new Date(dateString);
+                    return date.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    });
+                };
+
+                // Escape HTML
+                const escapeHtml = (text) => {
+                    if (!text) return '';
+                    const div = document.createElement('div');
+                    div.textContent = text;
+                    return div.innerHTML;
+                };
+
+                detailsContent.innerHTML = `
+                    <div class="space-y-6">
+                        <!-- Supplier Header Info -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-text-secondary dark:text-gray-400 mb-1">Supplier ID</label>
+                                <p class="text-text-primary dark:text-gray-100 font-medium">#${supplier.id}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-text-secondary dark:text-gray-400 mb-1">Company Name</label>
+                                <p class="text-text-primary dark:text-gray-100 font-medium text-lg">${escapeHtml(supplier.name || 'N/A')}</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-text-secondary dark:text-gray-400 mb-1">Contact Person</label>
+                                <p class="text-text-primary dark:text-gray-100">${escapeHtml(supplier.contact || supplier.contact_person || 'N/A')}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-text-secondary dark:text-gray-400 mb-1">Email</label>
+                                <p class="text-text-primary dark:text-gray-100">${escapeHtml(supplier.email || 'N/A')}</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-text-secondary dark:text-gray-400 mb-1">Phone</label>
+                                <p class="text-text-primary dark:text-gray-100">${escapeHtml(supplier.phone || 'N/A')}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-text-secondary dark:text-gray-400 mb-1">Location</label>
+                                <p class="text-text-primary dark:text-gray-100">${escapeHtml(supplier.location || supplier.address || 'N/A')}</p>
+                            </div>
+                        </div>
+
+                        ${supplier.website ? `
+                            <div>
+                                <label class="block text-sm font-medium text-text-secondary dark:text-gray-400 mb-1">Website</label>
+                                <p class="text-text-primary dark:text-gray-100">
+                                    <a href="${escapeHtml(supplier.website)}" target="_blank" class="text-primary-600 dark:text-primary-400 hover:underline">
+                                        ${escapeHtml(supplier.website)}
+                                    </a>
+                                </p>
+                            </div>
+                        ` : ''}
+
+                        ${supplier.created_at ? `
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-text-secondary dark:text-gray-400 mb-1">Created Date</label>
+                                    <p class="text-text-primary dark:text-gray-100">${formatDate(supplier.created_at)}</p>
+                                </div>
+                                ${supplier.updated_at ? `
+                                    <div>
+                                        <label class="block text-sm font-medium text-text-secondary dark:text-gray-400 mb-1">Last Updated</label>
+                                        <p class="text-text-primary dark:text-gray-100">${formatDate(supplier.updated_at)}</p>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        ` : ''}
+                        
+                        <!-- Supplier Medicines Table -->
+                        ${supplierMedicines.length > 0 ? `
+                            <div class="pt-4 border-t border-border-light dark:border-gray-700">
+                                <h3 class="text-lg font-medium text-text-primary dark:text-gray-100 mb-4">Available Medicines (${supplierMedicines.length})</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-border-light dark:divide-gray-700">
+                                        <thead class="bg-surface-hover dark:bg-gray-800">
+                                            <tr>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-400 uppercase">Medicine</th>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-400 uppercase">NDC</th>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-400 uppercase">Category</th>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-text-secondary dark:text-gray-400 uppercase">Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white dark:bg-gray-900 divide-y divide-border-light dark:divide-gray-700">
+                                            ${supplierMedicines.map(medicine => {
+                                                return `
+                                                    <tr>
+                                                        <td class="px-4 py-3 text-sm text-text-primary dark:text-gray-100">${escapeHtml(medicine.name || 'N/A')}</td>
+                                                        <td class="px-4 py-3 text-sm text-text-secondary dark:text-gray-400">${escapeHtml(medicine.ndc || 'N/A')}</td>
+                                                        <td class="px-4 py-3 text-sm text-text-secondary dark:text-gray-400">${escapeHtml(medicine.category || 'N/A')}</td>
+                                                        <td class="px-4 py-3 text-sm text-text-primary dark:text-gray-100 font-semibold">$${(parseFloat(medicine.price) || 0).toFixed(2)}</td>
+                                                    </tr>
+                                                `;
+                                            }).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading supplier details:', error);
+                detailsContent.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fas fa-exclamation-triangle text-2xl text-error mb-2"></i>
+                        <p class="text-text-secondary dark:text-gray-400">Failed to load supplier details. Please try again.</p>
+                    </div>
+                `;
+            }
         }
 
         // Make editSupplier globally accessible for onclick handlers
@@ -1038,42 +1176,61 @@
             editSupplierModal.classList.remove('hidden');
         };
 
+        /**
+         * Delete Supplier Function
+         * Deletes a supplier after confirmation
+         * @param {number|string} id - The ID of the supplier to delete
+         */
         async function deleteSupplier(id) {
             const supplier = suppliersData.find(s => s.id === id);
-            if (!supplier) return;
+            if (!supplier) {
+                showError('Supplier not found');
+                return;
+            }
             
-            if (confirm(`Are you sure you want to delete "${supplier.name}"?`)) {
-                try {
-                    const formData = new FormData();
-                    formData.append('id', id);
-                    
-                    const baseUrl = getApiBaseUrl();
-                    const url = `${baseUrl}/delete_supplier.php`;
-                    
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'Accept': 'application/json'
-                        },
-                        credentials: 'include'
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        showSuccess('Supplier deleted successfully!');
-                        // Refresh suppliers list
-                        await fetchSuppliers(1, '');
-                    } else {
-                        showError(result.message || 'Failed to delete supplier');
-                    }
-                } catch (error) {
-                    console.error('Error deleting supplier:', error);
-                    showError('Server error: ' + error.message);
+            const confirmed = await showConfirmation(
+                `Are you sure you want to delete "${supplier.name}"? This action cannot be undone.`,
+                'Delete Supplier'
+            );
+            
+            if (!confirmed) {
+                return;
+            }
+            
+            try {
+                const formData = new FormData();
+                formData.append('id', id);
+                
+                const baseUrl = getApiBaseUrl();
+                const url = `${baseUrl}/delete_supplier.php`;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess('Supplier deleted successfully!');
+                    // Refresh suppliers list
+                    await fetchSuppliers(1, '');
+                } else {
+                    showError(result.message || 'Failed to delete supplier');
                 }
+            } catch (error) {
+                console.error('Error deleting supplier:', error);
+                showError('Server error: ' + error.message);
             }
         }
+
+        // Make functions globally accessible for onclick handlers
+        window.viewSupplier = viewSupplier;
+        window.deleteSupplier = deleteSupplier;
 
         // Form submissions
         document.getElementById('addSupplierForm').addEventListener('submit', async function(e) {
