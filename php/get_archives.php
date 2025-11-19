@@ -48,10 +48,84 @@ function sendJsonResponse($success, $message, $data = null, $httpCode = 200) {
     exit;
 }
 
+// Helper function to ensure archive tables exist
+function ensureArchiveTablesExist($conn) {
+    $tables = [
+        'archived_expired_items',
+        'archived_orders',
+        'archived_order_items',
+        'archived_medicines'
+    ];
+    
+    $missingTables = [];
+    foreach ($tables as $table) {
+        $check = mysqli_query($conn, "SHOW TABLES LIKE '$table'");
+        if (!$check || mysqli_num_rows($check) === 0) {
+            $missingTables[] = $table;
+        }
+    }
+    
+    if (empty($missingTables)) {
+        return true; // All tables exist
+    }
+    
+    // Read and execute the SQL file
+    $sqlFile = __DIR__ . '/create_archive_tables.sql';
+    if (!file_exists($sqlFile)) {
+        error_log("Archive tables SQL file not found: $sqlFile");
+        return false;
+    }
+    
+    $sql = file_get_contents($sqlFile);
+    if ($sql === false) {
+        error_log("Failed to read archive tables SQL file");
+        return false;
+    }
+    
+    // Split SQL into individual statements
+    // Remove comments and split by semicolon
+    $sql = preg_replace('/--.*$/m', '', $sql); // Remove comment lines
+    $statements = array_filter(
+        array_map('trim', explode(';', $sql)),
+        function($stmt) {
+            return !empty($stmt) && strlen(trim($stmt)) > 10; // Filter out very short strings
+        }
+    );
+    
+    $created = 0;
+    foreach ($statements as $statement) {
+        $statement = trim($statement);
+        if (empty($statement)) {
+            continue;
+        }
+        
+        // Execute statement
+        if (mysqli_query($conn, $statement)) {
+            $created++;
+        } else {
+            $error = mysqli_error($conn);
+            // Ignore "table already exists" errors (MySQL error 1050)
+            if (strpos($error, 'already exists') === false && 
+                strpos($error, 'Duplicate') === false &&
+                mysqli_errno($conn) !== 1050) {
+                error_log("Error creating archive table: " . $error . " | Statement: " . substr($statement, 0, 150));
+            } else {
+                // Table already exists, count as success
+                $created++;
+            }
+        }
+    }
+    
+    return $created > 0;
+}
+
 try {
     if (!isset($conn) || !$conn) {
         sendJsonResponse(false, 'Database connection failed', null, 500);
     }
+
+    // Ensure archive tables exist
+    ensureArchiveTablesExist($conn);
 
     $type = isset($_GET['type']) ? $_GET['type'] : 'all'; // all, expired, cancelled, deleted
     $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 100;
@@ -65,120 +139,161 @@ try {
 
     // Get expired items
     if ($type === 'all' || $type === 'expired') {
-        $expiredSql = "SELECT 
-                        ae.id,
-                        ae.original_batch_item_id,
-                        ae.batch_id,
-                        ae.batch_number,
-                        ae.medicine_id,
-                        ae.medicine_name,
-                        ae.medicine_ndc,
-                        ae.quantity,
-                        ae.expiration_date,
-                        ae.expired_at,
-                        ae.archived_at,
-                        ae.supplier_id,
-                        ae.supplier_name,
-                        DATEDIFF(CURDATE(), ae.expiration_date) as days_expired
-                    FROM archived_expired_items ae
-                    ORDER BY ae.expired_at DESC
-                    LIMIT ? OFFSET ?";
-        
-        $stmt = mysqli_prepare($conn, $expiredSql);
-        if ($stmt) {
-            mysqli_stmt_bind_param($stmt, 'ii', $limit, $offset);
-            mysqli_stmt_execute($stmt);
-            $expiredResult = mysqli_stmt_get_result($stmt);
+        // Check if table exists
+        $checkTable = mysqli_query($conn, "SHOW TABLES LIKE 'archived_expired_items'");
+        if (mysqli_num_rows($checkTable) > 0) {
+            $expiredSql = "SELECT 
+                            ae.id,
+                            ae.original_batch_item_id,
+                            ae.batch_id,
+                            ae.batch_number,
+                            ae.medicine_id,
+                            ae.medicine_name,
+                            ae.medicine_ndc,
+                            ae.quantity,
+                            ae.expiration_date,
+                            ae.expired_at,
+                            ae.archived_at,
+                            ae.supplier_id,
+                            ae.supplier_name,
+                            DATEDIFF(CURDATE(), ae.expiration_date) as days_expired
+                        FROM archived_expired_items ae
+                        ORDER BY ae.expired_at DESC
+                        LIMIT ? OFFSET ?";
             
-            while ($row = mysqli_fetch_assoc($expiredResult)) {
-                $result['expired'][] = $row;
+            $stmt = mysqli_prepare($conn, $expiredSql);
+            if ($stmt) {
+                mysqli_stmt_bind_param($stmt, 'ii', $limit, $offset);
+                if (mysqli_stmt_execute($stmt)) {
+                    $expiredResult = mysqli_stmt_get_result($stmt);
+                    
+                    if ($expiredResult) {
+                        while ($row = mysqli_fetch_assoc($expiredResult)) {
+                            $result['expired'][] = $row;
+                        }
+                    } else {
+                        error_log("Error getting expired items result: " . mysqli_error($conn));
+                    }
+                } else {
+                    error_log("Error executing expired items query: " . mysqli_stmt_error($stmt));
+                }
+                mysqli_stmt_close($stmt);
+            } else {
+                error_log("Error preparing expired items query: " . mysqli_error($conn));
             }
-            mysqli_stmt_close($stmt);
         }
     }
 
     // Get cancelled orders
     if ($type === 'all' || $type === 'cancelled') {
-        $cancelledSql = "SELECT 
-                            ao.id,
-                            ao.original_id,
-                            ao.supplier_id,
-                            ao.supplier_name,
-                            ao.order_date,
-                            ao.cancelled_at,
-                            ao.cancelled_by,
-                            ao.total_amount,
-                            ao.notes,
-                            ao.cancellation_reason,
-                            ao.original_status,
-                            (SELECT COUNT(*) FROM archived_order_items WHERE archived_order_id = ao.id) as item_count
-                        FROM archived_orders ao
-                        ORDER BY ao.cancelled_at DESC
-                        LIMIT ? OFFSET ?";
-        
-        $stmt = mysqli_prepare($conn, $cancelledSql);
-        if ($stmt) {
-            mysqli_stmt_bind_param($stmt, 'ii', $limit, $offset);
-            mysqli_stmt_execute($stmt);
-            $cancelledResult = mysqli_stmt_get_result($stmt);
+        // Check if table exists
+        $checkTable = mysqli_query($conn, "SHOW TABLES LIKE 'archived_orders'");
+        if (mysqli_num_rows($checkTable) > 0) {
+            $cancelledSql = "SELECT 
+                                ao.id,
+                                ao.original_id,
+                                ao.supplier_id,
+                                ao.supplier_name,
+                                ao.order_date,
+                                ao.cancelled_at,
+                                ao.cancelled_by,
+                                ao.total_amount,
+                                ao.notes,
+                                ao.cancellation_reason,
+                                ao.original_status,
+                                (SELECT COUNT(*) FROM archived_order_items WHERE archived_order_id = ao.id) as item_count
+                            FROM archived_orders ao
+                            ORDER BY ao.cancelled_at DESC
+                            LIMIT ? OFFSET ?";
             
-            while ($row = mysqli_fetch_assoc($cancelledResult)) {
-                // Get order items
-                $itemsSql = "SELECT 
-                                aoi.id,
-                                aoi.medicine_id,
-                                aoi.medicine_name,
-                                aoi.quantity,
-                                aoi.price
-                            FROM archived_order_items aoi
-                            WHERE aoi.archived_order_id = ?";
-                $itemsStmt = mysqli_prepare($conn, $itemsSql);
-                if ($itemsStmt) {
-                    mysqli_stmt_bind_param($itemsStmt, 'i', $row['id']);
-                    mysqli_stmt_execute($itemsStmt);
-                    $itemsResult = mysqli_stmt_get_result($itemsStmt);
-                    $row['items'] = [];
-                    while ($item = mysqli_fetch_assoc($itemsResult)) {
-                        $row['items'][] = $item;
+            $stmt = mysqli_prepare($conn, $cancelledSql);
+            if ($stmt) {
+                mysqli_stmt_bind_param($stmt, 'ii', $limit, $offset);
+                if (mysqli_stmt_execute($stmt)) {
+                    $cancelledResult = mysqli_stmt_get_result($stmt);
+                    
+                    if ($cancelledResult) {
+                        while ($row = mysqli_fetch_assoc($cancelledResult)) {
+                            // Get order items
+                            $itemsSql = "SELECT 
+                                            aoi.id,
+                                            aoi.medicine_id,
+                                            aoi.medicine_name,
+                                            aoi.quantity,
+                                            aoi.price
+                                        FROM archived_order_items aoi
+                                        WHERE aoi.archived_order_id = ?";
+                            $itemsStmt = mysqli_prepare($conn, $itemsSql);
+                            if ($itemsStmt) {
+                                mysqli_stmt_bind_param($itemsStmt, 'i', $row['id']);
+                                mysqli_stmt_execute($itemsStmt);
+                                $itemsResult = mysqli_stmt_get_result($itemsStmt);
+                                $row['items'] = [];
+                                if ($itemsResult) {
+                                    while ($item = mysqli_fetch_assoc($itemsResult)) {
+                                        $row['items'][] = $item;
+                                    }
+                                }
+                                mysqli_stmt_close($itemsStmt);
+                            }
+                            $result['cancelled'][] = $row;
+                        }
+                    } else {
+                        error_log("Error getting cancelled orders result: " . mysqli_error($conn));
                     }
-                    mysqli_stmt_close($itemsStmt);
+                } else {
+                    error_log("Error executing cancelled orders query: " . mysqli_stmt_error($stmt));
                 }
-                $result['cancelled'][] = $row;
+                mysqli_stmt_close($stmt);
+            } else {
+                error_log("Error preparing cancelled orders query: " . mysqli_error($conn));
             }
-            mysqli_stmt_close($stmt);
         }
     }
 
     // Get deleted medicines
     if ($type === 'all' || $type === 'deleted') {
-        $deletedSql = "SELECT 
-                        am.id,
-                        am.original_id,
-                        am.ndc,
-                        am.name,
-                        am.manufacturer,
-                        am.category,
-                        am.dosage_form,
-                        am.price,
-                        am.quantity,
-                        am.description,
-                        am.deleted_at,
-                        am.deleted_by,
-                        am.reason
-                    FROM archived_medicines am
-                    ORDER BY am.deleted_at DESC
-                    LIMIT ? OFFSET ?";
-        
-        $stmt = mysqli_prepare($conn, $deletedSql);
-        if ($stmt) {
-            mysqli_stmt_bind_param($stmt, 'ii', $limit, $offset);
-            mysqli_stmt_execute($stmt);
-            $deletedResult = mysqli_stmt_get_result($stmt);
+        // Check if table exists
+        $checkTable = mysqli_query($conn, "SHOW TABLES LIKE 'archived_medicines'");
+        if (mysqli_num_rows($checkTable) > 0) {
+            $deletedSql = "SELECT 
+                            am.id,
+                            am.original_id,
+                            am.ndc,
+                            am.name,
+                            am.manufacturer,
+                            am.category,
+                            am.dosage_form,
+                            am.price,
+                            am.quantity,
+                            am.description,
+                            am.deleted_at,
+                            am.deleted_by,
+                            am.reason
+                        FROM archived_medicines am
+                        ORDER BY am.deleted_at DESC
+                        LIMIT ? OFFSET ?";
             
-            while ($row = mysqli_fetch_assoc($deletedResult)) {
-                $result['deleted'][] = $row;
+            $stmt = mysqli_prepare($conn, $deletedSql);
+            if ($stmt) {
+                mysqli_stmt_bind_param($stmt, 'ii', $limit, $offset);
+                if (mysqli_stmt_execute($stmt)) {
+                    $deletedResult = mysqli_stmt_get_result($stmt);
+                    
+                    if ($deletedResult) {
+                        while ($row = mysqli_fetch_assoc($deletedResult)) {
+                            $result['deleted'][] = $row;
+                        }
+                    } else {
+                        error_log("Error getting deleted medicines result: " . mysqli_error($conn));
+                    }
+                } else {
+                    error_log("Error executing deleted medicines query: " . mysqli_stmt_error($stmt));
+                }
+                mysqli_stmt_close($stmt);
+            } else {
+                error_log("Error preparing deleted medicines query: " . mysqli_error($conn));
             }
-            mysqli_stmt_close($stmt);
         }
     }
 
