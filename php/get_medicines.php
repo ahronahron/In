@@ -37,6 +37,7 @@ try {
 
     $search = isset($_GET['search']) ? trim($_GET['search']) : '';
     $status = isset($_GET['status']) ? trim($_GET['status']) : '';
+    $category = isset($_GET['category']) ? trim($_GET['category']) : '';
     $expiration = isset($_GET['expiration']) ? trim($_GET['expiration']) : '';
 
     // Build where clause safely using mysqli_real_escape_string
@@ -50,6 +51,11 @@ try {
     if ($status !== '') {
         $st = mysqli_real_escape_string($conn, $status);
         $where .= " AND status = '{$st}' ";
+    }
+
+    if ($category !== '') {
+        $cat = mysqli_real_escape_string($conn, $category);
+        $where .= " AND category = '{$cat}' ";
     }
 
     if ($expiration === 'expired') {
