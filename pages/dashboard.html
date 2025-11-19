@@ -25,6 +25,71 @@
                 padding-left: 0;
             }
         }
+        
+        /* Calendar Today Highlight */
+        .fc-day-today {
+            background-color: rgba(59, 130, 246, 0.1) !important;
+        }
+        
+        .dark .fc-day-today {
+            background-color: rgba(59, 130, 246, 0.2) !important;
+        }
+        
+        .fc-day-today .fc-daygrid-day-number {
+            font-weight: 700;
+            color: #3b82f6;
+        }
+        
+        .dark .fc-day-today .fc-daygrid-day-number {
+            color: #60a5fa;
+        }
+        
+        /* Calendar Event Styling */
+        .fc-event {
+            border: none !important;
+            padding: 2px 4px;
+            margin: 1px 0;
+            cursor: pointer;
+        }
+        
+        .fc-event:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+            transition: all 0.2s ease;
+        }
+        
+        /* Calendar Header */
+        .fc-toolbar-title {
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+        
+        .dark .fc-toolbar-title {
+            color: #f9fafb;
+        }
+        
+        /* Calendar Day Numbers */
+        .fc-daygrid-day-number {
+            padding: 4px;
+        }
+        
+        /* Calendar Today Button */
+        .fc-today-button {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+        
+        .fc-today-button:hover {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+        
+        .fc-today-button:disabled {
+            background-color: #9ca3af;
+            border-color: #9ca3af;
+            opacity: 0.5;
+        }
     </style>
 <script type="module" src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Finventory6919back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script>
 </head>
@@ -235,10 +300,22 @@
 
             <!-- Calendar Section -->
             <section class="bg-white dark:bg-gray-900 rounded-2xl shadow-md border border-border-light dark:border-gray-700 p-6">
-                <h2 class="text-lg font-semibold text-text-primary dark:text-gray-100 mb-4 flex items-center">
-                    <i class="fas fa-calendar-alt text-primary-600 dark:text-primary-400 mr-2"></i>
-                    Medicine Schedule & Expiry Calendar
-                </h2>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-text-primary dark:text-gray-100 flex items-center">
+                        <i class="fas fa-calendar-alt text-primary-600 dark:text-primary-400 mr-2"></i>
+                        Calendar - Medicine Expiry & Order Deliveries
+                    </h2>
+                    <div class="flex items-center space-x-4 text-xs">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-primary-600 rounded"></div>
+                            <span class="text-text-secondary dark:text-gray-400">Order Delivery</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-warning-600 rounded"></div>
+                            <span class="text-text-secondary dark:text-gray-400">Medicine Expiry</span>
+                        </div>
+                    </div>
+                </div>
                 <div id="calendar" class="min-h-[400px]"></div>
             </section>
         </div>
@@ -879,6 +956,7 @@
             const calendarEl = document.getElementById('calendar');
             window.calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
+                initialDate: new Date(), // Show current month
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
@@ -886,20 +964,69 @@
                 },
                 events: [],
                 height: 'auto',
+                nowIndicator: true, // Show current time indicator
+                dayCellClassNames: function(arg) {
+                    const today = new Date();
+                    const cellDate = new Date(arg.date);
+                    // Highlight today's date
+                    if (cellDate.toDateString() === today.toDateString()) {
+                        return ['fc-day-today', 'bg-primary-50', 'dark:bg-primary-900', 'border-2', 'border-primary-500', 'dark:border-primary-400'];
+                    }
+                    return [];
+                },
+                dayHeaderClassNames: function(arg) {
+                    const today = new Date();
+                    const cellDate = new Date(arg.date);
+                    if (cellDate.toDateString() === today.toDateString()) {
+                        return ['font-bold', 'text-primary-600', 'dark:text-primary-400'];
+                    }
+                    return [];
+                },
                 eventClick: function(info) {
                     const props = info.event.extendedProps;
-                    const status = props.status || 'unknown';
-                    const quantity = props.quantity || 0;
-                    alert(`Medicine: ${info.event.title}\nExpiry Date: ${info.event.startStr}\nStatus: ${status}\nQuantity: ${quantity}`);
+                    if (props.type === 'order_delivery') {
+                        // Show order delivery details
+                        const orderId = props.orderId;
+                        const supplierName = props.supplierName || 'Unknown Supplier';
+                        const orderDate = props.orderDate || 'N/A';
+                        const status = props.status || 'unknown';
+                        const totalAmount = props.totalAmount || 0;
+                        
+                        const message = `Order Delivery\n\n` +
+                            `Order ID: #${orderId}\n` +
+                            `Supplier: ${supplierName}\n` +
+                            `Order Date: ${orderDate}\n` +
+                            `Expected Delivery: ${info.event.startStr}\n` +
+                            `Status: ${status}\n` +
+                            `Total Amount: $${totalAmount.toFixed(2)}\n\n` +
+                            `Click "View Details" to see full order information.`;
+                        
+                        if (confirm(message + '\n\nView full order details?')) {
+                            viewOrderDetails(orderId);
+                        }
+                    } else {
+                        // Medicine expiry event
+                        const status = props.status || 'unknown';
+                        const quantity = props.quantity || 0;
+                        alert(`Medicine: ${info.event.title}\nExpiry Date: ${info.event.startStr}\nStatus: ${status}\nQuantity: ${quantity}`);
+                    }
                 },
                 dayHeaderContent: function(arg) {
                     return arg.text;
                 },
                 eventContent: function(arg) {
+                    const props = arg.event.extendedProps;
+                    const isOrderDelivery = props.type === 'order_delivery';
+                    const icon = isOrderDelivery ? 'fa-truck' : 'fa-pills';
+                    const bgColor = isOrderDelivery ? 'bg-primary-600' : 'bg-warning-600';
+                    
                     return {
-                        html: `<div class="fc-event-main-frame">
+                        html: `<div class="fc-event-main-frame ${bgColor} text-white p-1 rounded">
                             <div class="fc-event-title-container">
-                                <div class="fc-event-title fc-sticky">${arg.event.title}</div>
+                                <div class="fc-event-title fc-sticky flex items-center space-x-1">
+                                    <i class="fas ${icon} text-xs"></i>
+                                    <span class="text-xs font-medium">${arg.event.title}</span>
+                                </div>
                             </div>
                         </div>`
                     };
@@ -2108,26 +2235,96 @@
             }
         }
 
-        // Load Calendar Events
+        // Calculate expected delivery date based on order date and status
+        function calculateDeliveryDate(orderDate, status) {
+            const order = new Date(orderDate);
+            let daysToAdd = 7; // Default delivery time: 7 days
+            
+            // Adjust delivery time based on status
+            if (status === 'shipping') {
+                daysToAdd = 3; // Already shipping, should arrive soon
+            } else if (status === 'pending') {
+                daysToAdd = 10; // Pending orders typically take longer
+            } else if (status === 'completed') {
+                daysToAdd = 0; // Already completed/delivered
+            }
+            
+            const deliveryDate = new Date(order);
+            deliveryDate.setDate(deliveryDate.getDate() + daysToAdd);
+            return deliveryDate.toISOString().split('T')[0];
+        }
+
+        // Load Calendar Events - Including order deliveries
         async function loadCalendarEvents() {
             try {
+                // Load medicine expiry events from dashboard API
                 const response = await fetch(`${DASHBOARD_API}?action=calendar`);
                 const result = await response.json();
 
+                const calendarEl = document.getElementById('calendar');
+                if (!calendarEl || !window.calendar) return;
+
+                window.calendar.removeAllEvents();
+
+                // Add medicine expiry events
                 if (result.success && result.data) {
-                    const calendarEl = document.getElementById('calendar');
-                    if (calendarEl && window.calendar) {
-                        window.calendar.removeAllEvents();
-                        result.data.forEach(event => {
-                            window.calendar.addEvent({
-                                title: event.title,
-                                start: event.start,
-                                color: event.color,
-                                extendedProps: event.extendedProps
-                            });
+                    result.data.forEach(event => {
+                        window.calendar.addEvent({
+                            title: event.title,
+                            start: event.start,
+                            color: event.color || '#f59e0b',
+                            extendedProps: event.extendedProps || {}
                         });
-                    }
+                    });
                 }
+
+                // Load and add order delivery events
+                try {
+                    const baseUrl = getApiBaseUrl();
+                    const ordersResponse = await fetch(`${baseUrl}/get_orders.php?page=1&pageSize=100`, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' },
+                        credentials: 'include'
+                    });
+
+                    if (ordersResponse.ok) {
+                        const ordersData = await ordersResponse.json();
+                        
+                        if (ordersData.success && ordersData.data) {
+                            ordersData.data.forEach(order => {
+                                // Only show pending and shipping orders (not completed or cancelled)
+                                const status = (order.status || '').toLowerCase();
+                                if (status === 'pending' || status === 'shipping') {
+                                    const orderDate = order.order_date || order.date;
+                                    if (orderDate) {
+                                        const deliveryDate = calculateDeliveryDate(orderDate, status);
+                                        const supplierName = order.supplier_name || 'Unknown Supplier';
+                                        const orderId = order.id;
+                                        
+                                        window.calendar.addEvent({
+                                            title: `Order #${orderId} - ${supplierName}`,
+                                            start: deliveryDate,
+                                            color: status === 'shipping' ? '#3b82f6' : '#f59e0b', // Blue for shipping, amber for pending
+                                            extendedProps: {
+                                                type: 'order_delivery',
+                                                orderId: orderId,
+                                                supplierName: supplierName,
+                                                orderDate: formatDate(orderDate),
+                                                status: order.status,
+                                                totalAmount: parseFloat(order.total_amount || 0),
+                                                itemCount: order.item_count || 0
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    }
+                } catch (orderError) {
+                    console.error('Error loading order delivery events:', orderError);
+                    // Continue even if order loading fails
+                }
+
             } catch (error) {
                 console.error('Error loading calendar events:', error);
             }
@@ -2146,15 +2343,19 @@
             return date.toLocaleDateString();
         }
 
-        // Load Orders Overview
+        // Load Orders Overview - Display data from orders_management
         async function loadOrdersOverview() {
             try {
                 const baseUrl = getApiBaseUrl();
-                const response = await fetch(`${baseUrl}/get_orders.php?page=1&pageSize=5`, {
+                const response = await fetch(`${baseUrl}/get_orders.php?page=1&pageSize=10`, {
                     method: 'GET',
                     headers: { 'Accept': 'application/json' },
                     credentials: 'include'
                 });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
 
                 const data = await response.json();
                 const ordersList = document.getElementById('ordersOverviewList');
@@ -2167,26 +2368,50 @@
                     ordersList.innerHTML = '';
                     data.data.forEach(order => {
                         const orderEl = document.createElement('div');
-                        orderEl.className = 'flex items-center justify-between p-4 bg-surface-hover dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200';
+                        orderEl.className = 'flex items-center justify-between p-4 bg-surface-hover dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 cursor-pointer';
+                        orderEl.onclick = () => viewOrderDetails(order.id);
                         
                         const statusClass = getStatusClass(order.status);
                         const statusIcon = getStatusIcon(order.status);
                         const orderId = order.id;
+                        const supplierName = order.supplier_name || 'Unknown Supplier';
+                        const orderDate = formatDate(order.order_date || order.date);
+                        const totalAmount = parseFloat(order.total_amount || 0);
+                        const itemCount = order.item_count || 0;
+                        const status = (order.status || '').charAt(0).toUpperCase() + (order.status || '').slice(1);
                         
                         orderEl.innerHTML = `
                             <div class="flex-1 min-w-0">
-                                <div class="flex items-center space-x-3">
-                                    <div class="flex-1">
-                                        <p class="text-sm font-medium text-text-primary dark:text-gray-100">Order #${orderId}</p>
-                                        <p class="text-xs text-text-secondary dark:text-gray-400 mt-1">${order.supplier_name || 'Unknown Supplier'} • ${formatDate(order.order_date)}</p>
-                                    </div>
-                                    <div class="flex items-center space-x-3">
-                                        <div class="text-right mr-3">
-                                            <p class="text-sm font-semibold text-text-primary dark:text-gray-100">$${(order.total_amount || 0).toFixed(2)}</p>
-                                            <span class="status-badge ${statusClass} text-xs mt-1 inline-block">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center space-x-3 mb-2">
+                                            <p class="text-sm font-semibold text-text-primary dark:text-gray-100">Order #${orderId}</p>
+                                            <span class="status-badge ${statusClass} text-xs px-2 py-1 rounded-full">
                                                 ${statusIcon}
-                                                ${(order.status || '').charAt(0).toUpperCase() + (order.status || '').slice(1)}
+                                                ${status}
                                             </span>
+                                        </div>
+                                        <div class="space-y-1">
+                                            <p class="text-sm text-text-primary dark:text-gray-100">
+                                                <i class="fas fa-truck-medical text-xs text-text-tertiary dark:text-gray-500 mr-1"></i>
+                                                ${escapeHtml(supplierName)}
+                                            </p>
+                                            <div class="flex items-center space-x-3 text-xs text-text-secondary dark:text-gray-400">
+                                                <span>
+                                                    <i class="fas fa-calendar text-xs mr-1"></i>
+                                                    ${orderDate}
+                                                </span>
+                                                <span>
+                                                    <i class="fas fa-box text-xs mr-1"></i>
+                                                    ${itemCount} item(s)
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4 ml-4">
+                                        <div class="text-right">
+                                            <p class="text-base font-bold text-text-primary dark:text-gray-100">$${totalAmount.toFixed(2)}</p>
+                                            <p class="text-xs text-text-tertiary dark:text-gray-500">Total Amount</p>
                                         </div>
                                         <button onclick="event.stopPropagation(); viewOrderDetails('${orderId}'); return false;" class="text-primary dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-200 p-2 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900" title="View Details">
                                             <i class="fas fa-eye"></i>
@@ -2201,7 +2426,8 @@
                     ordersList.innerHTML = `
                         <div class="text-center py-8 text-text-secondary dark:text-gray-400">
                             <i class="fas fa-shopping-cart text-3xl mb-2 opacity-50"></i>
-                            <p>No orders found</p>
+                            <p class="text-sm font-medium">No orders found</p>
+                            <p class="text-xs mt-1">Create your first order to get started</p>
                         </div>
                     `;
                 }
@@ -2211,8 +2437,9 @@
                 if (ordersList) {
                     ordersList.innerHTML = `
                         <div class="text-center py-8 text-text-secondary dark:text-gray-400">
-                            <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
-                            <p>Failed to load orders</p>
+                            <i class="fas fa-exclamation-triangle text-2xl mb-2 text-error"></i>
+                            <p class="text-sm font-medium">Failed to load orders</p>
+                            <p class="text-xs mt-1 text-text-tertiary">${error.message || 'Unknown error'}</p>
                         </div>
                     `;
                 }

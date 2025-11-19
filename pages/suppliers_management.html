@@ -35,8 +35,14 @@
         <header class="bg-surface dark:bg-gray-900 border-b border-border-light dark:border-gray-700 sticky top-0 z-30 shadow-sm">
             <div class="flex items-center justify-between px-6 py-4">
                 <div class="flex items-center space-x-4">
+<<<<<<< HEAD
+                    <!-- Mobile Menu Button -->
+                    <button id="openSidebar" class="lg:hidden text-text-secondary hover:text-text-primary dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200">
+                        <i class="fas fa-bars text-xl"></i>
+=======
                     <button id="menuToggle" class="lg:hidden text-text-tertiary hover:text-text-secondary dark:text-gray-400 dark:hover:text-gray-200">
                         <i class="fas fa-bars text-lg"></i>
+>>>>>>> 087a4ab23c94908259c3a6154b93dee88a5f172d
                     </button>
 
                     <!-- Page Title -->
@@ -770,7 +776,14 @@
         }
         
         // DOM Elements
+<<<<<<< HEAD
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const openSidebarBtn = document.getElementById('openSidebar');
+        const closeSidebarBtn = document.getElementById('closeSidebar');
+=======
         // Sidebar is loaded dynamically via load-sidebar.js
+>>>>>>> 087a4ab23c94908259c3a6154b93dee88a5f172d
         const addSupplierBtn = document.getElementById('addSupplierBtn');
         const addSupplierModal = document.getElementById('addSupplierModal');
         const editSupplierModal = document.getElementById('editSupplierModal');
@@ -780,6 +793,31 @@
         const resetFilters = document.getElementById('resetFilters');
         const selectAll = document.getElementById('selectAll');
 
+<<<<<<< HEAD
+        // Sidebar functionality
+        if (openSidebarBtn && sidebar && sidebarOverlay) {
+            openSidebarBtn.addEventListener('click', () => {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarOverlay.classList.remove('hidden');
+            });
+        }
+
+        if (closeSidebarBtn && sidebar && sidebarOverlay) {
+            closeSidebarBtn.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
+            });
+        }
+
+        if (sidebarOverlay && sidebar) {
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
+            });
+        }
+
+=======
+>>>>>>> 087a4ab23c94908259c3a6154b93dee88a5f172d
         // Modal functionality
         if (addSupplierBtn && addSupplierModal) {
             addSupplierBtn.addEventListener('click', () => {
@@ -1983,6 +2021,10 @@
                 filterSuppliers();
             }
         });
+<<<<<<< HEAD
+    </script>
+=======
+>>>>>>> 087a4ab23c94908259c3a6154b93dee88a5f172d
 
         // Settings Modal Functions
         function openSettings() {
@@ -2205,6 +2247,9 @@
         document.getElementById('tabDeletedModal')?.addEventListener('click', () => switchArchiveTab('Deleted'));
         document.getElementById('tabSuppliersModal')?.addEventListener('click', () => switchArchiveTab('Suppliers'));
     </script>
+<<<<<<< HEAD
+=======
 <script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+>>>>>>> 087a4ab23c94908259c3a6154b93dee88a5f172d
 </body>
 </html>
