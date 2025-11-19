@@ -13,8 +13,6 @@ require_once __DIR__ . '/conn.php';
 require_once __DIR__ . '/order_batch_helper.php';
 require_once __DIR__ . '/archive_helper.php';
 
-header('Content-Type: application/json; charset=utf-8');
-
 try {
     if (!isset($conn) || !$conn) {
         throw new Exception('Database connection failed');

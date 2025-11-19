@@ -157,7 +157,8 @@ function archiveOrder($conn, $order_id, $cancelled_by = null, $reason = null) {
  */
 function archiveExpiredItems($conn) {
     // Get expired batch items that haven't been archived yet
-    $sql = "SELECT bi.*, b.batch_number, s.id as supplier_id, s.name as supplier_name, m.name as medicine_name, m.ndc as medicine_ndc
+    $sql = "SELECT bi.*, b.batch_number, s.id as supplier_id, s.name as supplier_name, m.name as medicine_name, m.ndc as medicine_ndc,
+            COALESCE(bi.received_quantity, bi.quantity, 0) as expired_quantity
             FROM batch_items bi
             INNER JOIN batches b ON bi.batch_id = b.id
             LEFT JOIN suppliers s ON b.supplier_id = s.id
@@ -186,6 +187,9 @@ function archiveExpiredItems($conn) {
     }
     
     while ($item = mysqli_fetch_assoc($result)) {
+        // Use received_quantity if available, otherwise use quantity
+        $expiredQuantity = isset($item['expired_quantity']) ? $item['expired_quantity'] : (isset($item['received_quantity']) ? $item['received_quantity'] : $item['quantity']);
+        
         mysqli_stmt_bind_param($archiveStmt, 'iisisssiss',
             $item['id'],
             $item['batch_id'],
@@ -193,7 +197,7 @@ function archiveExpiredItems($conn) {
             $item['medicine_id'],
             $item['medicine_name'],
             $item['medicine_ndc'],
-            $item['quantity'],
+            $expiredQuantity,
             $item['expiration_date'],
             $item['expired_at'],
             $item['supplier_id'],
