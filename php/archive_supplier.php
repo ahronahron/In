@@ -5,6 +5,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/php_errors.log');
 
 // Enhanced CORS headers
 $allowed_origins = [
@@ -34,14 +35,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // Helper function to send JSON response
 function sendJsonResponse($success, $message, $data = null, $httpCode = 200) {
+    // Clear any previous output
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
     http_response_code($httpCode);
-    ob_clean();
+    header('Content-Type: application/json; charset=utf-8');
     echo json_encode([
         'success' => $success,
         'message' => $message,
         'data' => $data
     ], JSON_UNESCAPED_UNICODE);
-    ob_end_flush();
     exit;
 }
 
@@ -94,18 +98,22 @@ try {
     // Check if archived_suppliers table exists, if not create it
     $tableCheck = "SHOW TABLES LIKE 'archived_suppliers'";
     $tableResult = mysqli_query($conn, $tableCheck);
+    if (!$tableResult) {
+        error_log("Error checking for archived_suppliers table: " . mysqli_error($conn));
+        sendJsonResponse(false, 'Database error checking archive table: ' . mysqli_error($conn), null, 500);
+    }
+    
     if (mysqli_num_rows($tableResult) == 0) {
+        error_log("Creating archived_suppliers table...");
         // Create archived_suppliers table
         $createTableSql = "CREATE TABLE IF NOT EXISTS archived_suppliers (
             id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique archive ID',
             original_id INT UNSIGNED NOT NULL COMMENT 'Original supplier ID before archiving',
             name VARCHAR(255) NOT NULL COMMENT 'Supplier name',
-            contact VARCHAR(255) NULL COMMENT 'Contact person',
+            contact_person VARCHAR(255) NULL COMMENT 'Contact person',
             email VARCHAR(255) NULL COMMENT 'Email address',
             phone VARCHAR(50) NULL COMMENT 'Phone number',
-            location VARCHAR(255) NULL COMMENT 'Location/Address',
-            website VARCHAR(255) NULL COMMENT 'Website URL',
-            notes TEXT NULL COMMENT 'Additional notes',
+            address VARCHAR(255) NULL COMMENT 'Address/Location',
             archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'When supplier was archived',
             archived_by VARCHAR(255) NULL COMMENT 'User who archived the supplier',
             reason TEXT NULL COMMENT 'Reason for archiving',
@@ -115,9 +123,13 @@ try {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Archived suppliers'";
         
         if (!mysqli_query($conn, $createTableSql)) {
-            error_log("Error creating archived_suppliers table: " . mysqli_error($conn));
-            sendJsonResponse(false, 'Failed to create archive table', null, 500);
+            $error = mysqli_error($conn);
+            error_log("Error creating archived_suppliers table: " . $error);
+            sendJsonResponse(false, 'Failed to create archive table: ' . $error, null, 500);
         }
+        error_log("archived_suppliers table created successfully");
+    } else {
+        error_log("archived_suppliers table already exists");
     }
 
     // Start transaction
@@ -129,14 +141,17 @@ try {
         $reason = isset($_POST['reason']) ? $_POST['reason'] : 'Supplier archived';
 
         $archiveSql = "INSERT INTO archived_suppliers 
-                        (original_id, name, contact, email, phone, location, website, notes, archived_by, reason)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        (original_id, name, contact_person, email, phone, address, archived_by, reason)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         
         $archiveStmt = mysqli_prepare($conn, $archiveSql);
         if (!$archiveStmt) {
-            throw new Exception('Database error during archiving: ' . mysqli_error($conn));
+            $error = mysqli_error($conn);
+            error_log("Archive prepare error: " . $error);
+            throw new Exception('Database error during archiving: ' . $error);
         }
 
+<<<<<<< HEAD
         // Map supplier fields correctly (suppliers table uses contact_person and address)
         // The archived_suppliers table uses 'contact' and 'location' fields
         $contact = isset($supplier['contact_person']) ? $supplier['contact_person'] : (isset($supplier['contact']) ? $supplier['contact'] : null);
@@ -160,12 +175,45 @@ try {
             $notes,
             $archived_by,
             $reason
+=======
+        // Use correct column names from suppliers table
+        // Prepare values - convert null to empty string for mysqli
+        $original_id = (int)$supplier['id'];
+        $name = $supplier['name'] ?? '';
+        $contact_person = isset($supplier['contact_person']) && $supplier['contact_person'] !== '' ? $supplier['contact_person'] : '';
+        $email = isset($supplier['email']) && $supplier['email'] !== '' ? $supplier['email'] : '';
+        $phone = isset($supplier['phone']) && $supplier['phone'] !== '' ? $supplier['phone'] : '';
+        $address = isset($supplier['address']) && $supplier['address'] !== '' ? $supplier['address'] : '';
+        $archived_by_value = $archived_by ?? '';
+        $reason_value = $reason ?? 'Supplier archived';
+        
+        error_log("Archive bind values: id=$original_id, name=$name, contact=$contact_person, email=$email, phone=$phone, address=$address");
+        
+        mysqli_stmt_bind_param($archiveStmt, 'isssssss',
+            $original_id,
+            $name,
+            $contact_person,
+            $email,
+            $phone,
+            $address,
+            $archived_by_value,
+            $reason_value
+>>>>>>> 161e38a227494c55204d8dff817d57a62f8276cf
         );
 
         if (!mysqli_stmt_execute($archiveStmt)) {
-            throw new Exception('Failed to archive supplier: ' . mysqli_stmt_error($archiveStmt));
+            $error = mysqli_stmt_error($archiveStmt);
+            $errorCode = mysqli_stmt_errno($archiveStmt);
+            error_log("Archive execute error [$errorCode]: " . $error);
+            error_log("Archive SQL: " . $archiveSql);
+            error_log("Supplier data: " . print_r($supplier, true));
+            error_log("Bind values: original_id=$original_id, name=$name, contact_person=$contact_person, email=$email, phone=$phone, address=$address, archived_by=$archived_by_value, reason=$reason_value");
+            mysqli_stmt_close($archiveStmt);
+            throw new Exception('Failed to archive supplier: ' . $error . ' (Error Code: ' . $errorCode . ')');
         }
-
+        
+        $archivedId = mysqli_insert_id($conn);
+        error_log("Supplier archived successfully to archived_suppliers table with archive ID: $archivedId");
         mysqli_stmt_close($archiveStmt);
 
         // Handle foreign key constraints before deleting
@@ -251,15 +299,33 @@ try {
 } catch (Exception $e) {
     error_log('Exception in archive_supplier.php: ' . $e->getMessage());
     error_log('Stack trace: ' . $e->getTraceAsString());
-    sendJsonResponse(false, 'Error: ' . $e->getMessage(), ['exception' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()], 500);
+    error_log('File: ' . $e->getFile() . ', Line: ' . $e->getLine());
+    sendJsonResponse(false, 'Error: ' . $e->getMessage(), [
+        'exception' => $e->getMessage(), 
+        'file' => $e->getFile(), 
+        'line' => $e->getLine(),
+        'trace' => $e->getTraceAsString()
+    ], 500);
 } catch (Error $e) {
     error_log('Fatal error in archive_supplier.php: ' . $e->getMessage());
     error_log('Stack trace: ' . $e->getTraceAsString());
-    sendJsonResponse(false, 'Fatal error: ' . $e->getMessage(), ['error' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()], 500);
+    error_log('File: ' . $e->getFile() . ', Line: ' . $e->getLine());
+    sendJsonResponse(false, 'Fatal error: ' . $e->getMessage(), [
+        'error' => $e->getMessage(), 
+        'file' => $e->getFile(), 
+        'line' => $e->getLine(),
+        'trace' => $e->getTraceAsString()
+    ], 500);
 } catch (Throwable $e) {
     error_log('Throwable in archive_supplier.php: ' . $e->getMessage());
     error_log('Stack trace: ' . $e->getTraceAsString());
-    sendJsonResponse(false, 'Error: ' . $e->getMessage(), ['error' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()], 500);
+    error_log('File: ' . $e->getFile() . ', Line: ' . $e->getLine());
+    sendJsonResponse(false, 'Error: ' . $e->getMessage(), [
+        'error' => $e->getMessage(), 
+        'file' => $e->getFile(), 
+        'line' => $e->getLine(),
+        'trace' => $e->getTraceAsString()
+    ], 500);
 }
 
 ?>

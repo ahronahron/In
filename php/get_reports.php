@@ -198,14 +198,31 @@ function getLowStockMedicines($conn) {
 }
 
 function getStockAvailability($conn) {
-    $categories = [
-        'antibiotics',
-        'analgesics',
-        'cardiovascular',
-        'diabetes',
-        'respiratory',
-        'vitamins'
-    ];
+    // Dynamically get all categories from the database
+    $categorySql = "SELECT DISTINCT category 
+                    FROM medicines 
+                    WHERE category IS NOT NULL AND category != '' 
+                    ORDER BY category ASC";
+    
+    $categoryResult = mysqli_query($conn, $categorySql);
+    $categories = [];
+    
+    if ($categoryResult) {
+        while ($row = mysqli_fetch_assoc($categoryResult)) {
+            if (!empty($row['category'])) {
+                $categories[] = $row['category'];
+            }
+        }
+    }
+    
+    // If no categories found, return empty data
+    if (empty($categories)) {
+        echo json_encode([
+            'success' => true,
+            'data' => []
+        ], JSON_UNESCAPED_UNICODE);
+        return;
+    }
 
     $stockData = [];
 

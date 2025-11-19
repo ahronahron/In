@@ -1415,6 +1415,7 @@
                 
                 // Check if response is ok
                 if (!response.ok) {
+<<<<<<< HEAD
                     const errorText = await response.text();
                     console.error('Archive API error response:', errorText);
                     let errorMessage = `HTTP error! status: ${response.status}`;
@@ -1423,6 +1424,17 @@
                         errorMessage = errorJson.message || errorMessage;
                     } catch (e) {
                         // Not JSON, use the text
+=======
+                    // Try to get error message from response
+                    let errorMessage = `HTTP error! status: ${response.status}`;
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorMessage;
+                        console.error('Server error response:', errorData);
+                    } catch (e) {
+                        const errorText = await response.text();
+                        console.error('Server error text:', errorText);
+>>>>>>> 161e38a227494c55204d8dff817d57a62f8276cf
                         errorMessage = errorText || errorMessage;
                     }
                     throw new Error(errorMessage);
