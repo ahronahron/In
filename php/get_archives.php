@@ -54,7 +54,8 @@ function ensureArchiveTablesExist($conn) {
         'archived_expired_items',
         'archived_orders',
         'archived_order_items',
-        'archived_medicines'
+        'archived_medicines',
+        'archived_suppliers'
     ];
     
     $missingTables = [];
@@ -134,7 +135,8 @@ try {
     $result = [
         'expired' => [],
         'cancelled' => [],
-        'deleted' => []
+        'deleted' => [],
+        'suppliers' => []
     ];
 
     // Get expired items
@@ -297,11 +299,57 @@ try {
         }
     }
 
+    // Get archived suppliers
+    if ($type === 'all' || $type === 'suppliers') {
+        // Check if table exists
+        $checkTable = mysqli_query($conn, "SHOW TABLES LIKE 'archived_suppliers'");
+        if (mysqli_num_rows($checkTable) > 0) {
+            $suppliersSql = "SELECT 
+                            asup.id,
+                            asup.original_id,
+                            asup.name,
+                            asup.contact,
+                            asup.email,
+                            asup.phone,
+                            asup.location,
+                            asup.website,
+                            asup.notes,
+                            asup.archived_at,
+                            asup.archived_by,
+                            asup.reason
+                        FROM archived_suppliers asup
+                        ORDER BY asup.archived_at DESC
+                        LIMIT ? OFFSET ?";
+            
+            $stmt = mysqli_prepare($conn, $suppliersSql);
+            if ($stmt) {
+                mysqli_stmt_bind_param($stmt, 'ii', $limit, $offset);
+                if (mysqli_stmt_execute($stmt)) {
+                    $suppliersResult = mysqli_stmt_get_result($stmt);
+                    
+                    if ($suppliersResult) {
+                        while ($row = mysqli_fetch_assoc($suppliersResult)) {
+                            $result['suppliers'][] = $row;
+                        }
+                    } else {
+                        error_log("Error getting archived suppliers result: " . mysqli_error($conn));
+                    }
+                } else {
+                    error_log("Error executing archived suppliers query: " . mysqli_stmt_error($stmt));
+                }
+                mysqli_stmt_close($stmt);
+            } else {
+                error_log("Error preparing archived suppliers query: " . mysqli_error($conn));
+            }
+        }
+    }
+
     // Get counts
     $counts = [
         'expired' => 0,
         'cancelled' => 0,
-        'deleted' => 0
+        'deleted' => 0,
+        'suppliers' => 0
     ];
 
     $countSql = "SELECT COUNT(*) as count FROM archived_expired_items";
@@ -320,6 +368,16 @@ try {
     $countResult = mysqli_query($conn, $countSql);
     if ($countResult) {
         $counts['deleted'] = (int)mysqli_fetch_assoc($countResult)['count'];
+    }
+
+    // Get archived suppliers count
+    $checkTable = mysqli_query($conn, "SHOW TABLES LIKE 'archived_suppliers'");
+    if (mysqli_num_rows($checkTable) > 0) {
+        $countSql = "SELECT COUNT(*) as count FROM archived_suppliers";
+        $countResult = mysqli_query($conn, $countSql);
+        if ($countResult) {
+            $counts['suppliers'] = (int)mysqli_fetch_assoc($countResult)['count'];
+        }
     }
 
     sendJsonResponse(true, 'Archives retrieved successfully', [
