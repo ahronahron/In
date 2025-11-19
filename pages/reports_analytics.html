@@ -484,37 +484,15 @@
                             </select>
                         </div>
 
-                        <!-- Product Category -->
+                        <!-- Product Category (Dynamic from Inventory) -->
                         <div class="flex items-center space-x-2">
                             <label class="text-sm font-medium text-text-primary dark:text-gray-100">Category:</label>
                             <select id="categoryFilter" class="px-3 py-2 border border-border-light dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100">
                                 <option value>All Categories</option>
-                                <option value="antibiotics">Antibiotics</option>
-                                <option value="analgesics">Analgesics</option>
-                                <option value="cardiovascular">Cardiovascular</option>
-                                <option value="diabetes">Diabetes</option>
-                                <option value="respiratory">Respiratory</option>
-                                <option value="vitamins">Vitamins & Supplements</option>
-                            </select>
-                        </div>
-
-                        <!-- Report Type -->
-                        <div class="flex items-center space-x-2">
-                            <label class="text-sm font-medium text-text-primary dark:text-gray-100">Report Type:</label>
-                            <select id="reportTypeSelect" class="px-3 py-2 border border-border-light dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100">
-                                <option value="sales">Sales Performance</option>
-                                <option value="inventory">Inventory Levels</option>
-                                <option value="turnover">Medicine Turnover</option>
-                                <option value="profit">Profit Analysis</option>
+                                <!-- Categories will be dynamically loaded from inventory -->
                             </select>
                         </div>
                     </div>
-
-                    <!-- Refresh Button -->
-                    <button id="refreshBtn" class="flex items-center px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary-700 transition-colors duration-200">
-                        <i class="fas fa-sync-alt mr-2"></i>
-                        Refresh Data
-                    </button>
                 </div>
             </div>
 
@@ -780,6 +758,49 @@
             reportType: 'sales'
         };
 
+        // Load available categories from inventory
+        async function loadCategories() {
+            try {
+                const response = await fetch(`${API_BASE}?action=stock-availability`);
+                const result = await response.json();
+
+                const categorySelect = document.getElementById('categoryFilter');
+                if (!categorySelect) return;
+
+                // Clear existing options except "All Categories"
+                categorySelect.innerHTML = '<option value>All Categories</option>';
+
+                if (result.success && result.data && result.data.length > 0) {
+                    // Extract unique categories from the data
+                    const categories = new Set();
+                    result.data.forEach(item => {
+                        if (item.category) {
+                            categories.add(item.category);
+                        }
+                    });
+
+                    // Sort categories alphabetically
+                    const sortedCategories = Array.from(categories).sort();
+
+                    // Add each category as an option
+                    sortedCategories.forEach(category => {
+                        // Format category name (capitalize first letter of each word)
+                        const categoryName = category
+                            .split(/[\s_-]+/)
+                            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                            .join(' ');
+                        
+                        const option = document.createElement('option');
+                        option.value = category; // Use original category value for filtering
+                        option.textContent = categoryName; // Display formatted name
+                        categorySelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
         // Theme management
         function initializeTheme() {
             const savedTheme = localStorage.getItem('theme') || 'light';
@@ -895,7 +916,16 @@
 
         async function fetchLowStockMedicines() {
             try {
-                const response = await fetch(`${API_BASE}?action=low-stock`);
+                const params = new URLSearchParams({
+                    action: 'low-stock'
+                });
+
+                // Add category filter if selected
+                if (currentFilters.category) {
+                    params.append('category', currentFilters.category);
+                }
+
+                const response = await fetch(`${API_BASE}?${params}`);
                 const result = await response.json();
 
                 if (result.success && result.data) {
@@ -1089,30 +1119,15 @@
 
         // Refresh Data
         async function refreshAllData() {
-            const refreshBtn = document.getElementById('refreshBtn');
-            const icon = refreshBtn?.querySelector('i');
-            
-            if (icon) icon.classList.add('fa-spin');
-            
-            // Show loading indicator
-            document.getElementById('lowStockLoading')?.classList.remove('hidden');
-
             try {
                 await Promise.all([
                     fetchDashboardData(),
                     fetchLowStockMedicines(),
                     fetchStockAvailability()
                 ]);
-
-                // Hide loading indicator
-                document.getElementById('lowStockLoading')?.classList.add('hidden');
-
-                showNotification('Data refreshed successfully!', 'success');
             } catch (error) {
                 console.error('Error refreshing data:', error);
                 showError('Error refreshing data');
-            } finally {
-                if (icon) icon.classList.remove('fa-spin');
             }
         }
 
@@ -1196,9 +1211,10 @@
             }, 2000);
         });
 
-        // Event Listeners
-        document.getElementById('refreshBtn')?.addEventListener('click', refreshAllData);
+        // Auto-refresh interval (every 5 seconds)
+        let autoRefreshInterval = null;
 
+        // Event Listeners
         document.getElementById('reportTypeSelect')?.addEventListener('change', handleFilterChange);
         document.getElementById('dateRangeFilter')?.addEventListener('change', handleFilterChange);
         document.getElementById('categoryFilter')?.addEventListener('change', handleFilterChange);
@@ -1207,6 +1223,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize theme
             initializeTheme();
+            
+            // Load categories from inventory
+            loadCategories();
 
             // Check authentication
             if (!localStorage.getItem('isLoggedIn')) {
@@ -1230,6 +1249,18 @@
             
             // Load initial data
             refreshAllData();
+            
+            // Start auto-refresh every 5 seconds
+            autoRefreshInterval = setInterval(() => {
+                refreshAllData();
+            }, 5000); // 5000 milliseconds = 5 seconds
+            
+            // Clear interval when page is unloaded
+            window.addEventListener('beforeunload', () => {
+                if (autoRefreshInterval) {
+                    clearInterval(autoRefreshInterval);
+                }
+            });
             
             // Close modals on ESC key
             document.addEventListener('keydown', (e) => {

@@ -427,14 +427,9 @@
         <header class="bg-surface dark:bg-gray-900 border-b border-border-light dark:border-gray-700 sticky top-0 z-30 shadow-sm">
             <div class="flex items-center justify-between px-6 py-4">
                 <div class="flex items-center space-x-4">
-<<<<<<< HEAD
-                    <button id="openSidebar" class="lg:hidden text-text-tertiary hover:text-text-secondary dark:text-gray-400 dark:hover:text-gray-200">
-                        <i class="fas fa-bars text-lg"></i>
-=======
                     <!-- Mobile Menu Button -->
                     <button id="openSidebar" class="lg:hidden text-text-secondary hover:text-text-primary dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200">
                         <i class="fas fa-bars text-xl"></i>
->>>>>>> 33b82a642b804334c9eac505e0b6bfdf145d8692
                     </button>
 
                     <!-- Page Title -->
@@ -946,10 +941,6 @@
         }
         
         // DOM Elements
-<<<<<<< HEAD
-=======
-        const menuToggle = document.getElementById('openSidebar') || document.getElementById('menuToggle');
->>>>>>> 33b82a642b804334c9eac505e0b6bfdf145d8692
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const openSidebarBtn = document.getElementById('openSidebar');
@@ -964,30 +955,15 @@
         const selectAll = document.getElementById('selectAll');
 
         // Sidebar functionality
-<<<<<<< HEAD
-        function openSidebar() {
-            sidebar.classList.remove('-translate-x-full');
-            sidebarOverlay.classList.remove('hidden');
-        }
-
-        function closeSidebar() {
-            sidebar.classList.add('-translate-x-full');
-            sidebarOverlay.classList.add('hidden');
-        }
-
-        openSidebarBtn.addEventListener('click', openSidebar);
-        closeSidebarBtn.addEventListener('click', closeSidebar);
-        sidebarOverlay.addEventListener('click', closeSidebar);
-=======
-        if (menuToggle && sidebar && sidebarOverlay) {
-            menuToggle.addEventListener('click', () => {
+        if (openSidebarBtn && sidebar && sidebarOverlay) {
+            openSidebarBtn.addEventListener('click', () => {
                 sidebar.classList.remove('-translate-x-full');
                 sidebarOverlay.classList.remove('hidden');
             });
         }
 
-        if (closeSidebar && sidebar && sidebarOverlay) {
-            closeSidebar.addEventListener('click', () => {
+        if (closeSidebarBtn && sidebar && sidebarOverlay) {
+            closeSidebarBtn.addEventListener('click', () => {
                 sidebar.classList.add('-translate-x-full');
                 sidebarOverlay.classList.add('hidden');
             });
@@ -999,7 +975,6 @@
                 sidebarOverlay.classList.add('hidden');
             });
         }
->>>>>>> 33b82a642b804334c9eac505e0b6bfdf145d8692
 
         // Modal functionality
         if (addSupplierBtn && addSupplierModal) {
@@ -2185,8 +2160,6 @@
             }
         });
     </script>
-<<<<<<< HEAD
-<script id="dhws-dataInjector" src="../public/dhws-data-injector.js">    </script>
 
     <!-- User Management Modal -->
     <div id="userManagementModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[60] hidden" style="left: 60px;">
@@ -3265,7 +3238,5 @@
         document.getElementById('tabCancelledModal')?.addEventListener('click', () => switchArchiveTab('Cancelled'));
         document.getElementById('tabDeletedModal')?.addEventListener('click', () => switchArchiveTab('Deleted'));
     </script>
-=======
->>>>>>> 33b82a642b804334c9eac505e0b6bfdf145d8692
 </body>
 </html>
