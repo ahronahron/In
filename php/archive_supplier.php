@@ -151,6 +151,31 @@ try {
             throw new Exception('Database error during archiving: ' . $error);
         }
 
+<<<<<<< HEAD
+        // Map supplier fields correctly (suppliers table uses contact_person and address)
+        // The archived_suppliers table uses 'contact' and 'location' fields
+        $contact = isset($supplier['contact_person']) ? $supplier['contact_person'] : (isset($supplier['contact']) ? $supplier['contact'] : null);
+        $location = isset($supplier['address']) ? $supplier['address'] : (isset($supplier['location']) ? $supplier['location'] : null);
+        // Note: suppliers table may not have website/notes, so these will be null
+        $website = isset($supplier['website']) ? $supplier['website'] : null;
+        $notes = isset($supplier['notes']) ? $supplier['notes'] : null;
+        $email = isset($supplier['email']) ? $supplier['email'] : null;
+        $phone = isset($supplier['phone']) ? $supplier['phone'] : null;
+        
+        error_log("Archiving supplier - ID: {$supplier['id']}, Name: {$supplier['name']}, Contact: " . ($contact ?? 'NULL') . ", Location: " . ($location ?? 'NULL'));
+        
+        mysqli_stmt_bind_param($archiveStmt, 'isssssssss',
+            $supplier['id'],
+            $supplier['name'],
+            $contact,
+            $email,
+            $phone,
+            $location,
+            $website,
+            $notes,
+            $archived_by,
+            $reason
+=======
         // Use correct column names from suppliers table
         // Prepare values - convert null to empty string for mysqli
         $original_id = (int)$supplier['id'];
@@ -173,6 +198,7 @@ try {
             $address,
             $archived_by_value,
             $reason_value
+>>>>>>> 161e38a227494c55204d8dff817d57a62f8276cf
         );
 
         if (!mysqli_stmt_execute($archiveStmt)) {
@@ -190,6 +216,49 @@ try {
         error_log("Supplier archived successfully to archived_suppliers table with archive ID: $archivedId");
         mysqli_stmt_close($archiveStmt);
 
+        // Handle foreign key constraints before deleting
+        // 1. Update batches to set supplier_id to NULL (batches table has FK without ON DELETE CASCADE)
+        $updateBatchesSql = "UPDATE batches SET supplier_id = NULL WHERE supplier_id = ?";
+        $updateBatchesStmt = mysqli_prepare($conn, $updateBatchesSql);
+        if ($updateBatchesStmt) {
+            mysqli_stmt_bind_param($updateBatchesStmt, 'i', $supplier_id);
+            if (!mysqli_stmt_execute($updateBatchesStmt)) {
+                error_log("Warning: Failed to update batches supplier_id: " . mysqli_stmt_error($updateBatchesStmt));
+                // Continue anyway, as this is not critical
+            }
+            mysqli_stmt_close($updateBatchesStmt);
+        }
+
+        // 2. Check if there are orders with this supplier (orders has ON DELETE RESTRICT)
+        // We'll update the supplier_id to NULL in orders as well, or we could prevent archiving
+        // For now, let's update orders to set supplier_id to NULL
+        $updateOrdersSql = "UPDATE orders SET supplier_id = NULL WHERE supplier_id = ?";
+        $updateOrdersStmt = mysqli_prepare($conn, $updateOrdersSql);
+        if ($updateOrdersStmt) {
+            mysqli_stmt_bind_param($updateOrdersStmt, 'i', $supplier_id);
+            if (!mysqli_stmt_execute($updateOrdersStmt)) {
+                error_log("Warning: Failed to update orders supplier_id: " . mysqli_stmt_error($updateOrdersStmt));
+                // Continue anyway
+            }
+            mysqli_stmt_close($updateOrdersStmt);
+        }
+
+        // 3. Delete supplier_medicines relationships (junction table)
+        // This table may have ON DELETE RESTRICT or no CASCADE, so we need to delete manually
+        $deleteSupplierMedicinesSql = "DELETE FROM supplier_medicines WHERE supplier_id = ?";
+        $deleteSupplierMedicinesStmt = mysqli_prepare($conn, $deleteSupplierMedicinesSql);
+        if (!$deleteSupplierMedicinesStmt) {
+            throw new Exception('Database error preparing supplier_medicines deletion: ' . mysqli_error($conn));
+        }
+        
+        mysqli_stmt_bind_param($deleteSupplierMedicinesStmt, 'i', $supplier_id);
+        if (!mysqli_stmt_execute($deleteSupplierMedicinesStmt)) {
+            $error = mysqli_stmt_error($deleteSupplierMedicinesStmt);
+            mysqli_stmt_close($deleteSupplierMedicinesStmt);
+            throw new Exception('Failed to delete supplier_medicines relationships: ' . $error);
+        }
+        mysqli_stmt_close($deleteSupplierMedicinesStmt);
+
         // Delete supplier from active table
         $deleteSql = "DELETE FROM suppliers WHERE id = ?";
         $deleteStmt = mysqli_prepare($conn, $deleteSql);
@@ -200,7 +269,9 @@ try {
         mysqli_stmt_bind_param($deleteStmt, 'i', $supplier_id);
 
         if (!mysqli_stmt_execute($deleteStmt)) {
-            throw new Exception('Failed to delete supplier: ' . mysqli_stmt_error($deleteStmt));
+            $error = mysqli_stmt_error($deleteStmt);
+            mysqli_stmt_close($deleteStmt);
+            throw new Exception('Failed to delete supplier: ' . $error);
         }
 
         $affectedRows = mysqli_stmt_affected_rows($deleteStmt);
