@@ -35,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once __DIR__ . '/conn.php';
+require_once __DIR__ . '/archive_helper.php';
 
 // Helper function to send JSON response
 function sendJsonResponse($success, $message, $data = null, $httpCode = 200) {
@@ -268,6 +269,15 @@ try {
             mysqli_stmt_close($updateBatchStmt);
         }
 
+        // Archive expired items that were just marked as expired
+        $archivedCount = 0;
+        try {
+            $archivedCount = archiveExpiredItems($conn);
+        } catch (Exception $e) {
+            error_log("Error archiving expired items: " . $e->getMessage());
+            // Don't fail the transaction if archiving fails, but log it
+        }
+
         if (count($errors) > 0 && $updatedCount === 0) {
             mysqli_rollback($conn);
             sendJsonResponse(false, 'Failed to update any items: ' . implode(', ', $errors), ['errors' => $errors], 400);
@@ -277,12 +287,16 @@ try {
         mysqli_commit($conn);
 
         $message = "Successfully updated $updatedCount item(s)";
+        if ($archivedCount > 0) {
+            $message .= ". $archivedCount expired item(s) archived.";
+        }
         if (count($errors) > 0) {
             $message .= ". " . count($errors) . " error(s) occurred.";
         }
 
         sendJsonResponse(true, $message, [
             'updated_count' => $updatedCount,
+            'archived_count' => $archivedCount,
             'errors' => $errors
         ], 200);
 
