@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>INVENTORY - Inventory Management System</title>
-    <link rel="stylesheet" href="css/main.css" />
     <style>
         body {
             margin: 0;
@@ -16,7 +15,6 @@
             justify-content: center;
             align-items: center;
         }
-        
         .redirect-container {
             text-align: center;
             background: rgba(255, 255, 255, 0.95);
@@ -26,7 +24,6 @@
             max-width: 400px;
             width: 90%;
         }
-        
         .logo {
             font-size: 2.5rem;
             font-weight: bold;
@@ -35,7 +32,6 @@
             text-transform: uppercase;
             letter-spacing: 2px;
         }
-        
         .loading-spinner {
             width: 50px;
             height: 50px;
@@ -45,18 +41,15 @@
             animation: spin 1s linear infinite;
             margin: 20px auto;
         }
-        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
         .redirect-message {
             color: #666;
             font-size: 1.1rem;
             margin-bottom: 20px;
         }
-        
         .manual-link {
             display: inline-block;
             padding: 12px 25px;
@@ -67,12 +60,10 @@
             font-weight: 500;
             transition: background 0.3s ease;
         }
-        
         .manual-link:hover {
             background: #5a6fd8;
         }
     </style>
-<script type="module" src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Finventory6919back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script>
 </head>
 <body>
     <div class="redirect-container">
@@ -81,22 +72,10 @@
         <div class="redirect-message">Redirecting to login page...</div>
         <a href="pages/login.html" class="manual-link">Click here if not redirected automatically</a>
     </div>
-
     <script>
-        // Redirect to login page after 2 seconds
         setTimeout(function() {
             window.location.href = 'pages/login.html';
         }, 2000);
-        
-        // Fallback redirect on page load
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                if (window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/')) {
-                    window.location.href = 'pages/login.html';
-                }
-            }, 2500);
-        });
     </script>
-<script id="dhws-dataInjector" src="/public/dhws-data-injector.js"></script>
 </body>
 </html>

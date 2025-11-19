@@ -57,6 +57,16 @@ if (isset($_SESSION['user_id'])) {
                 <p class="text-text-secondary">Sign in to your inventory account</p>
             </div>
 
+            <!-- Password Reset Success Message -->
+            <?php if (isset($_GET['reset']) && $_GET['reset'] === 'success'): ?>
+                <div class="mb-6 p-4 bg-success-50 border border-success-200 rounded-xl">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-success-600 mr-2"></i>
+                        <span class="text-sm text-success-700">Password reset successful! Please log in with your new password.</span>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <!-- Login Form -->
             <form id="loginForm" class="space-y-6">
                 <!-- Email/Username Field -->
@@ -135,29 +145,97 @@ if (isset($_SESSION['user_id'])) {
     <div id="forgotPasswordModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animation-slide-up">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-semibold text-text-primary">Reset Password</h2>
+                <h2 class="text-xl font-semibold text-text-primary" id="modalTitle">Reset Password</h2>
                 <button id="closeForgotModal" class="text-text-tertiary hover:text-text-secondary transition-colors duration-200">
                     <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
             
-            <form id="forgotPasswordForm" class="space-y-4">
-                <div>
-                    <label for="resetEmail" class="block text-sm font-medium text-text-primary mb-2">
-                        Email Address
-                    </label>
-                    <input type="email" id="resetEmail" name="resetEmail" required class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200" placeholder="Enter your email address" />
+            <!-- Stage 1: Email Input -->
+            <div id="stageEmail" class="space-y-4">
+                <p class="text-sm text-text-secondary mb-4">Enter your email address to receive an OTP code</p>
+                <form id="forgotPasswordForm" class="space-y-4">
+                    <div>
+                        <label for="resetEmail" class="block text-sm font-medium text-text-primary mb-2">
+                            Email Address
+                        </label>
+                        <input type="email" id="resetEmail" name="resetEmail" required class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200" placeholder="Enter your email address" />
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-primary hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200">
+                        <span id="sendOtpBtnText">Send OTP Code</span>
+                    </button>
+                </form>
+                
+                <div id="resetError" class="hidden mt-4 p-4 bg-error-50 rounded-xl border border-error-200">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-circle text-error-600 mr-2"></i>
+                        <span class="text-sm text-error-700" id="resetErrorText"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stage 2: OTP Verification -->
+            <div id="stageOTP" class="space-y-4 hidden">
+                <p class="text-sm text-text-secondary mb-4">Enter the 6-digit OTP code sent to <span id="otpEmailDisplay" class="font-medium"></span></p>
+                <form id="verifyOtpForm" class="space-y-4">
+                    <div>
+                        <label for="otpCode" class="block text-sm font-medium text-text-primary mb-2">
+                            OTP Code
+                        </label>
+                        <input type="text" id="otpCode" name="otpCode" required maxlength="6" pattern="[0-9]{6}" class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 text-center text-2xl tracking-widest font-mono" placeholder="000000" autocomplete="off" />
+                        <p class="text-xs text-text-tertiary mt-2 text-center">Enter the 6-digit code from your email</p>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-primary hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200">
+                        Verify OTP
+                    </button>
+                </form>
+                
+                <div class="text-center">
+                    <button type="button" id="resendOtpBtn" class="text-sm text-primary-600 hover:text-primary-700 font-medium">
+                        <i class="fas fa-redo mr-1"></i>
+                        Resend OTP Code
+                    </button>
                 </div>
                 
-                <button type="submit" class="w-full bg-primary hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200">
-                    Send Reset Link
-                </button>
-            </form>
+                <div id="otpError" class="hidden mt-4 p-4 bg-error-50 rounded-xl border border-error-200">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-circle text-error-600 mr-2"></i>
+                        <span class="text-sm text-error-700" id="otpErrorText"></span>
+                    </div>
+                </div>
+            </div>
             
-            <div id="resetConfirmation" class="hidden mt-4 p-4 bg-success-50 rounded-xl border border-success-200">
-                <div class="flex items-center">
-                    <i class="fas fa-check-circle text-success-600 mr-2"></i>
-                    <span class="text-sm text-success-700">Password reset link sent to your email!</span>
+            <!-- Stage 3: Password Reset -->
+            <div id="stagePassword" class="space-y-4 hidden">
+                <p class="text-sm text-text-secondary mb-4">Enter your new password</p>
+                <form id="resetPasswordForm" class="space-y-4">
+                    <div>
+                        <label for="newPassword" class="block text-sm font-medium text-text-primary mb-2">
+                            New Password
+                        </label>
+                        <input type="password" id="newPassword" name="newPassword" required minlength="8" class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200" placeholder="Enter new password" />
+                        <p class="text-xs text-text-tertiary mt-1">Must be at least 8 characters long</p>
+                    </div>
+                    
+                    <div>
+                        <label for="confirmNewPassword" class="block text-sm font-medium text-text-primary mb-2">
+                            Confirm Password
+                        </label>
+                        <input type="password" id="confirmNewPassword" name="confirmNewPassword" required minlength="8" class="w-full px-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200" placeholder="Confirm new password" />
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-primary hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200">
+                        Reset Password
+                    </button>
+                </form>
+                
+                <div id="passwordError" class="hidden mt-4 p-4 bg-error-50 rounded-xl border border-error-200">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-circle text-error-600 mr-2"></i>
+                        <span class="text-sm text-error-700" id="passwordErrorText"></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -251,6 +329,13 @@ if (isset($_SESSION['user_id'])) {
     </div>
 
     <script>
+        // Check for password reset success parameter and show message
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('reset') === 'success') {
+            // Remove the parameter from URL for cleaner address bar
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
         // Password toggle functionality
         document.getElementById('togglePassword').addEventListener('click', function() {
             const passwordInput = document.getElementById('password');
@@ -287,7 +372,42 @@ if (isset($_SESSION['user_id'])) {
         const forgotPasswordModal = document.getElementById('forgotPasswordModal');
         const signUpModal = document.getElementById('signUpModal');
         
+        // Modal state management (declared early for use in event listeners)
+        let resetEmail = '';
+        let resetUserId = null;
+
+        // Function to show a specific stage
+        function showStage(stage) {
+            document.getElementById('stageEmail').classList.add('hidden');
+            document.getElementById('stageOTP').classList.add('hidden');
+            document.getElementById('stagePassword').classList.add('hidden');
+            
+            if (stage === 'email') {
+                document.getElementById('stageEmail').classList.remove('hidden');
+                document.getElementById('modalTitle').textContent = 'Reset Password';
+            } else if (stage === 'otp') {
+                document.getElementById('stageOTP').classList.remove('hidden');
+                document.getElementById('modalTitle').textContent = 'Verify OTP';
+                document.getElementById('otpEmailDisplay').textContent = resetEmail;
+                document.getElementById('otpCode').focus();
+            } else if (stage === 'password') {
+                document.getElementById('stagePassword').classList.remove('hidden');
+                document.getElementById('modalTitle').textContent = 'Set New Password';
+            }
+        }
+        
         document.getElementById('forgotPasswordBtn').addEventListener('click', () => {
+            // Reset modal state
+            resetEmail = '';
+            resetUserId = null;
+            document.getElementById('resetEmail').value = '';
+            document.getElementById('otpCode').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmNewPassword').value = '';
+            document.getElementById('resetError').classList.add('hidden');
+            document.getElementById('otpError').classList.add('hidden');
+            document.getElementById('passwordError').classList.add('hidden');
+            showStage('email');
             forgotPasswordModal.classList.remove('hidden');
         });
         
@@ -321,91 +441,388 @@ if (isset($_SESSION['user_id'])) {
         });
 
         // Login form submission
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const email = document.getElementById('email').value;
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
+            const submitButton = this.querySelector('button[type="submit"]');
+            const errorDiv = document.getElementById('email-error');
             
-            // Mock authentication
-            const validCredentials = [
-                { email: 'admin@inventory.com', password: 'admin123' },
-                { email: 'manager@inventory.com', password: 'manager456' },
-                { email: 'user@inventory.com', password: 'user789' }
-            ];
+            // Hide previous errors
+            errorDiv.classList.add('hidden');
+            errorDiv.textContent = '';
             
-            const isValid = validCredentials.some(cred => 
-                (cred.email === email || cred.email.split('@')[0] === email) && cred.password === password
-            );
+            // Validate input
+            if (!email || !password) {
+                errorDiv.textContent = 'Please enter both email and password';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
             
-            if (isValid) {
-                // Store user session
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('userEmail', email);
+            // Disable button and show loading state
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="flex items-center justify-center"><i class="fas fa-spinner fa-spin mr-2"></i>Signing in...</span>';
+            
+            try {
+                // Send login request to backend
+                const response = await fetch('../php/login.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        email: email,
+                        password: password
+                    })
+                });
                 
-                // Redirect to dashboard
-                window.location.href = 'dashboard.html';
-            } else {
-                // Show error
-                document.getElementById('email-error').textContent = 'Invalid credentials. Please try again.';
-                document.getElementById('email-error').classList.remove('hidden');
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Store user session in localStorage
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userEmail', data.user.email || email);
+                    if (data.user.role) {
+                        localStorage.setItem('userRole', data.user.role);
+                    }
+                    if (data.user.user_id) {
+                        localStorage.setItem('userId', data.user.user_id);
+                    }
+                    
+                    // Show success message briefly
+                    errorDiv.textContent = 'Login successful! Redirecting...';
+                    errorDiv.classList.remove('hidden');
+                    errorDiv.classList.remove('text-error-600');
+                    errorDiv.classList.add('text-success-600');
+                    
+                    // Redirect to dashboard
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 500);
+                } else {
+                    // Show error message
+                    errorDiv.textContent = data.message || 'Invalid credentials. Please try again.';
+                    errorDiv.classList.remove('hidden');
+                    errorDiv.classList.remove('text-success-600');
+                    errorDiv.classList.add('text-error-600');
+                    
+                    // Re-enable button
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorDiv.textContent = 'An error occurred. Please try again later.';
+                errorDiv.classList.remove('hidden');
+                errorDiv.classList.remove('text-success-600');
+                errorDiv.classList.add('text-error-600');
+                
+                // Re-enable button
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
             }
         });
 
+        // Stage 1: Send OTP
         document.getElementById('forgotPasswordForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const emailInput = document.getElementById('resetEmail');
             const email = emailInput.value.trim();
             const btn = this.querySelector('button[type="submit"]');
-            const confirmationDiv = document.getElementById('resetConfirmation');
             const errorDiv = document.getElementById('resetError');
+            const errorText = document.getElementById('resetErrorText');
             
             // Hide previous messages
-            confirmationDiv.classList.add('hidden');
             if (errorDiv) errorDiv.classList.add('hidden');
-            
-            btn.disabled = true; 
-            btn.textContent = 'Sending...';
+
+            // Validate email
+            if (!email || !email.includes('@')) {
+                errorText.textContent = 'Please enter a valid email address.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            btn.disabled = true;
+            document.getElementById('sendOtpBtnText').textContent = 'Sending...';
 
             try {
-                const resp = await fetch('send_reset_email.php', {
+                const resp = await fetch('send_otp.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: new URLSearchParams({ email })
+                    body: new URLSearchParams({ email: email })
                 });
 
-                const text = await resp.text();
-                let data;
-                try { data = JSON.parse(text); } catch (err) { 
-                    console.error('Parse error:', err, 'Response:', text);
-                    data = null; 
+                if (!resp.ok) {
+                    throw new Error(`HTTP error! status: ${resp.status}`);
                 }
 
+                const data = await resp.json();
+
                 if (data && data.success) {
-                    // Success - show confirmation
-                    confirmationDiv.innerHTML = '<div class="flex items-center"><i class="fas fa-check-circle text-success-600 mr-2"></i><span class="text-sm text-success-700">Password reset link sent to your email!</span></div>';
-                    confirmationDiv.classList.remove('hidden');
-                    emailInput.value = '';
-                    setTimeout(() => {
-                        document.getElementById('forgotPasswordModal').classList.add('hidden');
-                        confirmationDiv.classList.add('hidden');
-                    }, 3000);
+                    // Store email and transition to OTP stage
+                    resetEmail = email;
+                    showStage('otp');
                 } else {
-                    // Error - show error message
-                    let errorMsg = 'Unable to send reset link. Please try again.';
-                    if (data && data.error) {
-                        errorMsg = data.error;
-                    }
-                    alert(errorMsg);
+                    // Show error
+                    errorText.textContent = data.error || 'Failed to send OTP. Please try again.';
+                    errorDiv.classList.remove('hidden');
                 }
             } catch (err) {
                 console.error('Fetch failed:', err);
-                alert('Network error. Please check your internet connection and try again.');
+                errorText.textContent = 'Network error. Please check your internet connection and try again.';
+                errorDiv.classList.remove('hidden');
             } finally {
-                btn.disabled = false; 
-                btn.textContent = 'Send Reset Link';
+                btn.disabled = false;
+                document.getElementById('sendOtpBtnText').textContent = 'Send OTP Code';
+            }
+        });
+
+        // Stage 2: Verify OTP
+        document.getElementById('verifyOtpForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const otpInput = document.getElementById('otpCode');
+            const otp = otpInput.value.trim();
+            const btn = this.querySelector('button[type="submit"]');
+            const errorDiv = document.getElementById('otpError');
+            const errorText = document.getElementById('otpErrorText');
+            
+            // Hide previous messages
+            if (errorDiv) errorDiv.classList.add('hidden');
+
+            // Validate OTP
+            if (!otp || !/^\d{6}$/.test(otp)) {
+                errorText.textContent = 'Please enter a valid 6-digit OTP code.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Verifying...';
+
+            try {
+                const resp = await fetch('verify_otp.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({ 
+                        email: resetEmail,
+                        otp: otp 
+                    })
+                });
+
+                // Get response text first to handle both success and error cases
+                const responseText = await resp.text();
+                let data;
+                
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('JSON parse error:', parseError, 'Response:', responseText);
+                    errorText.textContent = 'Invalid response from server. Please try again.';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+
+                if (data && data.success) {
+                    // Store user ID and transition to password reset stage
+                    resetUserId = data.user_id;
+                    showStage('password');
+                } else {
+                    // Show error message from server
+                    const errorMessage = data.error || data.message || 'Invalid OTP code. Please try again.';
+                    errorText.textContent = errorMessage;
+                    errorDiv.classList.remove('hidden');
+                    otpInput.value = '';
+                    otpInput.focus();
+                }
+            } catch (err) {
+                console.error('Fetch failed:', err);
+                errorText.textContent = 'Network error. Please check your internet connection and try again.';
+                errorDiv.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Verify OTP';
+            }
+        });
+
+        // Resend OTP button
+        document.getElementById('resendOtpBtn').addEventListener('click', async function() {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Sending...';
+
+            try {
+                const resp = await fetch('send_otp.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({ email: resetEmail })
+                });
+
+                const data = await resp.json();
+
+                if (data && data.success) {
+                    // Show success message briefly
+                    const errorDiv = document.getElementById('otpError');
+                    const errorText = document.getElementById('otpErrorText');
+                    errorText.textContent = 'New OTP code has been sent to your email.';
+                    errorDiv.classList.remove('hidden');
+                    // Reset classes
+                    errorDiv.className = 'mt-4 p-4 bg-success-50 rounded-xl border border-success-200';
+                    errorText.className = 'text-sm text-success-700';
+                    
+                    setTimeout(() => {
+                        errorDiv.classList.add('hidden');
+                    }, 3000);
+                } else {
+                    // Show error
+                    const errorDiv = document.getElementById('otpError');
+                    const errorText = document.getElementById('otpErrorText');
+                    errorText.textContent = data.error || 'Failed to resend OTP. Please try again.';
+                    errorDiv.className = 'mt-4 p-4 bg-error-50 rounded-xl border border-error-200';
+                    errorText.className = 'text-sm text-error-700';
+                    errorDiv.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error('Resend OTP failed:', err);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        });
+
+        // Stage 3: Reset Password
+        document.getElementById('resetPasswordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const passwordInput = document.getElementById('newPassword');
+            const confirmPasswordInput = document.getElementById('confirmNewPassword');
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            const btn = this.querySelector('button[type="submit"]');
+            const errorDiv = document.getElementById('passwordError');
+            const errorText = document.getElementById('passwordErrorText');
+            
+            // Hide previous messages
+            if (errorDiv) errorDiv.classList.add('hidden');
+
+            // Validate passwords
+            if (password.length < 8) {
+                errorText.textContent = 'Password must be at least 8 characters long.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                errorText.textContent = 'Passwords do not match.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Resetting...';
+
+            try {
+                const resp = await fetch('reset_password.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({ 
+                        user_id: resetUserId,
+                        password: password 
+                    })
+                });
+
+                if (!resp.ok) {
+                    throw new Error(`HTTP error! status: ${resp.status}`);
+                }
+
+                const data = await resp.json();
+
+                if (data && data.success) {
+                    // Show success and close modal
+                    alert('Password reset successfully! You can now login with your new password.');
+                    document.getElementById('forgotPasswordModal').classList.add('hidden');
+                    
+                    // Reset form
+                    resetEmail = '';
+                    resetUserId = null;
+                    passwordInput.value = '';
+                    confirmPasswordInput.value = '';
+                    document.getElementById('resetEmail').value = '';
+                    document.getElementById('otpCode').value = '';
+                    showStage('email');
+                } else {
+                    // Show error
+                    errorText.textContent = data.error || 'Failed to reset password. Please try again.';
+                    errorDiv.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error('Fetch failed:', err);
+                errorText.textContent = 'Network error. Please check your internet connection and try again.';
+                errorDiv.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Reset Password';
+            }
+        });
+
+        // OTP input formatting - only numbers, max 6 digits
+        const otpInput = document.getElementById('otpCode');
+        if (otpInput) {
+            otpInput.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '').substring(0, 6);
+            });
+        }
+
+        // Password match validation
+        const newPasswordInput = document.getElementById('newPassword');
+        const confirmPasswordInput = document.getElementById('confirmNewPassword');
+        if (newPasswordInput && confirmPasswordInput) {
+            confirmPasswordInput.addEventListener('input', function() {
+                if (this.value && newPasswordInput.value !== this.value) {
+                    this.setCustomValidity('Passwords do not match');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+        }
+
+        // Reset modal when closed
+        document.getElementById('closeForgotModal').addEventListener('click', function() {
+            resetEmail = '';
+            resetUserId = null;
+            document.getElementById('resetEmail').value = '';
+            document.getElementById('otpCode').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmNewPassword').value = '';
+            document.getElementById('resetError').classList.add('hidden');
+            document.getElementById('otpError').classList.add('hidden');
+            document.getElementById('passwordError').classList.add('hidden');
+            showStage('email');
+        });
+
+        // Also reset when clicking backdrop
+        document.getElementById('forgotPasswordModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                resetEmail = '';
+                resetUserId = null;
+                document.getElementById('resetEmail').value = '';
+                document.getElementById('otpCode').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmNewPassword').value = '';
+                document.getElementById('resetError').classList.add('hidden');
+                document.getElementById('otpError').classList.add('hidden');
+                document.getElementById('passwordError').classList.add('hidden');
+                showStage('email');
             }
         });
 
@@ -477,7 +894,9 @@ if (isset($_SESSION['user_id'])) {
                 // Mock successful registration
                 alert('Account created successfully! Please log in with your credentials.');
                 signUpModal.classList.add('hidden');
-                this.reset
+                this.reset();
+            }
+        });
 
         // Real-time validation
         document.getElementById('confirmPassword').addEventListener('input', function() {
@@ -491,7 +910,6 @@ if (isset($_SESSION['user_id'])) {
             } else {
                 errorEl.classList.add('hidden');
             }
-        }); }
         });
     </script>
 

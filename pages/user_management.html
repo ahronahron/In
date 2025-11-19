@@ -236,11 +236,12 @@
                                 <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Employee ID</th>
                                 <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Role</th>
                                 <th class="px-6 py-4 text-center text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-4 text-center text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="usersTableBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                             <tr>
-                                <td colspan="7" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                                <td colspan="8" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                                     <div class="flex flex-col items-center space-y-3">
                                         <i class="fas fa-users text-4xl opacity-50"></i>
                                         <p class="text-lg font-medium">No users found</p>
@@ -307,7 +308,7 @@
                         <select id="user_role" name="user_role" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100">
                             <option value="user">User</option>
                             <option value="admin">Admin</option>
-                            <option value="manager">Manager</option>
+                            <option value="supplier">Supplier</option>
                         </select>
                     </div>
                 </div>
@@ -320,6 +321,59 @@
                     </button>
                     <button type="submit" class="btn-primary px-6 py-3 rounded-xl font-medium">
                         Create User
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animation-slide-up">
+            <div class="flex items-center justify-between p-6 border-b border-border-light dark:border-gray-700">
+                <h2 class="text-xl font-semibold text-text-primary dark:text-gray-100">Edit User</h2>
+                <button id="closeEditUserModal" class="text-text-tertiary dark:text-gray-400 hover:text-text-secondary dark:hover:text-gray-200 transition-colors duration-200">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <form id="updateUserForm" class="p-6 space-y-6">
+                <input type="hidden" id="edit_user_id" name="edit_user_id">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Full Name -->
+                    <div class="md:col-span-2">
+                        <label for="edit_full_name" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Full Name *
+                        </label>
+                        <input type="text" id="edit_full_name" name="edit_full_name" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter full name" />
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label for="edit_email" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Email *
+                        </label>
+                        <input type="email" id="edit_email" name="edit_email" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter email address" />
+                    </div>
+
+                    <!-- Username -->
+                    <div>
+                        <label for="edit_username" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Username *
+                        </label>
+                        <input type="text" id="edit_username" name="edit_username" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter username" />
+                    </div>
+                </div>
+
+                <div id="editFormMessage" class="hidden p-3 rounded-lg text-sm"></div>
+
+                <div class="flex items-center justify-end space-x-4 pt-6 border-t border-border-light dark:border-gray-700">
+                    <button type="button" id="cancelEditUser" class="px-6 py-3 border border-border-medium dark:border-gray-600 text-text-secondary dark:text-gray-300 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-primary px-6 py-3 rounded-xl font-medium">
+                        Update User
                     </button>
                 </div>
             </form>
@@ -362,8 +416,18 @@
         // Logout
         document.getElementById('logoutBtn')?.addEventListener('click', () => {
             if (confirm('Are you sure you want to logout?')) {
-                localStorage.clear();
-                window.location.href = 'login.php';
+                // Call logout endpoint to update status to inactive
+                fetch('../php/logout.php', {
+                    method: 'GET',
+                    credentials: 'same-origin'
+                }).then(() => {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                }).catch(() => {
+                    // Even if logout endpoint fails, still clear and redirect
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                });
             }
         });
 
@@ -395,21 +459,21 @@
         // Load users
         async function loadUsers() {
             const tbody = document.getElementById('usersTableBody');
-            tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><p>Loading users...</p></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><p>Loading users...</p></td></tr>';
             
             try {
-                const response = await fetch('api/user_management.php?action=get_all');
+                const response = await fetch('../api/user_management.php?action=get_all');
                 const data = await response.json();
                 
                 if (data.success && data.users) {
                     allUsers = data.users.filter(user => user.email !== currentUserEmail);
                     applyFilters();
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-red-500"><p>Error loading users</p></td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-8 text-center text-red-500"><p>Error loading users</p></td></tr>';
                 }
             } catch (error) {
                 console.error('Error loading users:', error);
-                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-red-500"><p>Error loading users</p></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-8 text-center text-red-500"><p>Error loading users</p></td></tr>';
             }
         }
         
@@ -418,7 +482,7 @@
             const tbody = document.getElementById('usersTableBody');
             
             if (users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400"><i class="fas fa-users text-4xl opacity-50 mb-2"></i><p>No users found</p></td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400"><i class="fas fa-users text-4xl opacity-50 mb-2"></i><p>No users found</p></td></tr>';
                 return;
             }
             
@@ -440,17 +504,35 @@
                         <div class="text-sm text-gray-500 dark:text-gray-400">${escapeHtml(user.employee_id || 'N/A')}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 text-xs font-medium rounded-full ${user.role === 'admin' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' : user.role === 'manager' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'}">${escapeHtml((user.role || 'user').toUpperCase())}</span>
+                        <span class="px-2 py-1 text-xs font-medium rounded-full ${user.role === 'admin' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' : user.role === 'supplier' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'}">${escapeHtml((user.role || 'user').toUpperCase())}</span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-center">
+                        ${user.status !== undefined ? `
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" class="sr-only peer status-toggle" 
                                    ${user.status === 'active' ? 'checked' : ''}
                                    data-user-id="${user.user_id}"
                                    onchange="toggleUserStatus(${user.user_id}, this.checked)">
                             <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                            <span class="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">${user.status || 'inactive'}</span>
+                            <span class="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">${user.status || 'active'}</span>
                         </label>
+                        ` : `<span class="text-sm text-gray-500 dark:text-gray-400">N/A</span>`}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button onclick="editUser(${user.user_id})" class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-lg transition-colors" title="Edit User">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="changeUserRole(${user.user_id}, '${user.role || 'user'}')" class="p-2 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900 rounded-lg transition-colors" title="Change Role">
+                                <i class="fas fa-user-tag"></i>
+                            </button>
+                            <button onclick="resetUserPassword(${user.user_id})" class="p-2 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900 rounded-lg transition-colors" title="Reset Password">
+                                <i class="fas fa-key"></i>
+                            </button>
+                            <button onclick="deleteUser(${user.user_id}, '${escapeHtml(user.full_name || user.email)}')" class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded-lg transition-colors" title="Delete User">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
@@ -469,7 +551,7 @@
                     (user.username && user.username.toLowerCase().includes(searchTerm));
                 
                 const matchesRole = !roleFilter || (user.role || 'user') === roleFilter;
-                const matchesStatus = !statusFilter || (user.status || 'inactive') === statusFilter;
+                const matchesStatus = !statusFilter || (user.status || 'active') === statusFilter;
                 
                 return matchesSearch && matchesRole && matchesStatus;
             });
@@ -512,7 +594,7 @@
             const status = isActive ? 'active' : 'inactive';
             
             try {
-                const response = await fetch('api/user_management.php', {
+                const response = await fetch('../api/user_management.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -527,7 +609,12 @@
                 const data = await response.json();
                 
                 if (!data.success) {
-                    alert('Failed to update user status');
+                    // If status column doesn't exist, just reload (status toggle won't work)
+                    if (data.error && data.error.includes('Status column')) {
+                        alert('Status feature not available. The status column will be created on first use.');
+                    } else {
+                        alert('Failed to update user status: ' + (data.error || 'Unknown error'));
+                    }
                     loadUsers();
                 }
             } catch (error) {
@@ -581,7 +668,7 @@
             const formMessage = document.getElementById('formMessage');
             
             try {
-                const response = await fetch('api/user_management.php', {
+                const response = await fetch('../api/user_management.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -644,6 +731,193 @@
             const checkboxes = document.querySelectorAll('.user-checkbox');
             checkboxes.forEach(cb => cb.checked = this.checked);
             updateSelectedCount();
+        });
+
+        // Edit user
+        async function editUser(userId) {
+            try {
+                const response = await fetch(`../api/user_management.php?action=get_user&user_id=${userId}`);
+                const data = await response.json();
+                
+                if (data.success && data.user) {
+                    const user = data.user;
+                    document.getElementById('edit_full_name').value = user.full_name || '';
+                    document.getElementById('edit_email').value = user.email || '';
+                    document.getElementById('edit_username').value = user.username || '';
+                    document.getElementById('edit_user_id').value = user.user_id;
+                    document.getElementById('editUserModal').classList.remove('hidden');
+                } else {
+                    alert('Failed to load user data');
+                }
+            } catch (error) {
+                console.error('Error loading user:', error);
+                alert('Error loading user data');
+            }
+        }
+
+        // Delete user
+        async function deleteUser(userId, userName) {
+            if (!confirm(`Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('../api/user_management.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        action: 'delete_user',
+                        user_id: userId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('User deleted successfully');
+                    loadUsers();
+                } else {
+                    alert(data.error || 'Failed to delete user');
+                }
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                alert('Error deleting user');
+            }
+        }
+
+        // Change user role
+        async function changeUserRole(userId, currentRole) {
+            const roles = ['user', 'supplier', 'admin'];
+            const currentIndex = roles.indexOf(currentRole);
+            const nextIndex = (currentIndex + 1) % roles.length;
+            const newRole = roles[nextIndex];
+            
+            if (!confirm(`Change user role from ${currentRole.toUpperCase()} to ${newRole.toUpperCase()}?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('../api/user_management.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        action: 'update_role',
+                        user_id: userId,
+                        role: newRole
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    loadUsers();
+                } else {
+                    alert(data.error || 'Failed to update role');
+                }
+            } catch (error) {
+                console.error('Error updating role:', error);
+                alert('Error updating role');
+            }
+        }
+
+        // Reset user password
+        async function resetUserPassword(userId) {
+            const newPassword = prompt('Enter new password (minimum 8 characters):');
+            
+            if (!newPassword) {
+                return;
+            }
+            
+            if (newPassword.length < 8) {
+                alert('Password must be at least 8 characters long');
+                return;
+            }
+            
+            if (!confirm('Are you sure you want to reset this user\'s password?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('../api/user_management.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        action: 'reset_password',
+                        user_id: userId,
+                        new_password: newPassword
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Password reset successfully');
+                } else {
+                    alert(data.error || 'Failed to reset password');
+                }
+            } catch (error) {
+                console.error('Error resetting password:', error);
+                alert('Error resetting password');
+            }
+        }
+
+        // Edit user form
+        document.getElementById('updateUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const formMessage = document.getElementById('editFormMessage');
+            
+            try {
+                const response = await fetch('../api/user_management.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        action: 'update_user',
+                        user_id: formData.get('edit_user_id'),
+                        full_name: formData.get('edit_full_name'),
+                        email: formData.get('edit_email'),
+                        username: formData.get('edit_username')
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    formMessage.className = 'p-3 rounded-lg text-sm bg-success-50 text-success-700';
+                    formMessage.textContent = 'User updated successfully!';
+                    formMessage.classList.remove('hidden');
+                    document.getElementById('editUserModal').classList.add('hidden');
+                    loadUsers();
+                    setTimeout(() => formMessage.classList.add('hidden'), 3000);
+                } else {
+                    formMessage.className = 'p-3 rounded-lg text-sm bg-error-50 text-error-700';
+                    formMessage.textContent = data.error || 'Failed to update user';
+                    formMessage.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error updating user:', error);
+                formMessage.className = 'p-3 rounded-lg text-sm bg-error-50 text-error-700';
+                formMessage.textContent = 'Error updating user';
+                formMessage.classList.remove('hidden');
+            }
+        });
+
+        // Close edit modal
+        document.getElementById('closeEditUserModal')?.addEventListener('click', () => {
+            document.getElementById('editUserModal').classList.add('hidden');
+        });
+
+        document.getElementById('cancelEditUser')?.addEventListener('click', () => {
+            document.getElementById('editUserModal').classList.add('hidden');
         });
 
         // Initial load

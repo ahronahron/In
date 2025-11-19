@@ -1,13 +1,15 @@
 <?php
-declare(strict_types=1);
-// Minimal password-reset page that accepts a token link (?token=...) and lets the user set a new password.
-// Adjust DB credentials if needed.
+/**
+ * Forgot Password Page
+ * User enters email, system sends OTP code via email
+ */
 
-error_reporting(E_ALL);
-ini_set('display_errors', '0');
+session_start();
 
-function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); }
+$message = '';
+$messageType = '';
 
+<<<<<<< Updated upstream
 $DB_HOST = '127.0.0.1';
 $DB_USER = 'root';
 $DB_PASS = '';
@@ -73,25 +75,72 @@ if ($method === 'POST') {
             } else {
                 $errors[] = 'Invalid or expired token.';
             }
+=======
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = trim($_POST['email'] ?? '');
+    
+    // Validate email
+    if (empty($email)) {
+        $message = 'Please enter your email address.';
+        $messageType = 'error';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $message = 'Please enter a valid email address.';
+        $messageType = 'error';
+    } else {
+        // Call send_otp.php API
+        $url = 'http://' . $_SERVER['HTTP_HOST'] . '/pages/send_otp.php';
+        
+        // Use file_get_contents with stream context for POST request
+        $postData = http_build_query(['email' => $email]);
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'POST',
+                'header' => 'Content-Type: application/x-www-form-urlencoded',
+                'content' => $postData
+            ]
+        ]);
+        
+        $response = @file_get_contents($url, false, $context);
+        
+        if ($response === false) {
+            // Fallback to curl if file_get_contents fails
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+            $response = curl_exec($ch);
+            curl_close($ch);
+        }
+        
+        $result = json_decode($response, true);
+        
+        if ($result && isset($result['success']) && $result['success']) {
+            // Redirect to verify OTP page
+            $_SESSION['reset_email'] = $email;
+                            header('Location: verify_otp.php?sent=1');
+            exit;
+>>>>>>> Stashed changes
         } else {
-            $errors[] = 'Server error.';
+            $message = $result['error'] ?? 'Failed to send OTP. Please try again later.';
+            $messageType = 'error';
         }
     }
 }
-
-// If GET and token missing or invalid then show simple message
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Reset Password - INVENTORY Management System</title>
-    <link rel="stylesheet" href="../css/main.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forgot Password - Inventory System</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-100 flex items-center justify-center p-4">
     <!-- Background Pattern -->
@@ -116,85 +165,61 @@ if ($method === 'POST') {
             </div>
         </div>
 
-        <!-- Password Reset Card -->
+        <!-- Forgot Password Card -->
         <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8 animation-slide-up">
             <!-- Logo and Header -->
             <div class="text-center mb-8">
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-2xl mb-4">
-                    <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
-                    </svg>
+                    <i class="fas fa-envelope text-primary-600 text-2xl"></i>
                 </div>
-                <h1 class="text-2xl font-semibold text-text-primary mb-2">Reset Password</h1>
-                <p class="text-text-secondary">Enter your new password below</p>
+                <h1 class="text-2xl font-semibold text-text-primary mb-2">Forgot Password?</h1>
+                <p class="text-text-secondary">Enter your email to receive an OTP code</p>
             </div>
 
-            <?php if ($success): ?>
-                <div class="mb-6 p-4 bg-success-50 border border-success-200 rounded-xl">
+            <!-- Message Display -->
+            <?php if ($message): ?>
+                <div class="mb-6 p-4 rounded-xl <?php echo $messageType === 'success' ? 'bg-success-50 border border-success-200' : 'bg-error-50 border border-error-200'; ?>">
                     <div class="flex items-center">
-                        <i class="fas fa-check-circle text-success-600 mr-2"></i>
-                        <span class="text-sm text-success-700"><?php echo $success; ?></span>
+                        <i class="fas <?php echo $messageType === 'success' ? 'fa-check-circle text-success-600' : 'fa-exclamation-circle text-error-600'; ?> mr-2"></i>
+                        <span class="text-sm <?php echo $messageType === 'success' ? 'text-success-700' : 'text-error-700'; ?>"><?php echo htmlspecialchars($message); ?></span>
                     </div>
-                </div>
-            <?php else: ?>
-                <?php if (!empty($errors)): ?>
-                    <div class="mb-6 p-4 bg-error-50 border border-error-200 rounded-xl">
-                        <ul class="text-sm text-error-700">
-                            <?php foreach ($errors as $e) { echo '<li class="mb-1">' . h($e) . '</li>'; } ?>
-                        </ul>
                     </div>
                 <?php endif; ?>
 
-                <?php if (!$validTokenFormat): ?>
-                    <div class="text-center p-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
-                        <i class="fas fa-exclamation-triangle text-warning-500 text-3xl mb-4"></i>
-                        <h3 class="font-semibold text-text-primary mb-2">Invalid Reset Link</h3>
-                        <p class="text-sm text-text-secondary">The reset link is invalid or has expired. Please request a new password reset.</p>
-                    </div>
-                <?php else: ?>
-                    <form method="post" class="space-y-6" novalidate>
-                        <input type="hidden" name="token" value="<?php echo h($tokenRaw); ?>">
-                        
-                        <!-- New Password Field -->
+            <!-- Form -->
+            <form method="POST" class="space-y-6" novalidate>
+                <!-- Email Field -->
                         <div class="space-y-2">
-                            <label for="password" class="block text-sm font-medium text-text-primary">
-                                New Password
+                    <label for="email" class="block text-sm font-medium text-text-primary">
+                        Email Address
                             </label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i class="fas fa-lock text-text-tertiary text-sm"></i>
+                            <i class="fas fa-envelope text-text-tertiary text-sm"></i>
                                 </div>
-                                <input type="password" id="password" name="password" required minlength="8" autocomplete="new-password" 
+                        <input type="email" id="email" name="email" required autocomplete="email" 
                                        class="w-full pl-10 pr-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white/50" 
-                                       placeholder="Enter new password">
+                               placeholder="Enter your email address"
+                               value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
                             </div>
                         </div>
 
-                        <!-- Confirm Password Field -->
-                        <div class="space-y-2">
-                            <label for="password_confirm" class="block text-sm font-medium text-text-primary">
-                                Confirm Password
-                            </label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i class="fas fa-lock text-text-tertiary text-sm"></i>
-                                </div>
-                                <input type="password" id="password_confirm" name="password_confirm" required minlength="8" autocomplete="new-password"
-                                       class="w-full pl-10 pr-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white/50"
-                                       placeholder="Confirm new password">
-                            </div>
-                        </div>
-                        
-                        <!-- Reset Button -->
+                <!-- Submit Button -->
                         <button type="submit" class="w-full bg-primary hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] focus:ring-2 focus:ring-primary-200 focus:ring-offset-2 shadow-lg">
                             <span class="flex items-center justify-center">
-                                <i class="fas fa-key mr-2"></i>
-                                Reset Password
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        Send OTP Code
                             </span>
                         </button>
                     </form>
-                <?php endif; ?>
-            <?php endif; ?>
+
+            <!-- Back to Login -->
+            <div class="mt-6 text-center">
+                <a href="login.html" class="text-sm text-text-tertiary hover:text-text-secondary">
+                    <i class="fas fa-arrow-left mr-1"></i>
+                    Back to Login
+                </a>
+            </div>
         </div>
 
         <!-- Footer -->
@@ -206,7 +231,3 @@ if ($method === 'POST') {
     </div>
 </body>
 </html>
-<?php
-$mysqli->close();
-exit;
-?>

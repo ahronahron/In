@@ -2178,9 +2178,20 @@
         // Logout functionality
         document.getElementById('logoutBtn')?.addEventListener('click', function() {
             if (confirm('Are you sure you want to logout?')) {
-                localStorage.removeItem('isLoggedIn');
-                localStorage.removeItem('userEmail');
-                window.location.href = 'login.html';
+                // Call logout endpoint to update status to inactive
+                fetch('../php/logout.php', {
+                    method: 'GET',
+                    credentials: 'same-origin'
+                }).then(() => {
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('userEmail');
+                    window.location.href = 'login.html';
+                }).catch(() => {
+                    // Even if logout endpoint fails, still clear and redirect
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('userEmail');
+                    window.location.href = 'login.html';
+                });
             }
         });
     </script>

@@ -1,20 +1,16 @@
 <?php
+/**
+ * Send Password Reset Email
+ * Sends password reset link via email
+ */
+
 declare(strict_types=1);
-// Diagnostic / hardened send_reset_email endpoint
-// - Logs details to pages/send_reset_email.log
-// - Returns generic success to client unless DEBUG=1 (env) or ?debug=1 (local dev)
-// - Adjust DB credentials if not default
+
 error_reporting(E_ALL);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
 header('Content-Type: application/json; charset=utf-8');
-$LOGFILE = __DIR__ . '/send_reset_email.log';
-function log_msg(string $m): void { global $LOGFILE; @file_put_contents($LOGFILE, date('Y-m-d H:i:s') . ' ' . $m . PHP_EOL, FILE_APPEND | LOCK_EX); }
-
-$debugEnv = getenv('DEBUG') === '1';
-$debugQuery = (isset($_GET['debug']) && $_GET['debug'] === '1');
-$DEBUG = $debugEnv || $debugQuery;
 
 // Only POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -23,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Accept either 'email' or 'resetEmail'
+// Get email from POST
 $rawEmail = $_POST['email'] ?? $_POST['resetEmail'] ?? '';
 $email = filter_var(trim((string)$rawEmail), FILTER_VALIDATE_EMAIL);
 if (!$email) {
@@ -32,8 +28,9 @@ if (!$email) {
     exit;
 }
 
-// Update PHPMailer path to match your system
+// Include PHPMailer
 $phpmailerBase = realpath(__DIR__ . '/../PHPMailer/src');
+<<<<<<< Updated upstream
 $phpex = $phpmailerBase ? $phpmailerBase . '/Exception.php' : null;
 $phpmailer = $phpmailerBase ? $phpmailerBase . '/PHPMailer.php' : null;
 $phpsmtp = $phpmailerBase ? $phpmailerBase . '/SMTP.php' : null;
@@ -76,68 +73,89 @@ $mysqli->set_charset('utf8mb4');
 $stmt = $mysqli->prepare('SELECT user_id, full_name, email FROM users WHERE email = ? AND status = "active" LIMIT 1');
 if (!$stmt) {
     log_msg('Prepare failed (select): ' . $mysqli->error);
+=======
+if (!$phpmailerBase || !file_exists($phpmailerBase . '/PHPMailer.php')) {
+    error_log('PHPMailer files not found');
+>>>>>>> Stashed changes
     echo json_encode(['success' => true, 'message' => 'If your email is registered you will receive instructions.']);
     exit;
 }
-$stmt->bind_param('s', $email);
-$stmt->execute();
-$res = $stmt->get_result();
-$user = $res->fetch_assoc();
-$stmt->close();
+
+require_once $phpmailerBase . '/Exception.php';
+require_once $phpmailerBase . '/PHPMailer.php';
+require_once $phpmailerBase . '/SMTP.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// Database connection
+require_once __DIR__ . '/../php/conn.php';
+
+if (!isset($conn) || !$conn) {
+    error_log('Database connection failed');
+    echo json_encode(['success' => true, 'message' => 'If your email is registered you will receive instructions.']);
+    exit;
+}
+
+// Lookup user (active)
+$stmt = mysqli_prepare($conn, 'SELECT user_id, full_name, email FROM users WHERE email = ? AND (status = "active" OR status IS NULL) LIMIT 1');
+if (!$stmt) {
+    error_log('Prepare failed: ' . mysqli_error($conn));
+    echo json_encode(['success' => true, 'message' => 'If your email is registered you will receive instructions.']);
+    exit;
+}
+
+mysqli_stmt_bind_param($stmt, 's', $email);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$user = mysqli_fetch_assoc($result);
+mysqli_stmt_close($stmt);
 
 if (!$user) {
-    // Email not found in database
-    if ($DEBUG) {
-        http_response_code(404);
-        echo json_encode(['success' => false, 'error' => 'Email not found.']);
-    } else {
-        // For production, return success=false with a user-friendly message
-        echo json_encode(['success' => false, 'error' => 'The email address you entered is not registered.']);
-    }
-    $mysqli->close();
+    echo json_encode(['success' => false, 'error' => 'The email address you entered is not registered.']);
+    mysqli_close($conn);
     exit;
 }
 
 // Generate secure random token
-$rawToken = bin2hex(random_bytes(32)); // Creates 64-char hex string
-$tokenHash = hash('sha256', $rawToken); // Hash for DB storage
+$rawToken = bin2hex(random_bytes(32));
+$tokenHash = hash('sha256', $rawToken);
 $expiresAt = date('Y-m-d H:i:s', time() + 1800); // 30 min expiry
 
-// First, invalidate any existing reset tokens for this user
-$invalidateStmt = $mysqli->prepare('UPDATE users SET password_reset_token = NULL, password_reset_expires = NULL WHERE user_id = ?');
+// Invalidate any existing reset tokens
+$invalidateStmt = mysqli_prepare($conn, 'UPDATE users SET password_reset_token = NULL, password_reset_expires = NULL WHERE user_id = ?');
 if ($invalidateStmt) {
-    $invalidateStmt->bind_param('i', $user['user_id']);
-    $invalidateStmt->execute();
-    $invalidateStmt->close();
+    mysqli_stmt_bind_param($invalidateStmt, 'i', $user['user_id']);
+    mysqli_stmt_execute($invalidateStmt);
+    mysqli_stmt_close($invalidateStmt);
 }
 
-// Now set the new reset token
-$upd = $mysqli->prepare('UPDATE users SET password_reset_token = ?, password_reset_expires = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?');
+// Set the new reset token
+$upd = mysqli_prepare($conn, 'UPDATE users SET password_reset_token = ?, password_reset_expires = ? WHERE user_id = ?');
 if (!$upd) {
-    log_msg('Prepare failed (update): ' . $mysqli->error);
+    error_log('Prepare failed: ' . mysqli_error($conn));
     echo json_encode(['success' => true, 'message' => 'If your email is registered you will receive instructions.']);
-    $mysqli->close();
+    mysqli_close($conn);
     exit;
 }
-$upd->bind_param('ssi', $tokenHash, $expiresAt, $user['user_id']);
-if (!$upd->execute()) {
-    log_msg('Execute failed (update): ' . $upd->error);
-    $upd->close();
-    echo json_encode(['success' => true, 'message' => 'If your email is registered you will receive instructions.']);
-    $mysqli->close();
-    exit;
-}
-$upd->close();
 
-// Build reset URL (change domain in production)
+mysqli_stmt_bind_param($upd, 'ssi', $tokenHash, $expiresAt, $user['user_id']);
+if (!mysqli_stmt_execute($upd)) {
+    error_log('Execute failed: ' . mysqli_stmt_error($upd));
+    mysqli_stmt_close($upd);
+    echo json_encode(['success' => true, 'message' => 'If your email is registered you will receive instructions.']);
+    mysqli_close($conn);
+    exit;
+}
+mysqli_stmt_close($upd);
+
+// Build reset URL
 $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 $resetUrl = sprintf('%s://%s/pages/forgot_password.php?token=%s', $scheme, $host, rawurlencode($rawToken));
 
-// Update Gmail credentials with your actual values
-// TODO: Replace with your actual Gmail and App Password
-$gmailUser = 'isystem190@gmail.com'; // Replace with your Gmail
-$gmailAppPass = 'hvvd bruj giwq jvfs'; // Replace with your App Password
+// Gmail credentials
+$gmailUser = 'darryljohn016@gmail.com';
+$gmailAppPass = 'pomnrmfgvtdpxxmc'; // Gmail App Password (no spaces)
 
 // Send mail
 $mail = new PHPMailer(true);
@@ -145,7 +163,7 @@ try {
     $mail->isSMTP();
     $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
-    $mail->Username = $gmailUser; 
+    $mail->Username = $gmailUser;
     $mail->Password = $gmailAppPass;
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port = 587;
@@ -162,31 +180,25 @@ try {
             </div>
             
             <div style="background: #f8fafc; border-radius: 8px; padding: 24px; margin-bottom: 24px; border-left: 4px solid #3b82f6;">
-                <p style="font-size: 16px; color: #1e293b; margin: 0 0 12px 0; font-weight: 500;">Hello <strong>' . htmlspecialchars($user['full_name'] ?? 'System Administrator') . '</strong>,</p>
+                <p style="font-size: 16px; color: #1e293b; margin: 0 0 12px 0; font-weight: 500;">Hello <strong>' . htmlspecialchars($user['full_name'] ?? 'User') . '</strong>,</p>
                 <p style="font-size: 15px; color: #475569; margin: 0 0 16px 0; line-height: 1.5;">Click the link below to reset your password. This link will expire in <strong style="color: #dc2626;">30 minutes</strong> for security purposes.</p>
                 
                 <div style="text-align: center; margin: 24px 0;">
-                    <a href="' . htmlspecialchars($resetUrl) . '" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: #ffffff; font-size: 16px; font-weight: 600; border-radius: 8px; text-decoration: none; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); transition: all 0.2s;">Reset Password</a>
+                    <a href="' . htmlspecialchars($resetUrl) . '" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: #ffffff; font-size: 16px; font-weight: 600; border-radius: 8px; text-decoration: none; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">Reset Password</a>
                 </div>
                 
                 <p style="font-size: 13px; color: #64748b; margin: 16px 0 0 0; text-align: center;">If the button doesn\'t work, copy and paste this link:<br><span style="word-break: break-all; color: #3b82f6;">' . htmlspecialchars($resetUrl) . '</span></p>
             </div>
-            
         </div>';
     $mail->AltBody = "Reset link:\n\n" . $resetUrl;
     $mail->send();
 
     echo json_encode(['success' => true, 'message' => 'If your email is registered you will receive instructions.']);
 } catch (Exception $e) {
-    log_msg('PHPMailer error: ' . ($mail->ErrorInfo ?? '') . ' | Exception: ' . $e->getMessage());
-    if ($DEBUG) {
-        http_response_code(500);
-        echo json_encode(['error' => 'Mail error: ' . ($mail->ErrorInfo ?? $e->getMessage())]);
-    } else {
-        echo json_encode(['success' => true, 'message' => 'If your email is registered you will receive instructions.']);
-    }
+    error_log('PHPMailer error: ' . ($mail->ErrorInfo ?? $e->getMessage()));
+    echo json_encode(['success' => true, 'message' => 'If your email is registered you will receive instructions.']);
 }
 
-$mysqli->close();
+mysqli_close($conn);
 exit;
 ?>
