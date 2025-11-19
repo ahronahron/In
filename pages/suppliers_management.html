@@ -612,7 +612,7 @@
         }
         
         // DOM Elements
-        const menuToggle = document.getElementById('menuToggle');
+        const menuToggle = document.getElementById('openSidebar') || document.getElementById('menuToggle');
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const closeSidebar = document.getElementById('closeSidebar');
@@ -626,77 +626,106 @@
         const selectAll = document.getElementById('selectAll');
 
         // Sidebar functionality
-        menuToggle.addEventListener('click', () => {
-            sidebar.classList.remove('-translate-x-full');
-            sidebarOverlay.classList.remove('hidden');
-        });
+        if (menuToggle && sidebar && sidebarOverlay) {
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarOverlay.classList.remove('hidden');
+            });
+        }
 
-        closeSidebar.addEventListener('click', () => {
-            sidebar.classList.add('-translate-x-full');
-            sidebarOverlay.classList.add('hidden');
-        });
+        if (closeSidebar && sidebar && sidebarOverlay) {
+            closeSidebar.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
+            });
+        }
 
-        sidebarOverlay.addEventListener('click', () => {
-            sidebar.classList.add('-translate-x-full');
-            sidebarOverlay.classList.add('hidden');
-        });
+        if (sidebarOverlay && sidebar) {
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
+            });
+        }
 
         // Modal functionality
-        addSupplierBtn.addEventListener('click', () => {
-            // Reset form and selected medicines
-            selectedMedicines = [];
-            document.getElementById('addSupplierForm').reset();
-            // Refresh medicines list when opening modal
-            fetchMedicinesByCategory();
-            addSupplierModal.classList.remove('hidden');
-        });
+        if (addSupplierBtn && addSupplierModal) {
+            addSupplierBtn.addEventListener('click', () => {
+                // Reset form and selected medicines
+                selectedMedicines = [];
+                document.getElementById('addSupplierForm').reset();
+                // Refresh medicines list when opening modal
+                fetchMedicinesByCategory();
+                addSupplierModal.classList.remove('hidden');
+            });
+        }
 
-        document.getElementById('closeAddModal').addEventListener('click', () => {
-            addSupplierModal.classList.add('hidden');
-        });
+        const closeAddModal = document.getElementById('closeAddModal');
+        if (closeAddModal && addSupplierModal) {
+            closeAddModal.addEventListener('click', () => {
+                addSupplierModal.classList.add('hidden');
+            });
+        }
 
-        document.getElementById('cancelAdd').addEventListener('click', () => {
-            addSupplierModal.classList.add('hidden');
-        });
+        const cancelAdd = document.getElementById('cancelAdd');
+        if (cancelAdd && addSupplierModal) {
+            cancelAdd.addEventListener('click', () => {
+                addSupplierModal.classList.add('hidden');
+            });
+        }
 
-        document.getElementById('closeEditModal').addEventListener('click', () => {
-            editSupplierModal.classList.add('hidden');
-        });
+        const closeEditModal = document.getElementById('closeEditModal');
+        if (closeEditModal && editSupplierModal) {
+            closeEditModal.addEventListener('click', () => {
+                editSupplierModal.classList.add('hidden');
+            });
+        }
 
-        document.getElementById('cancelEdit').addEventListener('click', () => {
-            editSupplierModal.classList.add('hidden');
-        });
+        const cancelEdit = document.getElementById('cancelEdit');
+        if (cancelEdit && editSupplierModal) {
+            cancelEdit.addEventListener('click', () => {
+                editSupplierModal.classList.add('hidden');
+            });
+        }
 
-        document.getElementById('closeDetailModal').addEventListener('click', () => {
-            supplierDetailModal.classList.add('hidden');
-        });
+        const closeDetailModal = document.getElementById('closeDetailModal');
+        if (closeDetailModal && supplierDetailModal) {
+            closeDetailModal.addEventListener('click', () => {
+                supplierDetailModal.classList.add('hidden');
+            });
+        }
 
         // Close modals on ESC key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                addSupplierModal.classList.add('hidden');
-                editSupplierModal.classList.add('hidden');
-                supplierDetailModal.classList.add('hidden');
+                if (addSupplierModal) addSupplierModal.classList.add('hidden');
+                if (editSupplierModal) editSupplierModal.classList.add('hidden');
+                if (supplierDetailModal) supplierDetailModal.classList.add('hidden');
             }
         });
 
         // Close modals on backdrop click
         [addSupplierModal, editSupplierModal, supplierDetailModal].forEach(modal => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.classList.add('hidden');
-                }
-            });
+            if (modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.add('hidden');
+                    }
+                });
+            }
         });
 
         // Search and filter functionality
-        tableSearch.addEventListener('input', function() {
-            filterSuppliers();
-        });
+        if (tableSearch) {
+            tableSearch.addEventListener('input', function() {
+                filterSuppliers();
+            });
+        }
         
-        locationFilter.addEventListener('change', function() {
-            filterSuppliers();
-        });
+        if (locationFilter) {
+            locationFilter.addEventListener('change', function() {
+                filterSuppliers();
+            });
+        }
 
         function filterSuppliers() {
             const searchTerm = tableSearch.value.toLowerCase();
@@ -719,13 +748,15 @@
             updateCounts();
         }
 
-        resetFilters.addEventListener('click', () => {
-            tableSearch.value = '';
-            locationFilter.value = '';
-            filteredSuppliers = [...suppliersData];
-            renderSuppliers();
-            updateCounts();
-        });
+        if (resetFilters) {
+            resetFilters.addEventListener('click', () => {
+                if (tableSearch) tableSearch.value = '';
+                if (locationFilter) locationFilter.value = '';
+                filteredSuppliers = [...suppliersData];
+                renderSuppliers();
+                updateCounts();
+            });
+        }
 
         // Render suppliers table
         function renderSuppliers() {
@@ -1389,12 +1420,14 @@
         });
 
         // Select all functionality
-        selectAll.addEventListener('change', function() {
-            const checkboxes = document.querySelectorAll('.supplier-checkbox');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = this.checked;
+        if (selectAll) {
+            selectAll.addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('.supplier-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
             });
-        });
+        }
 
         // Export functionality
         document.getElementById('exportBtn').addEventListener('click', function() {
@@ -1746,6 +1779,5 @@
             }
         });
     </script>
-<script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
 </body>
 </html>
