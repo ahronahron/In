@@ -58,12 +58,29 @@ $hardcodedUsers = [
 ];
 
 // Check hardcoded credentials
-foreach ($hardcodedUsers as $user) {
-    $emailMatch = strtolower(trim($loginInput)) === strtolower(trim($user['email']));
-    $usernameMatch = strtolower(trim($loginInput)) === strtolower(trim($user['username']));
+foreach ($hardcodedUsers as $hardcodedUser) {
+    $emailMatch = strtolower(trim($loginInput)) === strtolower(trim($hardcodedUser['email']));
+    $usernameMatch = strtolower(trim($loginInput)) === strtolower(trim($hardcodedUser['username']));
     
-    if (($emailMatch || $usernameMatch) && $password === $user['password']) {
-        // Update user status to 'active' when logging in (if user exists in database)
+    if (($emailMatch || $usernameMatch) && $password === $hardcodedUser['password']) {
+        // Try to fetch actual user data from database first
+        $dbUser = null;
+        if (isset($hardcodedUser['user_id'])) {
+            $dbQuery = "SELECT * FROM users WHERE user_id = ?";
+            $dbStmt = mysqli_prepare($conn, $dbQuery);
+            if ($dbStmt) {
+                mysqli_stmt_bind_param($dbStmt, "i", $hardcodedUser['user_id']);
+                mysqli_stmt_execute($dbStmt);
+                $dbResult = mysqli_stmt_get_result($dbStmt);
+                $dbUser = mysqli_fetch_assoc($dbResult);
+                mysqli_stmt_close($dbStmt);
+            }
+        }
+        
+        // Use database user if found, otherwise use hardcoded user
+        $user = $dbUser ? $dbUser : $hardcodedUser;
+        
+        // Update user status to 'active' when logging in
         if (isset($user['user_id'])) {
             updateUserStatus($conn, $user, 'active');
         }
@@ -111,8 +128,15 @@ if (!$result || mysqli_num_rows($result) !== 1) {
 
 $user = mysqli_fetch_assoc($result);
 
-// Check account status
-if (isset($user['status']) && strtolower($user['status']) !== 'active') {
+// Check if account is locked
+if (isset($user['status']) && strtolower($user['status']) === 'locked') {
+    mysqli_stmt_close($stmt);
+    echo json_encode(['success' => false, 'message' => 'Account Locked by Admin. Please contact administrator.']);
+    exit;
+}
+
+// Check account status (inactive/offline users can still login, but locked cannot)
+if (isset($user['status']) && strtolower($user['status']) === 'inactive') {
     mysqli_stmt_close($stmt);
     echo json_encode(['success' => false, 'message' => 'Your account is inactive. Please contact administrator.']);
     exit;
@@ -207,18 +231,47 @@ function setUserSession($user) {
  * Get user data for response
  */
 function getUserData($user, $loginInput = null) {
+    // Check if must_change_password column exists and get its value
+    $mustChangePassword = 0;
+    if (isset($user['must_change_password'])) {
+        $mustChangePassword = (int)$user['must_change_password'];
+    } else {
+        // Check if column exists in database
+        global $conn;
+        if (isset($conn) && $conn) {
+            $checkColumn = mysqli_query($conn, "SHOW COLUMNS FROM users LIKE 'must_change_password'");
+            if (mysqli_num_rows($checkColumn) > 0 && isset($user['user_id'])) {
+                // Column exists but not in user array, fetch it
+                $userId = $user['user_id'] ?? $user['id'] ?? null;
+                if ($userId) {
+                    $checkStmt = mysqli_prepare($conn, "SELECT must_change_password FROM users WHERE user_id = ?");
+                    if ($checkStmt) {
+                        mysqli_stmt_bind_param($checkStmt, "i", $userId);
+                        mysqli_stmt_execute($checkStmt);
+                        $checkResult = mysqli_stmt_get_result($checkStmt);
+                        if ($checkRow = mysqli_fetch_assoc($checkResult)) {
+                            $mustChangePassword = (int)($checkRow['must_change_password'] ?? 0);
+                        }
+                        mysqli_stmt_close($checkStmt);
+                    }
+                }
+            }
+        }
+    }
+    
     return [
         'email' => $user['email'] ?? $loginInput,
         'username' => $user['username'] ?? null,
         'role' => $user['role'] ?? 'user',
         'user_id' => $user['user_id'] ?? $user['id'] ?? null,
-        'full_name' => $user['full_name'] ?? null
+        'full_name' => $user['full_name'] ?? null,
+        'must_change_password' => $mustChangePassword === 1
     ];
 }
 
 /**
- * Update user status (active/inactive)
- * Automatically creates status column if it doesn't exist
+ * Update user status (active/offline/inactive/locked)
+ * Automatically creates status column if it doesn't exist with all enum values
  */
 function updateUserStatus($conn, $user, $status) {
     if (!$conn || !$user) {
@@ -235,9 +288,18 @@ function updateUserStatus($conn, $user, $status) {
     // Check if status column exists
     $checkStatus = mysqli_query($conn, "SHOW COLUMNS FROM users LIKE 'status'");
     if (mysqli_num_rows($checkStatus) === 0) {
-        // Create status column if it doesn't exist
-        $alterQuery = "ALTER TABLE users ADD COLUMN status ENUM('active', 'inactive') DEFAULT 'active' AFTER role";
+        // Create status column if it doesn't exist with all enum values
+        $alterQuery = "ALTER TABLE users ADD COLUMN status ENUM('active', 'inactive', 'offline', 'locked') DEFAULT 'active' AFTER role";
         mysqli_query($conn, $alterQuery);
+    } else {
+        // Check if the enum includes all required values
+        $columnInfo = mysqli_fetch_assoc($checkStatus);
+        $enumValues = $columnInfo['Type'] ?? '';
+        if (strpos($enumValues, 'locked') === false) {
+            // Update enum to include locked
+            $alterQuery = "ALTER TABLE users MODIFY COLUMN status ENUM('active', 'inactive', 'offline', 'locked') DEFAULT 'active'";
+            mysqli_query($conn, $alterQuery);
+        }
     }
     
     // Update user status

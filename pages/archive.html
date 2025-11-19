@@ -38,8 +38,8 @@
             <div class="flex items-center space-x-3">
                 <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="User Avatar" class="w-12 h-12 rounded-full object-cover border-2 border-primary-200 dark:border-primary-700" onerror="this.src='https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'; this.onerror=null;" />
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-text-primary dark:text-gray-100 truncate" id="userDisplayName">Pharmacist Admin</p>
-                    <p class="text-xs text-text-tertiary dark:text-gray-400 truncate" id="userDisplayEmail">admin@pharmacy.com</p>
+                    <p class="text-sm font-medium text-text-primary dark:text-gray-100 truncate" id="userDisplayName">User</p>
+                    <p class="text-xs text-text-tertiary dark:text-gray-400 truncate" id="userDisplayEmail">user@example.com</p>
                 </div>
             </div>
         </div>
@@ -51,6 +51,12 @@
                     <a href="dashboard.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
                         <i class="fas fa-chart-pie w-5"></i>
                         <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="user_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-users w-5"></i>
+                        <span>User Management</span>
                     </a>
                 </li>
                 <li>
@@ -447,16 +453,19 @@
                 return;
             }
 
-            // Set user display info
-            const userEmail = localStorage.getItem('userEmail') || 'admin@pharmacy.com';
-            document.getElementById('userDisplayEmail').textContent = userEmail;
+            // Update user display from localStorage
+            const userFullName = localStorage.getItem('userFullName') || 'User';
+            const userEmail = localStorage.getItem('userEmail') || 'user@example.com';
             
-            const displayNames = {
-                'admin@pharmacy.com': 'Pharmacy Admin',
-                'manager@pharmacy.com': 'Pharmacy Manager',
-                'pharmacist@pharmacy.com': 'Lead Pharmacist'
-            };
-            document.getElementById('userDisplayName').textContent = displayNames[userEmail] || 'Pharmacist';
+            const userDisplayNameEl = document.getElementById('userDisplayName');
+            const userDisplayEmailEl = document.getElementById('userDisplayEmail');
+            
+            if (userDisplayNameEl) {
+                userDisplayNameEl.textContent = userFullName;
+            }
+            if (userDisplayEmailEl) {
+                userDisplayEmailEl.textContent = userEmail;
+            }
 
             // Initialize theme
             initializeTheme();

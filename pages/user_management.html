@@ -37,8 +37,8 @@
             <div class="flex items-center space-x-3">
                 <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="User Avatar" class="w-12 h-12 rounded-full object-cover border-2 border-primary-200" onerror="this.src='https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'; this.onerror=null;" />
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-text-primary dark:text-gray-100 truncate" id="userDisplayName">Admin</p>
-                    <p class="text-xs text-text-tertiary dark:text-gray-400 truncate" id="userDisplayEmail">admin@inventory.com</p>
+                    <p class="text-sm font-medium text-text-primary dark:text-gray-100 truncate" id="userDisplayName">User</p>
+                    <p class="text-xs text-text-tertiary dark:text-gray-400 truncate" id="userDisplayEmail">user@example.com</p>
                 </div>
             </div>
         </div>
@@ -50,6 +50,12 @@
                     <a href="dashboard.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
                         <i class="fas fa-chart-pie w-5"></i>
                         <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="user_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white bg-primary rounded-xl transition-all duration-200">
+                        <i class="fas fa-users w-5"></i>
+                        <span>User Management</span>
                     </a>
                 </li>
                 <li>
@@ -188,7 +194,9 @@
                         <select id="statusFilter" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-700 text-text-primary dark:text-gray-100">
                             <option value="">All Status</option>
                             <option value="active">Active</option>
+                            <option value="offline">Offline</option>
                             <option value="inactive">Inactive</option>
+                            <option value="locked">Locked</option>
                         </select>
                     </div>
 
@@ -292,12 +300,17 @@
                         <input type="text" id="username" name="username" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter username" />
                     </div>
 
-                    <!-- Password -->
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
-                            Password *
-                        </label>
-                        <input type="password" id="password" name="password" required minlength="8" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter password (min. 8 chars)" />
+                    <!-- Password Info Note -->
+                    <div class="md:col-span-2">
+                        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                            <div class="flex items-start space-x-3">
+                                <i class="fas fa-info-circle text-blue-600 dark:text-blue-400 mt-0.5"></i>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-blue-900 dark:text-blue-200 mb-1">Default Password</p>
+                                    <p class="text-xs text-blue-700 dark:text-blue-300">The system will automatically assign the default password: <strong>user123</strong>. Users will be required to change their password on first login.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Role -->
@@ -508,28 +521,46 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-center">
                         ${user.status !== undefined ? `
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" class="sr-only peer status-toggle" 
-                                   ${user.status === 'active' ? 'checked' : ''}
-                                   data-user-id="${user.user_id}"
-                                   onchange="toggleUserStatus(${user.user_id}, this.checked)">
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                            <span class="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">${user.status || 'active'}</span>
-                        </label>
+                        ${user.status === 'locked' ? `
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                <i class="fas fa-lock mr-1"></i> Locked
+                            </span>
+                        ` : user.status === 'active' ? `
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                <i class="fas fa-circle text-xs mr-1"></i> Active
+                            </span>
+                        ` : user.status === 'offline' ? `
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                                <i class="fas fa-circle text-xs mr-1 opacity-50"></i> Offline
+                            </span>
+                        ` : `
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                                <i class="fas fa-circle text-xs mr-1"></i> ${escapeHtml(user.status || 'inactive')}
+                            </span>
+                        `}
                         ` : `<span class="text-sm text-gray-500 dark:text-gray-400">N/A</span>`}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-center">
                         <div class="flex items-center justify-center space-x-2">
-                            <button onclick="editUser(${user.user_id})" class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-lg transition-colors" title="Edit User">
+                            <button onclick="editUser(${user.user_id})" class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-lg transition-colors ${user.status === 'locked' ? 'opacity-50 cursor-not-allowed' : ''}" title="Edit User" ${user.status === 'locked' ? 'disabled' : ''}>
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button onclick="changeUserRole(${user.user_id}, '${user.role || 'user'}')" class="p-2 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900 rounded-lg transition-colors" title="Change Role">
+                            <button onclick="changeUserRole(${user.user_id}, '${user.role || 'user'}')" class="p-2 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900 rounded-lg transition-colors ${user.status === 'locked' ? 'opacity-50 cursor-not-allowed' : ''}" title="Change Role" ${user.status === 'locked' ? 'disabled' : ''}>
                                 <i class="fas fa-user-tag"></i>
                             </button>
-                            <button onclick="resetUserPassword(${user.user_id})" class="p-2 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900 rounded-lg transition-colors" title="Reset Password">
+                            ${user.status === 'locked' ? `
+                                <button onclick="unlockUserAccount(${user.user_id})" class="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900 rounded-lg transition-colors" title="Unlock Account">
+                                    <i class="fas fa-unlock"></i>
+                                </button>
+                            ` : `
+                                <button onclick="lockUserAccount(${user.user_id}, '${escapeHtml(user.full_name || user.email)}')" class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded-lg transition-colors" title="Lock Account">
+                                    <i class="fas fa-lock"></i>
+                                </button>
+                            `}
+                            <button onclick="resetUserPassword(${user.user_id})" class="p-2 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900 rounded-lg transition-colors ${user.status === 'locked' ? 'opacity-50 cursor-not-allowed' : ''}" title="Reset Password" ${user.status === 'locked' ? 'disabled' : ''}>
                                 <i class="fas fa-key"></i>
                             </button>
-                            <button onclick="deleteUser(${user.user_id}, '${escapeHtml(user.full_name || user.email)}')" class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded-lg transition-colors" title="Delete User">
+                            <button onclick="deleteUser(${user.user_id}, '${escapeHtml(user.full_name || user.email)}')" class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded-lg transition-colors ${user.status === 'locked' ? 'opacity-50 cursor-not-allowed' : ''}" title="Delete User" ${user.status === 'locked' ? 'disabled' : ''}>
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -678,7 +709,7 @@
                         full_name: formData.get('full_name'),
                         email: formData.get('email'),
                         username: formData.get('username'),
-                        password: formData.get('password'),
+                        // Password is auto-generated as 'user123' - no need to send it
                         role: formData.get('user_role')
                     })
                 });
@@ -920,8 +951,159 @@
             document.getElementById('editUserModal').classList.add('hidden');
         });
 
+        // Lock user account
+        async function lockUserAccount(userId, userName) {
+            if (!confirm(`Are you sure you want to LOCK the account for ${userName}?\n\nLocked users cannot login until unlocked by an admin.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('../api/user_management.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        action: 'lock_account',
+                        user_id: userId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Account locked successfully');
+                    loadUsers();
+                } else {
+                    alert(data.error || 'Failed to lock account');
+                }
+            } catch (error) {
+                console.error('Error locking account:', error);
+                alert('Error locking account');
+            }
+        }
+
+        // Unlock user account
+        async function unlockUserAccount(userId) {
+            if (!confirm('Are you sure you want to UNLOCK this account?\n\nThe user will be able to login again.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('../api/user_management.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        action: 'unlock_account',
+                        user_id: userId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Account unlocked successfully');
+                    loadUsers();
+                } else {
+                    alert(data.error || 'Failed to unlock account');
+                }
+            } catch (error) {
+                console.error('Error unlocking account:', error);
+                alert('Error unlocking account');
+            }
+        }
+
+        // Heartbeat system - send ping every 45 seconds to keep active users as 'active'
+        let heartbeatInterval = null;
+        
+        function startHeartbeat() {
+            // Send heartbeat immediately
+            sendHeartbeat();
+            
+            // Then send every 45 seconds
+            heartbeatInterval = setInterval(sendHeartbeat, 45000);
+        }
+        
+        function stopHeartbeat() {
+            if (heartbeatInterval) {
+                clearInterval(heartbeatInterval);
+                heartbeatInterval = null;
+            }
+        }
+        
+        async function sendHeartbeat() {
+            try {
+                const response = await fetch('../api/heartbeat.php', {
+                    method: 'GET',
+                    credentials: 'same-origin'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        // Heartbeat successful - user is active
+                        console.log('Heartbeat sent successfully');
+                    }
+                }
+            } catch (error) {
+                // Silently fail - user might have logged out
+                console.log('Heartbeat failed (user may be logged out)');
+            }
+        }
+        
+        // Auto-refresh user list every 30 seconds to show real-time status updates
+        let statusRefreshInterval = null;
+        
+        function startStatusRefresh() {
+            statusRefreshInterval = setInterval(() => {
+                loadUsers();
+            }, 30000); // Refresh every 30 seconds
+        }
+        
+        function stopStatusRefresh() {
+            if (statusRefreshInterval) {
+                clearInterval(statusRefreshInterval);
+                statusRefreshInterval = null;
+            }
+        }
+        
+        // Update user display from localStorage
+        const userFullName = localStorage.getItem('userFullName') || 'User';
+        const userEmail = localStorage.getItem('userEmail') || 'user@example.com';
+        
+        const userDisplayNameEl = document.getElementById('userDisplayName');
+        const userDisplayEmailEl = document.getElementById('userDisplayEmail');
+        
+        if (userDisplayNameEl) {
+            userDisplayNameEl.textContent = userFullName;
+        }
+        if (userDisplayEmailEl) {
+            userDisplayEmailEl.textContent = userEmail;
+        }
+        
         // Initial load
         loadUsers();
+        
+        // Start heartbeat and status refresh when page loads
+        startHeartbeat();
+        startStatusRefresh();
+        
+        // Stop intervals when page is hidden/unloaded
+        window.addEventListener('beforeunload', () => {
+            stopHeartbeat();
+            stopStatusRefresh();
+        });
+        
+        // Pause heartbeat when tab is hidden, resume when visible
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                stopHeartbeat();
+            } else {
+                startHeartbeat();
+            }
+        });
     </script>
 </body>
 </html>

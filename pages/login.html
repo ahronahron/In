@@ -484,11 +484,18 @@ if (isset($_SESSION['user_id'])) {
                     // Store user session in localStorage
                     localStorage.setItem('isLoggedIn', 'true');
                     localStorage.setItem('userEmail', data.user.email || email);
+                    if (data.user.full_name) {
+                        localStorage.setItem('userFullName', data.user.full_name);
+                    }
                     if (data.user.role) {
                         localStorage.setItem('userRole', data.user.role);
                     }
                     if (data.user.user_id) {
                         localStorage.setItem('userId', data.user.user_id);
+                    }
+                    // Store must_change_password flag
+                    if (data.user.must_change_password !== undefined) {
+                        localStorage.setItem('mustChangePassword', data.user.must_change_password ? 'true' : 'false');
                     }
                     
                     // Show success message briefly

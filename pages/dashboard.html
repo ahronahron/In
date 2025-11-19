@@ -57,6 +57,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="user_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        <i class="fas fa-users w-5"></i>
+                        <span>User Management</span>
+                    </a>
+                </li>
+                <li>
                     <a href="orders_management.html" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-xl transition-all duration-200">
                         <i class="fas fa-prescription-bottle w-5"></i>
                         <span>Orders</span>
@@ -562,20 +568,9 @@
             // Logout functionality
             document.getElementById('logoutBtn').addEventListener('click', function() {
                 if (confirm('Are you sure you want to logout?')) {
-                    // Call logout endpoint to update status to inactive
-                    fetch('../php/logout.php', {
-                        method: 'GET',
-                        credentials: 'same-origin'
-                    }).then(() => {
-                        localStorage.removeItem('isLoggedIn');
-                        localStorage.removeItem('userEmail');
-                        window.location.href = 'login.html';
-                    }).catch(() => {
-                        // Even if logout endpoint fails, still clear and redirect
-                        localStorage.removeItem('isLoggedIn');
-                        localStorage.removeItem('userEmail');
-                        window.location.href = 'login.html';
-                    });
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('userEmail');
+                    window.location.href = 'login.html';
                 }
             });
 
