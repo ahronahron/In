@@ -535,6 +535,33 @@
         </div>
     </div>
 
+    <!-- Custom Confirmation Modal -->
+    <div id="confirmationModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-md w-full p-6 animation-slide-up">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-text-primary dark:text-gray-100" id="confirmationTitle">Confirm Action</h3>
+                <button id="closeConfirmationModal" class="text-text-tertiary hover:text-text-secondary dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <p class="text-text-primary dark:text-gray-100" id="confirmationMessage">
+                    <!-- Confirmation message will be populated by JavaScript -->
+                </p>
+            </div>
+            
+            <div class="flex items-center justify-end space-x-3">
+                <button id="confirmationCancel" class="px-4 py-2 text-text-secondary dark:text-gray-400 hover:text-text-primary dark:hover:text-gray-200 border border-border-light dark:border-gray-600 rounded-lg hover:bg-surface-hover dark:hover:bg-gray-800 transition-all duration-200">
+                    Cancel
+                </button>
+                <button id="confirmationConfirm" class="px-4 py-2 bg-primary hover:bg-primary-700 text-white rounded-lg transition-all duration-200">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Suppliers data - will be loaded from database
         let suppliersData = [];
@@ -810,8 +837,8 @@
                             <button class="text-accent-600 dark:text-accent-400 hover:text-accent-700 dark:hover:text-accent-300 p-1" onclick="editSupplier(${supplier.id})" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="text-error-600 dark:text-error-400 hover:text-error-700 dark:hover:text-error-300 p-1" onclick="deleteSupplier(${supplier.id})" title="Delete">
-                                <i class="fas fa-trash"></i>
+                            <button class="text-warning-600 dark:text-warning-400 hover:text-warning-700 dark:hover:text-warning-300 p-1" onclick="archiveSupplier(${supplier.id})" title="Archive Supplier">
+                                <i class="fas fa-archive"></i>
                             </button>
                         </div>
                     </td>
@@ -839,8 +866,8 @@
                             <button class="text-accent-600 hover:text-accent-700 p-1" onclick="editSupplier(${supplier.id})">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="text-error-600 hover:text-error-700 p-1" onclick="deleteSupplier(${supplier.id})">
-                                <i class="fas fa-trash"></i>
+                            <button class="text-warning-600 hover:text-warning-700 p-1" onclick="archiveSupplier(${supplier.id})" title="Archive Supplier">
+                                <i class="fas fa-archive"></i>
                             </button>
                         </div>
                     </div>
@@ -894,6 +921,22 @@
                 const confirmBtn = document.getElementById('confirmationConfirm');
                 const cancelBtn = document.getElementById('confirmationCancel');
                 const closeBtn = document.getElementById('closeConfirmationModal');
+
+                // Check if all elements exist
+                if (!modal || !titleEl || !messageEl || !confirmBtn || !cancelBtn || !closeBtn) {
+                    console.error('Confirmation modal elements not found:', {
+                        modal: !!modal,
+                        titleEl: !!titleEl,
+                        messageEl: !!messageEl,
+                        confirmBtn: !!confirmBtn,
+                        cancelBtn: !!cancelBtn,
+                        closeBtn: !!closeBtn
+                    });
+                    // Fallback to browser confirm
+                    const confirmed = confirm(`${title}\n\n${message}`);
+                    resolve(confirmed);
+                    return;
+                }
 
                 // Set content
                 titleEl.textContent = title;
@@ -1208,20 +1251,26 @@
         };
 
         /**
-         * Delete Supplier Function
-         * Deletes a supplier after confirmation
-         * @param {number|string} id - The ID of the supplier to delete
+         * Archive Supplier Function
+         * Archives a supplier after confirmation
+         * @param {number|string} id - The ID of the supplier to archive
          */
-        async function deleteSupplier(id) {
-            const supplier = suppliersData.find(s => s.id === id);
+        async function archiveSupplier(id) {
+            // Convert id to number for comparison
+            const supplierId = parseInt(id);
+            
+            // Try to find supplier with loose equality to handle string/number mismatch
+            const supplier = suppliersData.find(s => s.id == supplierId || s.id == id);
             if (!supplier) {
-                showError('Supplier not found');
+                console.error('Supplier not found in data. ID:', id, 'Type:', typeof id);
+                console.error('Available suppliers:', suppliersData.map(s => ({ id: s.id, name: s.name, type: typeof s.id })));
+                showError(`Supplier not found. ID: ${id}`);
                 return;
             }
             
             const confirmed = await showConfirmation(
-                `Are you sure you want to delete "${supplier.name}"? This action cannot be undone.`,
-                'Delete Supplier'
+                `Are you sure you want to archive "${supplier.name}"? The supplier will be moved to the archive and removed from the active list.`,
+                'Archive Supplier'
             );
             
             if (!confirmed) {
@@ -1230,10 +1279,24 @@
             
             try {
                 const formData = new FormData();
-                formData.append('id', id);
+                // Use the supplier's ID from the found supplier object
+                formData.append('id', String(supplier.id));
+                formData.append('reason', 'Supplier archived');
+                
+                // Get current user email if available
+                const userEmail = localStorage.getItem('userEmail');
+                if (userEmail) {
+                    formData.append('archived_by', userEmail);
+                }
                 
                 const baseUrl = getApiBaseUrl();
-                const url = `${baseUrl}/delete_supplier.php`;
+                const url = `${baseUrl}/archive_supplier.php`;
+                
+                console.log('Archiving supplier:', {
+                    id: supplier.id,
+                    name: supplier.name,
+                    url: url
+                });
                 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -1244,24 +1307,29 @@
                     credentials: 'include'
                 });
                 
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const result = await response.json();
                 
                 if (result.success) {
-                    showSuccess('Supplier deleted successfully!');
+                    showSuccess('Supplier archived successfully!');
                     // Refresh suppliers list
                     await fetchSuppliers(1, '');
                 } else {
-                    showError(result.message || 'Failed to delete supplier');
+                    console.error('Archive failed:', result);
+                    showError(result.message || 'Failed to archive supplier');
                 }
             } catch (error) {
-                console.error('Error deleting supplier:', error);
+                console.error('Error archiving supplier:', error);
                 showError('Server error: ' + error.message);
             }
         }
 
         // Make functions globally accessible for onclick handlers
         window.viewSupplier = viewSupplier;
-        window.deleteSupplier = deleteSupplier;
+        window.archiveSupplier = archiveSupplier;
 
         // Form submissions
         document.getElementById('addSupplierForm').addEventListener('submit', async function(e) {
