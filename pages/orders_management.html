@@ -2206,6 +2206,290 @@
     </script>
 <script id="dhws-dataInjector" src="../public/dhws-data-injector.js">    </script>
 
+<<<<<<< HEAD
+=======
+    <!-- User Management Modal -->
+    <div id="userManagementModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[60] hidden" style="left: 60px;">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden animation-slide-up flex flex-col">
+            <div class="flex items-center justify-between p-6 border-b border-border-light dark:border-gray-700 flex-shrink-0">
+                <div>
+                    <h2 class="text-xl font-semibold text-text-primary dark:text-gray-100">User Management</h2>
+                    <p class="text-sm text-text-secondary dark:text-gray-400 mt-1">Manage system users and permissions</p>
+                </div>
+                <button id="closeUserManagementModal" class="text-text-tertiary dark:text-gray-400 hover:text-text-secondary dark:hover:text-gray-200 transition-colors duration-200">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6">
+                <div class="space-y-4">
+                    <!-- Action Bar -->
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                        <!-- Add User Button -->
+                        <button id="addUserBtnModal" class="btn-primary px-6 py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200">
+                            <i class="fas fa-plus"></i>
+                            <span>Add User</span>
+                        </button>
+
+                        <!-- Bulk Actions -->
+                        <div class="flex space-x-2">
+                            <button id="bulkActivateBtnModal" class="px-4 py-3 border border-border-medium dark:border-gray-600 text-text-secondary dark:text-gray-300 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200 disabled:opacity-50" disabled>
+                                <i class="fas fa-check mr-2"></i>
+                                Activate Selected
+                            </button>
+                            <button id="bulkDeactivateBtnModal" class="px-4 py-3 border border-error-300 text-error-600 hover:bg-error-50 dark:hover:bg-error-900 rounded-xl transition-all duration-200 disabled:opacity-50" disabled>
+                                <i class="fas fa-ban mr-2"></i>
+                                Deactivate Selected
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filters Section -->
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-border-light dark:border-gray-700 p-6">
+                        <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+                            <!-- Search -->
+                            <div class="flex-1">
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-search text-text-tertiary dark:text-gray-500"></i>
+                                    </div>
+                                    <input type="text" id="userSearchModal" placeholder="Search users by name, email, username..." class="w-full pl-10 pr-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-700 text-text-primary dark:text-gray-100" />
+                                </div>
+                            </div>
+
+                            <!-- Role Filter -->
+                            <div class="min-w-0 lg:w-48">
+                                <select id="roleFilterModal" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-700 text-text-primary dark:text-gray-100">
+                                    <option value="">All Roles</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="manager">Manager</option>
+                                    <option value="user">User</option>
+                                    <option value="supplier">Supplier</option>
+                                </select>
+                            </div>
+
+                            <!-- Status Filter -->
+                            <div class="min-w-0 lg:w-48">
+                                <select id="statusFilterModal" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-700 text-text-primary dark:text-gray-100">
+                                    <option value="">All Status</option>
+                                    <option value="active">Active</option>
+                                    <option value="offline">Offline</option>
+                                    <option value="inactive">Inactive</option>
+                                    <option value="locked">Locked</option>
+                                </select>
+                            </div>
+
+                            <!-- Clear Filters -->
+                            <button id="clearFiltersBtnModal" class="px-4 py-3 text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-700 rounded-xl transition-all duration-200 flex items-center space-x-2">
+                                <i class="fas fa-times"></i>
+                                <span>Clear</span>
+                            </button>
+                        </div>
+
+                        <!-- Results Count -->
+                        <div class="mt-4 flex items-center justify-between">
+                            <div class="text-sm text-text-secondary dark:text-gray-400">
+                                Showing <span id="resultsCountModal" class="font-medium text-text-primary dark:text-gray-100">0</span> of <span id="totalCountModal" class="font-medium text-text-primary dark:text-gray-100">0</span> users
+                            </div>
+                            <div class="text-sm text-text-secondary dark:text-gray-400">
+                                <span id="selectedCountModal" class="font-medium text-text-primary dark:text-gray-100">0</span> selected
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Users Table -->
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-border-light dark:border-gray-700 overflow-hidden">
+                        <div class="p-6 border-b border-border-light dark:border-gray-700 bg-surface-hover dark:bg-gray-700">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-text-primary dark:text-gray-100">All Users</h3>
+                                <div class="flex items-center space-x-2">
+                                    <button onclick="loadUsersModal()" class="p-2 text-text-secondary dark:text-gray-400 hover:text-text-primary dark:hover:text-gray-200 hover:bg-white dark:hover:bg-gray-800 rounded-lg transition-all duration-200">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-surface-hover dark:bg-gray-700 border-b border-border-light dark:border-gray-600">
+                                    <tr>
+                                        <th class="px-6 py-4 text-left">
+                                            <input type="checkbox" id="selectAllModal" class="h-4 w-4 text-primary-600 focus:ring-primary-200 border-border-medium dark:border-gray-500 rounded" />
+                                        </th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Full Name</th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Email</th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Username</th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Employee ID</th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Role</th>
+                                        <th class="px-6 py-4 text-center text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-4 text-center text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBodyModal" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                    <tr>
+                                        <td colspan="8" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                                            <div class="flex flex-col items-center space-y-3">
+                                                <i class="fas fa-users text-4xl opacity-50"></i>
+                                                <p class="text-lg font-medium">No users found</p>
+                                                <p class="text-sm">Loading users...</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal (inside User Management Modal) -->
+    <div id="addUserModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[70] hidden" style="left: 60px;">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animation-slide-up">
+            <div class="flex items-center justify-between p-6 border-b border-border-light dark:border-gray-700">
+                <h2 class="text-xl font-semibold text-text-primary dark:text-gray-100">Add New User</h2>
+                <button id="closeAddUserModal" class="text-text-tertiary dark:text-gray-400 hover:text-text-secondary dark:hover:text-gray-200 transition-colors duration-200">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <form id="createUserForm" class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Full Name -->
+                    <div class="md:col-span-2">
+                        <label for="full_name" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Full Name *
+                        </label>
+                        <input type="text" id="full_name" name="full_name" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter full name" />
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Email *
+                        </label>
+                        <input type="email" id="email" name="email" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter email address" />
+                    </div>
+
+                    <!-- Username -->
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Username *
+                        </label>
+                        <input type="text" id="username" name="username" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter username" />
+                    </div>
+
+                    <!-- Password Info Note -->
+                    <div class="md:col-span-2">
+                        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                            <div class="flex items-start space-x-3">
+                                <i class="fas fa-info-circle text-blue-600 dark:text-blue-400 mt-0.5"></i>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-blue-900 dark:text-blue-200 mb-1">Default Password</p>
+                                    <p class="text-xs text-blue-700 dark:text-blue-300">The system will automatically assign the default password: <strong>user123</strong>. Users will be required to change their password on first login.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Role -->
+                    <div>
+                        <label for="user_role" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Role
+                        </label>
+                        <select id="user_role" name="user_role" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100">
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                            <option value="supplier">Supplier</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Form Message -->
+                <div id="formMessage" class="hidden"></div>
+
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-4 pt-4 border-t border-border-light dark:border-gray-700">
+                    <button type="button" id="cancelAddUser" class="px-6 py-3 border border-border-medium dark:border-gray-600 text-text-secondary dark:text-gray-300 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-600 transition-all duration-200">
+                        Create User
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit User Modal (inside User Management Modal) -->
+    <div id="editUserModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[70] hidden" style="left: 60px;">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animation-slide-up">
+            <div class="flex items-center justify-between p-6 border-b border-border-light dark:border-gray-700">
+                <h2 class="text-xl font-semibold text-text-primary dark:text-gray-100">Edit User</h2>
+                <button id="closeEditUserModal" class="text-text-tertiary dark:text-gray-400 hover:text-text-secondary dark:hover:text-gray-200 transition-colors duration-200">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <form id="updateUserForm" class="p-6 space-y-6">
+                <input type="hidden" id="edit_user_id" name="edit_user_id" />
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Full Name -->
+                    <div class="md:col-span-2">
+                        <label for="edit_full_name" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Full Name *
+                        </label>
+                        <input type="text" id="edit_full_name" name="edit_full_name" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter full name" />
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label for="edit_email" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Email *
+                        </label>
+                        <input type="email" id="edit_email" name="edit_email" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter email address" />
+                    </div>
+
+                    <!-- Username -->
+                    <div>
+                        <label for="edit_username" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
+                            Username *
+                        </label>
+                        <input type="text" id="edit_username" name="edit_username" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter username" />
+                    </div>
+                </div>
+
+                <!-- Form Message -->
+                <div id="editFormMessage" class="hidden"></div>
+
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-4 pt-4 border-t border-border-light dark:border-gray-700">
+                    <button type="button" id="cancelEditUser" class="px-6 py-3 border border-border-medium dark:border-gray-600 text-text-secondary dark:text-gray-300 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-600 transition-all duration-200">
+                        Update User
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Archive Modal - Loaded from component -->
+    <script>
+        // Load archive modal HTML
+        fetch('../components/archive_modal.html')
+            .then(response => response.text())
+            .then(html => {
+                document.body.insertAdjacentHTML('beforeend', html);
+            })
+            .catch(error => {
+                console.error('Error loading archive modal:', error);
+            });
+    </script>
+
+>>>>>>> dd6721b755e75757c02e017615fc24e560d3532f
     <!-- Settings Modal -->
     <div id="settingsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
         <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-md w-full animation-slide-up">
@@ -2259,6 +2543,615 @@
         });
 
 
+<<<<<<< HEAD
+=======
+        // Escape HTML
+        function escapeHtml(text) {
+            if (text == null) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load users
+        async function loadUsersModal() {
+            const tbody = document.getElementById('usersTableBodyModal');
+            tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><p>Loading users...</p></td></tr>';
+            
+            try {
+                const response = await fetch('../api/user_management.php?action=get_all');
+                const data = await response.json();
+                
+                if (data.success && data.users) {
+                    allUsersModal = data.users.filter(user => user.email !== currentUserEmail);
+                    applyFiltersModal();
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-8 text-center text-red-500"><p>Error loading users</p></td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-8 text-center text-red-500"><p>Error loading users</p></td></tr>';
+            }
+        }
+        
+        // Render users table
+        function renderUsersModal(users) {
+            const tbody = document.getElementById('usersTableBodyModal');
+            
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400"><i class="fas fa-users text-4xl opacity-50 mb-2"></i><p>No users found</p></td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = users.map(user => `
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="user-checkbox-modal h-4 w-4 text-primary-600 focus:ring-primary-200 border-border-medium dark:border-gray-500 rounded" data-user-id="${user.user_id}" onchange="updateSelectedCountModal()">
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100">${escapeHtml(user.full_name || 'N/A')}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">${escapeHtml(user.email || 'N/A')}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">${escapeHtml(user.username || 'N/A')}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">${escapeHtml(user.employee_id || 'N/A')}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full ${user.role === 'admin' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' : user.role === 'supplier' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'}">${escapeHtml((user.role || 'user').toUpperCase())}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        ${user.status !== undefined ? `
+                        ${user.status === 'locked' ? `
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                <i class="fas fa-lock mr-1"></i> Locked
+                            </span>
+                        ` : user.status === 'active' ? `
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                <i class="fas fa-circle text-xs mr-1"></i> Active
+                            </span>
+                        ` : user.status === 'offline' ? `
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                                <i class="fas fa-circle text-xs mr-1 opacity-50"></i> Offline
+                            </span>
+                        ` : `
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                                <i class="fas fa-circle text-xs mr-1"></i> ${escapeHtml(user.status || 'inactive')}
+                            </span>
+                        `}
+                        ` : `<span class="text-sm text-gray-500 dark:text-gray-400">N/A</span>`}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button onclick="editUserModal(${user.user_id})" class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-lg transition-colors ${user.status === 'locked' ? 'opacity-50 cursor-not-allowed' : ''}" title="Edit User" ${user.status === 'locked' ? 'disabled' : ''}>
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="changeUserRoleModal(${user.user_id}, '${user.role || 'user'}')" class="p-2 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900 rounded-lg transition-colors ${user.status === 'locked' ? 'opacity-50 cursor-not-allowed' : ''}" title="Change Role" ${user.status === 'locked' ? 'disabled' : ''}>
+                                <i class="fas fa-user-tag"></i>
+                            </button>
+                            ${user.status === 'locked' ? `
+                                <button onclick="unlockUserAccountModal(${user.user_id})" class="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900 rounded-lg transition-colors" title="Unlock Account">
+                                    <i class="fas fa-unlock"></i>
+                                </button>
+                            ` : `
+                                <button onclick="lockUserAccountModal(${user.user_id}, '${escapeHtml(user.full_name || user.email)}')" class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded-lg transition-colors" title="Lock Account">
+                                    <i class="fas fa-lock"></i>
+                                </button>
+                            `}
+                            <button onclick="resetUserPasswordModal(${user.user_id})" class="p-2 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900 rounded-lg transition-colors ${user.status === 'locked' ? 'opacity-50 cursor-not-allowed' : ''}" title="Reset Password" ${user.status === 'locked' ? 'disabled' : ''}>
+                                <i class="fas fa-key"></i>
+                            </button>
+                            <button onclick="deleteUserModal(${user.user_id}, '${escapeHtml(user.full_name || user.email)}')" class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded-lg transition-colors ${user.status === 'locked' ? 'opacity-50 cursor-not-allowed' : ''}" title="Delete User" ${user.status === 'locked' ? 'disabled' : ''}>
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Apply filters
+        function applyFiltersModal() {
+            const searchTerm = document.getElementById('userSearchModal')?.value.toLowerCase() || '';
+            const roleFilter = document.getElementById('roleFilterModal')?.value || '';
+            const statusFilter = document.getElementById('statusFilterModal')?.value || '';
+            
+            filteredUsersModal = allUsersModal.filter(user => {
+                const matchesSearch = !searchTerm || 
+                    (user.full_name && user.full_name.toLowerCase().includes(searchTerm)) ||
+                    (user.email && user.email.toLowerCase().includes(searchTerm)) ||
+                    (user.username && user.username.toLowerCase().includes(searchTerm));
+                
+                const matchesRole = !roleFilter || (user.role || 'user') === roleFilter;
+                const matchesStatus = !statusFilter || (user.status || 'active') === statusFilter;
+                
+                return matchesSearch && matchesRole && matchesStatus;
+            });
+            
+            renderUsersModal(filteredUsersModal);
+            updateCountsModal();
+        }
+        
+        // Update counts
+        function updateCountsModal() {
+            document.getElementById('resultsCountModal').textContent = filteredUsersModal.length;
+            document.getElementById('totalCountModal').textContent = allUsersModal.length;
+            updateSelectedCountModal();
+        }
+        
+        // Update selected count
+        function updateSelectedCountModal() {
+            const selectedCheckboxes = document.querySelectorAll('.user-checkbox-modal:checked');
+            document.getElementById('selectedCountModal').textContent = selectedCheckboxes.length;
+            
+            // Enable/disable bulk action buttons
+            const bulkActivateBtn = document.getElementById('bulkActivateBtnModal');
+            const bulkDeactivateBtn = document.getElementById('bulkDeactivateBtnModal');
+            
+            if (bulkActivateBtn && bulkDeactivateBtn) {
+                const hasSelection = selectedCheckboxes.length > 0;
+                bulkActivateBtn.disabled = !hasSelection;
+                bulkDeactivateBtn.disabled = !hasSelection;
+            }
+        }
+        
+        // Get selected user IDs
+        function getSelectedUserIdsModal() {
+            return Array.from(document.querySelectorAll('.user-checkbox-modal:checked'))
+                .map(cb => cb.dataset.userId);
+        }
+        
+        // Toggle user status
+        async function toggleUserStatusModal(userId, isActive) {
+            const status = isActive ? 'active' : 'inactive';
+            
+            try {
+                const response = await fetch('../api/user_management.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        action: 'update_status',
+                        user_id: userId,
+                        status: status
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    if (data.error && data.error.includes('Status column')) {
+                        alert('Status feature not available. The status column will be created on first use.');
+                    } else {
+                        alert('Failed to update user status: ' + (data.error || 'Unknown error'));
+                    }
+                    loadUsersModal();
+                }
+            } catch (error) {
+                console.error('Error updating status:', error);
+                alert('Error updating user status');
+                loadUsersModal();
+            }
+        }
+        
+        // Bulk activate
+        async function bulkActivateModal() {
+            const userIds = getSelectedUserIdsModal();
+            if (userIds.length === 0) return;
+            
+            if (!confirm(`Activate ${userIds.length} user(s)?`)) return;
+            
+            try {
+                await Promise.all(userIds.map(id => 
+                    toggleUserStatusModal(id, true)
+                ));
+                loadUsersModal();
+            } catch (error) {
+                console.error('Error in bulk activate:', error);
+                alert('Error activating users');
+            }
+        }
+        
+        // Bulk deactivate
+        async function bulkDeactivateModal() {
+            const userIds = getSelectedUserIdsModal();
+            if (userIds.length === 0) return;
+            
+            if (!confirm(`Deactivate ${userIds.length} user(s)?`)) return;
+            
+            try {
+                await Promise.all(userIds.map(id => 
+                    toggleUserStatusModal(id, false)
+                ));
+                loadUsersModal();
+            } catch (error) {
+                console.error('Error in bulk deactivate:', error);
+                alert('Error deactivating users');
+            }
+        }
+
+        // Edit user
+        async function editUserModal(userId) {
+            try {
+                const response = await fetch(`../api/user_management.php?action=get_user&user_id=${userId}`);
+                const data = await response.json();
+                
+                if (data.success && data.user) {
+                    const user = data.user;
+                    document.getElementById('edit_full_name').value = user.full_name || '';
+                    document.getElementById('edit_email').value = user.email || '';
+                    document.getElementById('edit_username').value = user.username || '';
+                    document.getElementById('edit_user_id').value = user.user_id;
+                    document.getElementById('editUserModal').classList.remove('hidden');
+                } else {
+                    alert('Failed to load user data');
+                }
+            } catch (error) {
+                console.error('Error loading user:', error);
+                alert('Error loading user data');
+            }
+        }
+        window.editUserModal = editUserModal;
+
+        // Delete user
+        async function deleteUserModal(userId, userName) {
+            if (!confirm(`Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('../api/user_management.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        action: 'delete_user',
+                        user_id: userId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('User deleted successfully');
+                    loadUsersModal();
+                } else {
+                    alert(data.error || 'Failed to delete user');
+                }
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                alert('Error deleting user');
+            }
+        }
+        window.deleteUserModal = deleteUserModal;
+
+        // Change user role
+        async function changeUserRoleModal(userId, currentRole) {
+            const roles = ['user', 'supplier', 'admin'];
+            const currentIndex = roles.indexOf(currentRole);
+            const nextIndex = (currentIndex + 1) % roles.length;
+            const newRole = roles[nextIndex];
+            
+            if (!confirm(`Change user role from ${currentRole.toUpperCase()} to ${newRole.toUpperCase()}?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('../api/user_management.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        action: 'update_role',
+                        user_id: userId,
+                        role: newRole
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    loadUsersModal();
+                } else {
+                    alert(data.error || 'Failed to update role');
+                }
+            } catch (error) {
+                console.error('Error updating role:', error);
+                alert('Error updating role');
+            }
+        }
+        window.changeUserRoleModal = changeUserRoleModal;
+
+        // Reset user password
+        async function resetUserPasswordModal(userId) {
+            const newPassword = prompt('Enter new password (minimum 8 characters):');
+            
+            if (!newPassword) {
+                return;
+            }
+            
+            if (newPassword.length < 8) {
+                alert('Password must be at least 8 characters long');
+                return;
+            }
+            
+            if (!confirm('Are you sure you want to reset this user\'s password?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('../api/user_management.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        action: 'reset_password',
+                        user_id: userId,
+                        new_password: newPassword
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Password reset successfully');
+                } else {
+                    alert(data.error || 'Failed to reset password');
+                }
+            } catch (error) {
+                console.error('Error resetting password:', error);
+                alert('Error resetting password');
+            }
+        }
+        window.resetUserPasswordModal = resetUserPasswordModal;
+
+        // Lock user account
+        async function lockUserAccountModal(userId, userName) {
+            if (!confirm(`Are you sure you want to LOCK the account for ${userName}?\n\nLocked users cannot login until unlocked by an admin.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('../api/user_management.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        action: 'lock_account',
+                        user_id: userId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Account locked successfully');
+                    loadUsersModal();
+                } else {
+                    alert(data.error || 'Failed to lock account');
+                }
+            } catch (error) {
+                console.error('Error locking account:', error);
+                alert('Error locking account');
+            }
+        }
+        window.lockUserAccountModal = lockUserAccountModal;
+
+        // Unlock user account
+        async function unlockUserAccountModal(userId) {
+            if (!confirm('Are you sure you want to UNLOCK this account?\n\nThe user will be able to login again.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('../api/user_management.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        action: 'unlock_account',
+                        user_id: userId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Account unlocked successfully');
+                    loadUsersModal();
+                } else {
+                    alert(data.error || 'Failed to unlock account');
+                }
+            } catch (error) {
+                console.error('Error unlocking account:', error);
+                alert('Error unlocking account');
+            }
+        }
+        window.unlockUserAccountModal = unlockUserAccountModal;
+        window.loadUsersModal = loadUsersModal;
+        window.updateSelectedCountModal = updateSelectedCountModal;
+
+        // Open User Management Modal
+        function openUserManagementModal() {
+            document.getElementById('settingsModal').classList.add('hidden');
+            
+            // Open User Management modal with smooth transition
+            setTimeout(() => {
+                document.getElementById('userManagementModal').classList.remove('hidden');
+                // Load users when modal opens
+                if (typeof loadUsersModal === 'function') {
+                    loadUsersModal();
+                }
+            }, 150); // Small delay for smooth transition
+        }
+        window.openUserManagementModal = openUserManagementModal;
+
+        document.getElementById('closeUserManagementModal')?.addEventListener('click', () => {
+            document.getElementById('userManagementModal').classList.add('hidden');
+        });
+
+        // Close User Management modal on backdrop click
+        document.getElementById('userManagementModal')?.addEventListener('click', (e) => {
+            if (e.target.id === 'userManagementModal') {
+                document.getElementById('userManagementModal').classList.add('hidden');
+            }
+        });
+
+        // Create user form
+        document.getElementById('createUserForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const formMessage = document.getElementById('formMessage');
+            
+            try {
+                const response = await fetch('../api/user_management.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        action: 'create_user',
+                        full_name: formData.get('full_name'),
+                        email: formData.get('email'),
+                        username: formData.get('username'),
+                        role: formData.get('user_role')
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    formMessage.className = 'p-3 rounded-lg text-sm bg-success-50 text-success-700';
+                    formMessage.textContent = 'User created successfully!';
+                    formMessage.classList.remove('hidden');
+                    e.target.reset();
+                    document.getElementById('addUserModal').classList.add('hidden');
+                    loadUsersModal();
+                    setTimeout(() => formMessage.classList.add('hidden'), 3000);
+                } else {
+                    formMessage.className = 'p-3 rounded-lg text-sm bg-error-50 text-error-700';
+                    formMessage.textContent = data.error || 'Failed to create user';
+                    formMessage.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error creating user:', error);
+                formMessage.className = 'p-3 rounded-lg text-sm bg-error-50 text-error-700';
+                formMessage.textContent = 'Error creating user';
+                formMessage.classList.remove('hidden');
+            }
+        });
+
+        // Edit user form
+        document.getElementById('updateUserForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const formMessage = document.getElementById('editFormMessage');
+            
+            try {
+                const response = await fetch('../api/user_management.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        action: 'update_user',
+                        user_id: formData.get('edit_user_id'),
+                        full_name: formData.get('edit_full_name'),
+                        email: formData.get('edit_email'),
+                        username: formData.get('edit_username')
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    formMessage.className = 'p-3 rounded-lg text-sm bg-success-50 text-success-700';
+                    formMessage.textContent = 'User updated successfully!';
+                    formMessage.classList.remove('hidden');
+                    document.getElementById('editUserModal').classList.add('hidden');
+                    loadUsersModal();
+                    setTimeout(() => formMessage.classList.add('hidden'), 3000);
+                } else {
+                    formMessage.className = 'p-3 rounded-lg text-sm bg-error-50 text-error-700';
+                    formMessage.textContent = data.error || 'Failed to update user';
+                    formMessage.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error updating user:', error);
+                formMessage.className = 'p-3 rounded-lg text-sm bg-error-50 text-error-700';
+                formMessage.textContent = 'Error updating user';
+                formMessage.classList.remove('hidden');
+            }
+        });
+
+        // Event listeners for User Management Modal
+        document.getElementById('addUserBtnModal')?.addEventListener('click', () => {
+            document.getElementById('addUserModal').classList.remove('hidden');
+        });
+
+        document.getElementById('closeAddUserModal')?.addEventListener('click', () => {
+            document.getElementById('addUserModal').classList.add('hidden');
+        });
+
+        document.getElementById('cancelAddUser')?.addEventListener('click', () => {
+            document.getElementById('addUserModal').classList.add('hidden');
+        });
+
+        document.getElementById('closeEditUserModal')?.addEventListener('click', () => {
+            document.getElementById('editUserModal').classList.add('hidden');
+        });
+
+        document.getElementById('cancelEditUser')?.addEventListener('click', () => {
+            document.getElementById('editUserModal').classList.add('hidden');
+        });
+
+        // Close modals on backdrop click
+        document.getElementById('addUserModal')?.addEventListener('click', (e) => {
+            if (e.target.id === 'addUserModal') {
+                document.getElementById('addUserModal').classList.add('hidden');
+            }
+        });
+
+        document.getElementById('editUserModal')?.addEventListener('click', (e) => {
+            if (e.target.id === 'editUserModal') {
+                document.getElementById('editUserModal').classList.add('hidden');
+            }
+        });
+
+        document.getElementById('userSearchModal')?.addEventListener('input', applyFiltersModal);
+        document.getElementById('roleFilterModal')?.addEventListener('change', applyFiltersModal);
+        document.getElementById('statusFilterModal')?.addEventListener('change', applyFiltersModal);
+        document.getElementById('clearFiltersBtnModal')?.addEventListener('click', () => {
+            document.getElementById('userSearchModal').value = '';
+            document.getElementById('roleFilterModal').value = '';
+            document.getElementById('statusFilterModal').value = '';
+            applyFiltersModal();
+        });
+        
+        document.getElementById('bulkActivateBtnModal')?.addEventListener('click', bulkActivateModal);
+        document.getElementById('bulkDeactivateBtnModal')?.addEventListener('click', bulkDeactivateModal);
+        
+        document.getElementById('selectAllModal')?.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.user-checkbox-modal');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            updateSelectedCountModal();
+        });
+
+        // Archive Modal - Loaded from component file
+>>>>>>> dd6721b755e75757c02e017615fc24e560d3532f
     </script>
+    <!-- Archive Modal JavaScript -->
+    <script src="../js/archive_modal.js"></script>
 </body>
 </html>

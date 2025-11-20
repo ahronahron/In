@@ -48,7 +48,8 @@ try {
             getTopSellingMedicines($conn, $dateRange, $category);
             break;
         case 'low-stock':
-            getLowStockMedicines($conn);
+            $category = $_GET['category'] ?? '';
+            getLowStockMedicines($conn, $category);
             break;
         case 'stock-availability':
             getStockAvailability($conn);
@@ -169,11 +170,18 @@ function getTopSellingMedicines($conn, $dateRange, $category) {
     ], JSON_UNESCAPED_UNICODE);
 }
 
-function getLowStockMedicines($conn) {
+function getLowStockMedicines($conn, $category = '') {
+    // Build category filter
+    $categoryFilter = '';
+    if (!empty($category)) {
+        $cat = mysqli_real_escape_string($conn, $category);
+        $categoryFilter = " AND category = '{$cat}'";
+    }
+
     // Get medicines where quantity is below reorder_level
-    $sql = "SELECT id, name, quantity, reorder_level, status
+    $sql = "SELECT id, name, quantity, reorder_level, status, category
             FROM medicines 
-            WHERE quantity <= reorder_level OR status IN ('low-stock', 'out-of-stock')
+            WHERE (quantity <= reorder_level OR status IN ('low-stock', 'out-of-stock')){$categoryFilter}
             ORDER BY quantity ASC, name ASC";
 
     $result = mysqli_query($conn, $sql);
@@ -186,7 +194,8 @@ function getLowStockMedicines($conn) {
                 'name' => $row['name'],
                 'quantity' => (int)$row['quantity'],
                 'reorderLevel' => (int)$row['reorder_level'],
-                'status' => $row['status']
+                'status' => $row['status'],
+                'category' => $row['category'] ?? ''
             ];
         }
     }
