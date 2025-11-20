@@ -115,7 +115,7 @@ try {
             }
 
             // Get current item state (to check if it was already expired)
-            $getItemSql = "SELECT id, medicine_id, received_quantity, is_expired, expiration_date 
+            $getItemSql = "SELECT id, medicine_id, quantity, received_quantity, is_expired, expiration_date 
                           FROM batch_items 
                           WHERE id = ? AND batch_id = ?";
             $getItemStmt = mysqli_prepare($conn, $getItemSql);
@@ -137,7 +137,10 @@ try {
             $currentItem = mysqli_fetch_assoc($getItemResult);
             $wasExpired = ($currentItem['is_expired'] == 1);
             $medicine_id = $currentItem['medicine_id'];
-            $received_quantity = $currentItem['received_quantity'] ?? $currentItem['quantity'] ?? 0;
+            // Use received_quantity if available, otherwise use quantity
+            $received_quantity = isset($currentItem['received_quantity']) && $currentItem['received_quantity'] > 0 
+                ? (int)$currentItem['received_quantity'] 
+                : (isset($currentItem['quantity']) ? (int)$currentItem['quantity'] : 0);
             mysqli_stmt_close($getItemStmt);
 
             // Update expiration date

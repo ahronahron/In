@@ -28,11 +28,15 @@
 <body class="min-h-screen bg-background transition-colors duration-300">
     <!-- Sidebar will be loaded here -->
     <script src="../js/load-sidebar.js"></script>
+    <!-- Archive Modal will be loaded here -->
+    <script src="../js/load-archive-modal.js" defer></script>
+    <!-- User Management Modal will be loaded here -->
+    <script src="../js/load-user-management-modal.js" defer></script>
 
     <!-- Main Content -->
     <div class="main-content-wrapper min-h-screen bg-background dark:bg-gray-900">
         <!-- Header -->
-        <header class="bg-white dark:bg-gray-900 shadow-sm border-b border-border-light dark:border-gray-700 sticky top-0 z-30">
+        <header class="bg-white dark:bg-gray-900 shadow-sm border-b border-border-light dark:border-gray-700 sticky top-0 z-20">
             <div class="flex items-center justify-between px-6 py-4">
                 <div class="flex items-center space-x-4">
                     <button id="openSidebar" class="lg:hidden text-text-secondary dark:text-gray-400 hover:text-text-primary dark:hover:text-gray-200 transition-colors duration-200">
@@ -85,10 +89,6 @@
                         <button id="bulkEditBtn" class="px-4 py-3 border border-border-medium dark:border-gray-600 text-text-secondary dark:text-gray-300 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200 disabled:opacity-50" disabled>
                             <i class="fas fa-edit mr-2"></i>
                             Bulk Edit
-                        </button>
-                        <button id="bulkDeleteBtn" class="px-4 py-3 border border-error-300 text-error-600 hover:bg-error-50 dark:hover:bg-error-900 rounded-xl transition-all duration-200 disabled:opacity-50" disabled>
-                            <i class="fas fa-trash mr-2"></i>
-                            Delete Selected
                         </button>
                     </div>
                 </div>
@@ -383,7 +383,8 @@
                         <label for="editQuantity" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
                             Quantity *
                         </label>
-                        <input name="quantity" type="number" id="editQuantity" required min="0" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="0" />
+                        <input name="quantity" type="number" id="editQuantity" required min="0" readonly class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl bg-gray-100 dark:bg-gray-700 text-text-primary dark:text-gray-100 cursor-not-allowed opacity-75" placeholder="0" />
+                        <p class="text-xs text-text-tertiary dark:text-gray-500 mt-1">Quantity cannot be edited</p>
                     </div>
 
                     <!-- Reorder Level -->
@@ -408,11 +409,12 @@
                     </div>
                 </div>
 
-                <div class="flex items-center justify-end space-x-4 pt-6 border-t border-border-light dark:border-gray-700">
+                <div class="flex items-center justify-center space-x-4 pt-6 border-t border-border-light dark:border-gray-700">
                     <button type="button" id="cancelEditMedicine" class="px-6 py-3 border border-border-medium dark:border-gray-600 text-text-secondary dark:text-gray-300 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
                         Cancel
                     </button>
-                    <button type="submit" class="btn-primary px-6 py-3 rounded-xl font-medium">
+                    <button type="submit" class="btn-primary px-6 py-3 rounded-xl font-medium flex items-center justify-center">
+                        <i class="fas fa-save mr-2"></i>
                         Update Medicine
                     </button>
                 </div>
@@ -420,273 +422,7 @@
         </div>
     </div>
 
-    <!-- User Management Modal -->
-    <div id="userManagementModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[60] hidden" style="left: 60px;">
-        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden animation-slide-up flex flex-col">
-            <div class="flex items-center justify-between p-6 border-b border-border-light dark:border-gray-700 flex-shrink-0">
-                <div>
-                    <h2 class="text-xl font-semibold text-text-primary dark:text-gray-100">User Management</h2>
-                    <p class="text-sm text-text-secondary dark:text-gray-400 mt-1">Manage system users and permissions</p>
-                </div>
-                <button id="closeUserManagementModal" class="text-text-tertiary dark:text-gray-400 hover:text-text-secondary dark:hover:text-gray-200 transition-colors duration-200">
-                    <i class="fas fa-times text-lg"></i>
-                </button>
-            </div>
-            <div class="flex-1 overflow-y-auto p-6">
-                <div class="space-y-4">
-                    <!-- Action Bar -->
-                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                        <!-- Add User Button -->
-                        <button id="addUserBtnModal" class="btn-primary px-6 py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200">
-                            <i class="fas fa-plus"></i>
-                            <span>Add User</span>
-                        </button>
-
-                        <!-- Bulk Actions -->
-                        <div class="flex space-x-2">
-                            <button id="bulkActivateBtnModal" class="px-4 py-3 border border-border-medium dark:border-gray-600 text-text-secondary dark:text-gray-300 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200 disabled:opacity-50" disabled>
-                                <i class="fas fa-check mr-2"></i>
-                                Activate Selected
-                            </button>
-                            <button id="bulkDeactivateBtnModal" class="px-4 py-3 border border-error-300 text-error-600 hover:bg-error-50 dark:hover:bg-error-900 rounded-xl transition-all duration-200 disabled:opacity-50" disabled>
-                                <i class="fas fa-ban mr-2"></i>
-                                Deactivate Selected
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Filters Section -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-border-light dark:border-gray-700 p-6">
-                        <div class="flex flex-col lg:flex-row lg:items-center gap-4">
-                            <!-- Search -->
-                            <div class="flex-1">
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-search text-text-tertiary dark:text-gray-500"></i>
-                                    </div>
-                                    <input type="text" id="userSearchModal" placeholder="Search users by name, email, username..." class="w-full pl-10 pr-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-700 text-text-primary dark:text-gray-100" />
-                                </div>
-                            </div>
-
-                            <!-- Role Filter -->
-                            <div class="min-w-0 lg:w-48">
-                                <select id="roleFilterModal" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-700 text-text-primary dark:text-gray-100">
-                                    <option value="">All Roles</option>
-                                    <option value="admin">Admin</option>
-                                    <option value="manager">Manager</option>
-                                    <option value="user">User</option>
-                                    <option value="supplier">Supplier</option>
-                                </select>
-                            </div>
-
-                            <!-- Status Filter -->
-                            <div class="min-w-0 lg:w-48">
-                                <select id="statusFilterModal" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-700 text-text-primary dark:text-gray-100">
-                                    <option value="">All Status</option>
-                                    <option value="active">Active</option>
-                                    <option value="offline">Offline</option>
-                                    <option value="inactive">Inactive</option>
-                                    <option value="locked">Locked</option>
-                                </select>
-                            </div>
-
-                            <!-- Clear Filters -->
-                            <button id="clearFiltersBtnModal" class="px-4 py-3 text-text-secondary dark:text-gray-300 hover:text-text-primary dark:hover:text-gray-100 hover:bg-surface-hover dark:hover:bg-gray-700 rounded-xl transition-all duration-200 flex items-center space-x-2">
-                                <i class="fas fa-times"></i>
-                                <span>Clear</span>
-                            </button>
-                        </div>
-
-                        <!-- Results Count -->
-                        <div class="mt-4 flex items-center justify-between">
-                            <div class="text-sm text-text-secondary dark:text-gray-400">
-                                Showing <span id="resultsCountModal" class="font-medium text-text-primary dark:text-gray-100">0</span> of <span id="totalCountModal" class="font-medium text-text-primary dark:text-gray-100">0</span> users
-                            </div>
-                            <div class="text-sm text-text-secondary dark:text-gray-400">
-                                <span id="selectedCountModal" class="font-medium text-text-primary dark:text-gray-100">0</span> selected
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Users Table -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-border-light dark:border-gray-700 overflow-hidden">
-                        <div class="p-6 border-b border-border-light dark:border-gray-700 bg-surface-hover dark:bg-gray-700">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-lg font-semibold text-text-primary dark:text-gray-100">All Users</h3>
-                                <div class="flex items-center space-x-2">
-                                    <button onclick="loadUsersModal()" class="p-2 text-text-secondary dark:text-gray-400 hover:text-text-primary dark:hover:text-gray-200 hover:bg-white dark:hover:bg-gray-800 rounded-lg transition-all duration-200">
-                                        <i class="fas fa-sync-alt"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead class="bg-surface-hover dark:bg-gray-700 border-b border-border-light dark:border-gray-600">
-                                    <tr>
-                                        <th class="px-6 py-4 text-left">
-                                            <input type="checkbox" id="selectAllModal" class="h-4 w-4 text-primary-600 focus:ring-primary-200 border-border-medium dark:border-gray-500 rounded" />
-                                        </th>
-                                        <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Full Name</th>
-                                        <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Email</th>
-                                        <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Username</th>
-                                        <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Employee ID</th>
-                                        <th class="px-6 py-4 text-left text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Role</th>
-                                        <th class="px-6 py-4 text-center text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Status</th>
-                                        <th class="px-6 py-4 text-center text-xs font-medium text-text-secondary dark:text-gray-300 uppercase tracking-wider">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="usersTableBodyModal" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                    <tr>
-                                        <td colspan="8" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-                                            <div class="flex flex-col items-center space-y-3">
-                                                <i class="fas fa-users text-4xl opacity-50"></i>
-                                                <p class="text-lg font-medium">No users found</p>
-                                                <p class="text-sm">Loading users...</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add User Modal (inside User Management Modal) -->
-    <div id="addUserModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[70] hidden" style="left: 60px;">
-        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animation-slide-up">
-            <div class="flex items-center justify-between p-6 border-b border-border-light dark:border-gray-700">
-                <h2 class="text-xl font-semibold text-text-primary dark:text-gray-100">Add New User</h2>
-                <button id="closeAddUserModal" class="text-text-tertiary dark:text-gray-400 hover:text-text-secondary dark:hover:text-gray-200 transition-colors duration-200">
-                    <i class="fas fa-times text-lg"></i>
-                </button>
-            </div>
-            
-            <form id="createUserForm" class="p-6 space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Full Name -->
-                    <div class="md:col-span-2">
-                        <label for="full_name" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
-                            Full Name *
-                        </label>
-                        <input type="text" id="full_name" name="full_name" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter full name" />
-                    </div>
-
-                    <!-- Email -->
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
-                            Email *
-                        </label>
-                        <input type="email" id="email" name="email" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter email address" />
-                    </div>
-
-                    <!-- Username -->
-                    <div>
-                        <label for="username" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
-                            Username *
-                        </label>
-                        <input type="text" id="username" name="username" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter username" />
-                    </div>
-
-                    <!-- Password Info Note -->
-                    <div class="md:col-span-2">
-                        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-                            <div class="flex items-start space-x-3">
-                                <i class="fas fa-info-circle text-blue-600 dark:text-blue-400 mt-0.5"></i>
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-blue-900 dark:text-blue-200 mb-1">Default Password</p>
-                                    <p class="text-xs text-blue-700 dark:text-blue-300">The system will automatically assign the default password: <strong>user123</strong>. Users will be required to change their password on first login.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Role -->
-                    <div>
-                        <label for="user_role" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
-                            Role
-                        </label>
-                        <select id="user_role" name="user_role" class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100">
-                            <option value="user">User</option>
-                            <option value="admin">Admin</option>
-                            <option value="supplier">Supplier</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Form Message -->
-                <div id="formMessage" class="hidden"></div>
-
-                <!-- Form Actions -->
-                <div class="flex justify-end space-x-4 pt-4 border-t border-border-light dark:border-gray-700">
-                    <button type="button" id="cancelAddUser" class="px-6 py-3 border border-border-medium dark:border-gray-600 text-text-secondary dark:text-gray-300 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
-                        Cancel
-                    </button>
-                    <button type="submit" class="px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-600 transition-all duration-200">
-                        Create User
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Edit User Modal (inside User Management Modal) -->
-    <div id="editUserModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[70] hidden" style="left: 60px;">
-        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animation-slide-up">
-            <div class="flex items-center justify-between p-6 border-b border-border-light dark:border-gray-700">
-                <h2 class="text-xl font-semibold text-text-primary dark:text-gray-100">Edit User</h2>
-                <button id="closeEditUserModal" class="text-text-tertiary dark:text-gray-400 hover:text-text-secondary dark:hover:text-gray-200 transition-colors duration-200">
-                    <i class="fas fa-times text-lg"></i>
-                </button>
-            </div>
-            
-            <form id="updateUserForm" class="p-6 space-y-6">
-                <input type="hidden" id="edit_user_id" name="edit_user_id" />
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Full Name -->
-                    <div class="md:col-span-2">
-                        <label for="edit_full_name" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
-                            Full Name *
-                        </label>
-                        <input type="text" id="edit_full_name" name="edit_full_name" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter full name" />
-                    </div>
-
-                    <!-- Email -->
-                    <div>
-                        <label for="edit_email" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
-                            Email *
-                        </label>
-                        <input type="email" id="edit_email" name="edit_email" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter email address" />
-                    </div>
-
-                    <!-- Username -->
-                    <div>
-                        <label for="edit_username" class="block text-sm font-medium text-text-primary dark:text-gray-100 mb-2">
-                            Username *
-                        </label>
-                        <input type="text" id="edit_username" name="edit_username" required class="w-full px-4 py-3 border border-border-light dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all duration-200 bg-white dark:bg-gray-800 text-text-primary dark:text-gray-100" placeholder="Enter username" />
-                    </div>
-                </div>
-
-                <!-- Form Message -->
-                <div id="editFormMessage" class="hidden"></div>
-
-                <!-- Form Actions -->
-                <div class="flex justify-end space-x-4 pt-4 border-t border-border-light dark:border-gray-700">
-                    <button type="button" id="cancelEditUser" class="px-6 py-3 border border-border-medium dark:border-gray-600 text-text-secondary dark:text-gray-300 hover:bg-surface-hover dark:hover:bg-gray-800 rounded-xl transition-all duration-200">
-                        Cancel
-                    </button>
-                    <button type="submit" class="px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-600 transition-all duration-200">
-                        Update User
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <!-- User Management Modal will be loaded by load-user-management-modal.js -->
 
     <!-- Settings Modal -->
     <div id="settingsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
@@ -718,194 +454,6 @@
                     </div>
                     <i class="fas fa-chevron-right text-text-tertiary dark:text-gray-400"></i>
                 </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Archive Modal -->
-    <div id="archiveModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[60] hidden" style="left: 60px;">
-        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden animation-slide-up flex flex-col">
-            <div class="flex items-center justify-between p-6 border-b border-border-light dark:border-gray-700 flex-shrink-0">
-                <div>
-                    <h2 class="text-xl font-semibold text-text-primary dark:text-gray-100">Archive</h2>
-                    <p class="text-sm text-text-secondary dark:text-gray-400 mt-1">View expired items, cancelled orders, and deleted items</p>
-                </div>
-                <button id="closeArchiveModal" class="text-text-tertiary dark:text-gray-400 hover:text-text-secondary dark:hover:text-gray-200 transition-colors duration-200">
-                    <i class="fas fa-times text-lg"></i>
-                </button>
-            </div>
-            <div class="flex-1 overflow-y-auto p-6">
-                <div class="space-y-6">
-                    <!-- Summary Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-border-light dark:border-gray-700 p-6">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-text-secondary dark:text-gray-400 mb-1">Expired Items</p>
-                                    <p class="text-3xl font-bold text-error-600 dark:text-error-400" id="expiredCountModal">0</p>
-                                </div>
-                                <div class="w-12 h-12 bg-error-100 dark:bg-error-900 rounded-xl flex items-center justify-center">
-                                    <i class="fas fa-exclamation-triangle text-error-600 dark:text-error-400 text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-border-light dark:border-gray-700 p-6">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-text-secondary dark:text-gray-400 mb-1">Cancelled Orders</p>
-                                    <p class="text-3xl font-bold text-warning-600 dark:text-warning-400" id="cancelledCountModal">0</p>
-                                </div>
-                                <div class="w-12 h-12 bg-warning-100 dark:bg-warning-900 rounded-xl flex items-center justify-center">
-                                    <i class="fas fa-ban text-warning-600 dark:text-warning-400 text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-border-light dark:border-gray-700 p-6">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-text-secondary dark:text-gray-400 mb-1">Deleted Items</p>
-                                    <p class="text-3xl font-bold text-text-secondary dark:text-gray-400" id="deletedCountModal">0</p>
-                                </div>
-                                <div class="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center">
-                                    <i class="fas fa-trash text-text-secondary dark:text-gray-400 text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-border-light dark:border-gray-700 p-6">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-text-secondary dark:text-gray-400 mb-1">Archived Suppliers</p>
-                                    <p class="text-3xl font-bold text-info-600 dark:text-info-400" id="suppliersCountModal">0</p>
-                                </div>
-                                <div class="w-12 h-12 bg-info-100 dark:bg-info-900 rounded-xl flex items-center justify-center">
-                                    <i class="fas fa-building text-info-600 dark:text-info-400 text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tabs -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-border-light dark:border-gray-700">
-                        <div class="border-b border-border-light dark:border-gray-700">
-                            <nav class="flex -mb-px">
-                                <button id="tabExpiredModal" class="tab-button-modal active px-6 py-4 text-sm font-medium border-b-2 border-primary text-primary dark:text-primary-400">
-                                    <i class="fas fa-exclamation-triangle mr-2"></i>
-                                    Expired Items
-                                </button>
-                                <button id="tabCancelledModal" class="tab-button-modal px-6 py-4 text-sm font-medium border-b-2 border-transparent text-text-secondary dark:text-gray-400 hover:text-text-primary dark:hover:text-gray-200">
-                                    <i class="fas fa-ban mr-2"></i>
-                                    Cancelled Orders
-                                </button>
-                                <button id="tabDeletedModal" class="tab-button-modal px-6 py-4 text-sm font-medium border-b-2 border-transparent text-text-secondary dark:text-gray-400 hover:text-text-primary dark:hover:text-gray-200">
-                                    <i class="fas fa-trash mr-2"></i>
-                                    Deleted Items
-                                </button>
-                                <button id="tabSuppliersModal" class="tab-button-modal px-6 py-4 text-sm font-medium border-b-2 border-transparent text-text-secondary dark:text-gray-400 hover:text-text-primary dark:hover:text-gray-200">
-                                    <i class="fas fa-building mr-2"></i>
-                                    Archived Suppliers
-                                </button>
-                            </nav>
-                        </div>
-
-                        <!-- Tab Content -->
-                        <div class="p-6">
-                            <!-- Expired Items Tab -->
-                            <div id="contentExpiredModal" class="tab-content-modal">
-                                <div class="overflow-x-auto">
-                                    <table class="w-full">
-                                        <thead>
-                                            <tr class="border-b border-border-light dark:border-gray-700">
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Medicine</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Batch</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Quantity</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Expiration Date</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Days Expired</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Expired At</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="expiredItemsTableModal">
-                                            <tr>
-                                                <td colspan="6" class="text-center py-8 text-text-tertiary dark:text-gray-500">Loading...</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                            <!-- Cancelled Orders Tab -->
-                            <div id="contentCancelledModal" class="tab-content-modal hidden">
-                                <div class="overflow-x-auto">
-                                    <table class="w-full">
-                                        <thead>
-                                            <tr class="border-b border-border-light dark:border-gray-700">
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Order ID</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Supplier</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Order Date</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Total Amount</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Items</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Cancelled At</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Reason</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="cancelledOrdersTableModal">
-                                            <tr>
-                                                <td colspan="7" class="text-center py-8 text-text-tertiary dark:text-gray-500">Loading...</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                            <!-- Deleted Items Tab -->
-                            <div id="contentDeletedModal" class="tab-content-modal hidden">
-                                <div class="overflow-x-auto">
-                                    <table class="w-full">
-                                        <thead>
-                                            <tr class="border-b border-border-light dark:border-gray-700">
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Medicine Name</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">NDC</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Manufacturer</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Category</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Quantity</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Deleted At</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Reason</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="deletedItemsTableModal">
-                                            <tr>
-                                                <td colspan="7" class="text-center py-8 text-text-tertiary dark:text-gray-500">Loading...</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                            <!-- Archived Suppliers Tab -->
-                            <div id="contentSuppliersModal" class="tab-content-modal hidden">
-                                <div class="overflow-x-auto">
-                                    <table class="w-full">
-                                        <thead>
-                                            <tr class="border-b border-border-light dark:border-gray-700">
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Supplier Name</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Contact Person</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Email</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Phone</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Location</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Archived At</th>
-                                                <th class="text-left py-3 px-4 text-sm font-semibold text-text-secondary dark:text-gray-400">Reason</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="archivedSuppliersTableModal">
-                                            <tr>
-                                                <td colspan="7" class="text-center py-8 text-text-tertiary dark:text-gray-500">Loading...</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -1167,7 +715,7 @@
             });
         }
 
-        // Function to filter inventory by category
+        // Function to filter inventory by category (make it globally available)
         function filterInventoryByCategory(category) {
             // Update current filters and refresh
             currentFilters.category = category;
@@ -1185,6 +733,9 @@
                 searchInput.placeholder = `Filtered by category: ${category}`;
             }
         }
+        
+        // Make function globally available for onclick handlers
+        window.filterInventoryByCategory = filterInventoryByCategory;
 
         function displayMedicines(medicines) {
             const tbody = document.getElementById('inventoryTableBody');
@@ -1255,12 +806,6 @@
                                         data-price="${price}" 
                                         title="Edit">
                                     <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="delete-medicine-btn text-error-600 hover:text-error-800 dark:text-error-400 dark:hover:text-error-300 transition-colors duration-200" 
-                                        data-id="${medicine.id}" 
-                                        data-name="${escapeHtml(medicine.name || '')}" 
-                                        title="Delete">
-                                    <i class="fas fa-trash"></i>
                                 </button>
                             </div>
                         </td>
@@ -1528,55 +1073,6 @@
                     editMedicineModal.classList.remove('hidden');
                 }
 
-                // Delete button click handler
-                if (e.target.closest('.delete-medicine-btn')) {
-                    const btn = e.target.closest('.delete-medicine-btn');
-                    const medicineId = btn.dataset.id;
-                    const medicineName = btn.dataset.name;
-
-                    if (confirm(`Are you sure you want to delete "${medicineName}"?`)) {
-                        try {
-                            const baseUrl = getApiBaseUrl();
-                            const url = `${baseUrl}/delete_medicine.php`;
-                            console.log('Delete URL:', url);
-                            
-                            const formData = new FormData();
-                            formData.append('id', medicineId);
-
-                            const response = await fetch(url, {
-                                method: 'POST',
-                                body: formData,
-                                headers: {
-                                    'Accept': 'application/json'
-                                }
-                            });
-                            
-                            console.log('Delete response status:', response.status);
-
-                            const responseText = await response.text();
-                            let result;
-                            try {
-                                result = JSON.parse(responseText);
-                            } catch (parseError) {
-                                console.error('JSON parse error:', parseError);
-                                throw new Error('Server returned invalid response.');
-                            }
-
-                            if (result.success) {
-                                showSuccess(result.message || 'Medicine deleted successfully!');
-                                // Refresh the medicines list
-                                await fetchMedicines(currentPage, currentFilters);
-                                // Refresh stock availability
-                                await fetchStockAvailability();
-                            } else {
-                                showError(result.message || 'Failed to delete medicine');
-                            }
-                        } catch (error) {
-                            console.error('Delete error:', error);
-                            showError('Server error: ' + error.message);
-                        }
-                    }
-                }
             });
 
             // Edit form submission
@@ -1592,6 +1088,8 @@
                 
                 try {
                     const formData = new FormData(this);
+                    // Remove quantity from form data as it cannot be updated
+                    formData.delete('quantity');
                     const baseUrl = getApiBaseUrl();
                     const url = `${baseUrl}/edit_medicine.php`;
                     console.log('Edit URL:', url);
@@ -1702,33 +1200,23 @@
 
 
             // Clear filters
-<<<<<<< HEAD
             const clearFiltersBtn = document.getElementById('clearFiltersBtn');
             if (clearFiltersBtn) {
                 clearFiltersBtn.addEventListener('click', function() {
-                    currentFilters = { search: '', status: '' };
+                    currentFilters = { search: '', status: '', category: '' };
                     if (stockStatusFilter) stockStatusFilter.value = '';
-                    searchInputs.forEach(input => input.value = '');
+                    searchInputs.forEach(input => {
+                        input.value = '';
+                        input.placeholder = 'Search medicines by name, NDC, manufacturer...';
+                    });
+                    // Clear category from URL
+                    const url = new URL(window.location);
+                    url.searchParams.delete('category');
+                    window.history.replaceState({}, '', url);
                     currentPage = 1;
                     fetchMedicines(currentPage, currentFilters);
                 });
             }
-=======
-            document.getElementById('clearFiltersBtn').addEventListener('click', function() {
-                currentFilters = { search: '', status: '', category: '' };
-                document.getElementById('stockStatusFilter').value = '';
-                searchInputs.forEach(input => {
-                    input.value = '';
-                    input.placeholder = 'Search medicines by name, NDC, manufacturer...';
-                });
-                // Clear category from URL
-                const url = new URL(window.location);
-                url.searchParams.delete('category');
-                window.history.replaceState({}, '', url);
-                currentPage = 1;
-                fetchMedicines(currentPage, currentFilters);
-            });
->>>>>>> 161e38a227494c55204d8dff817d57a62f8276cf
 
             // Bulk actions
             const bulkEditBtn = document.getElementById('bulkEditBtn');
@@ -1739,13 +1227,6 @@
                 });
             }
 
-            const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
-            if (bulkDeleteBtn) {
-                bulkDeleteBtn.addEventListener('click', function() {
-                    // TODO: Implement bulk delete
-                    alert('Bulk delete ready for database integration');
-                });
-            }
 
             // Column toggle
             const columnToggleBtn = document.getElementById('columnToggleBtn');
@@ -1757,35 +1238,26 @@
             }
 
             // Refresh table
-<<<<<<< HEAD
             const refreshTableBtn = document.getElementById('refreshTableBtn');
             if (refreshTableBtn) {
-                refreshTableBtn.addEventListener('click', function() {
+                refreshTableBtn.addEventListener('click', async function() {
                     const icon = this.querySelector('i');
                     if (icon) icon.classList.add('fa-spin');
                     
-                    fetchMedicines(currentPage, currentFilters).finally(() => {
-                        if (icon) icon.classList.remove('fa-spin');
-                    });
-=======
-            document.getElementById('refreshTableBtn').addEventListener('click', async function() {
-                const icon = this.querySelector('i');
-                icon.classList.add('fa-spin');
-                
-                await fetchMedicines(currentPage, currentFilters);
-                await fetchStockAvailability();
-                icon.classList.remove('fa-spin');
-            });
+                    await fetchMedicines(currentPage, currentFilters);
+                    await fetchStockAvailability();
+                    if (icon) icon.classList.remove('fa-spin');
+                });
+            }
 
             // Refresh stock availability button
             const refreshStockBtn = document.getElementById('refreshStockBtn');
             if (refreshStockBtn) {
                 refreshStockBtn.addEventListener('click', async function() {
                     const icon = this.querySelector('i');
-                    icon.classList.add('fa-spin');
+                    if (icon) icon.classList.add('fa-spin');
                     await fetchStockAvailability();
-                    icon.classList.remove('fa-spin');
->>>>>>> 161e38a227494c55204d8dff817d57a62f8276cf
+                    if (icon) icon.classList.remove('fa-spin');
                 });
             }
 
@@ -1835,22 +1307,17 @@
             }
             
             // Initial load with any URL parameters applied
-<<<<<<< HEAD
             // Use setTimeout to ensure all DOM elements are ready
             setTimeout(() => {
                 try {
                     console.log('Loading medicines on page load...');
                     fetchMedicines(1, currentFilters);
+                    fetchStockAvailability();
                 } catch (error) {
                     console.error('Error loading medicines:', error);
                     showError('Failed to load medicines: ' + error.message);
                 }
             }, 100);
-=======
-            // Initial load
-            fetchMedicines(1, currentFilters);
-            fetchStockAvailability();
->>>>>>> 161e38a227494c55204d8dff817d57a62f8276cf
 
             // Select all checkbox functionality
             const selectAll = document.getElementById('selectAll');
@@ -1874,7 +1341,6 @@
                 const hasSelection = checkedBoxes.length > 0;
                 
                 document.getElementById('bulkEditBtn').disabled = !hasSelection;
-                document.getElementById('bulkDeleteBtn').disabled = !hasSelection;
                 document.getElementById('selectedCount').textContent = checkedBoxes.length;
             }
 
@@ -2513,10 +1979,6 @@
             };
         }
 
-        // Archive Modal - Full Functionality
-        const ARCHIVE_API = '../php/get_archives.php';
-        const PROCESS_EXPIRED_API = '../php/process_and_archive_expired.php';
-
         // Escape HTML helper
         function escapeHtml(text) {
             if (text == null) return '';
@@ -2524,177 +1986,6 @@
             div.textContent = text;
             return div.innerHTML;
         }
-
-        // Escape HTML helper for archive modal
-        function escapeHtmlArchive(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // Tab switching for Archive Modal
-        function switchArchiveTab(tabName) {
-            document.querySelectorAll('.tab-content-modal').forEach(content => {
-                content.classList.add('hidden');
-            });
-            document.querySelectorAll('.tab-button-modal').forEach(btn => {
-                btn.classList.remove('active', 'border-primary', 'text-primary', 'dark:text-primary-400');
-                btn.classList.add('border-transparent', 'text-text-secondary', 'dark:text-gray-400');
-            });
-            document.getElementById(`content${tabName}Modal`).classList.remove('hidden');
-            const activeTab = document.getElementById(`tab${tabName}Modal`);
-            activeTab.classList.add('active', 'border-primary', 'text-primary', 'dark:text-primary-400');
-            activeTab.classList.remove('border-transparent', 'text-text-secondary', 'dark:text-gray-400');
-        }
-
-        // Load archive data
-        async function loadArchivesModal() {
-            try {
-                // First, process and archive any expired items
-                try {
-                    await fetch(PROCESS_EXPIRED_API);
-                } catch (error) {
-                    console.error('Error processing expired items:', error);
-                    // Continue even if processing fails
-                }
-
-                // Then load archive data
-                const response = await fetch(`${ARCHIVE_API}?type=all`);
-                const result = await response.json();
-                if (result.success && result.data) {
-                    document.getElementById('expiredCountModal').textContent = result.data.counts.expired || 0;
-                    document.getElementById('cancelledCountModal').textContent = result.data.counts.cancelled || 0;
-                    document.getElementById('deletedCountModal').textContent = result.data.counts.deleted || 0;
-                    document.getElementById('suppliersCountModal').textContent = result.data.counts.suppliers || 0;
-                    renderExpiredItemsModal(result.data.items.expired || []);
-                    renderCancelledOrdersModal(result.data.items.cancelled || []);
-                    renderDeletedItemsModal(result.data.items.deleted || []);
-                    renderArchivedSuppliersModal(result.data.items.suppliers || []);
-                }
-            } catch (error) {
-                console.error('Error loading archives:', error);
-            }
-        }
-
-        // Render expired items
-        function renderExpiredItemsModal(items) {
-            const tbody = document.getElementById('expiredItemsTableModal');
-            if (items.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-text-tertiary dark:text-gray-500">No expired items found</td></tr>';
-                return;
-            }
-            tbody.innerHTML = items.map(item => `
-                <tr class="border-b border-border-light dark:border-gray-700 hover:bg-surface-hover dark:hover:bg-gray-800">
-                    <td class="py-3 px-4">
-                        <div>
-                            <div class="font-medium text-text-primary dark:text-gray-100">${escapeHtml(item.medicine_name || 'N/A')}</div>
-                            <div class="text-xs text-text-tertiary dark:text-gray-500">${escapeHtml(item.medicine_ndc || '')}</div>
-                        </div>
-                    </td>
-                    <td class="py-3 px-4 text-text-secondary dark:text-gray-400">${escapeHtml(item.batch_number || 'N/A')}</td>
-                    <td class="py-3 px-4 text-text-secondary dark:text-gray-400">${item.quantity || 0}</td>
-                    <td class="py-3 px-4 text-text-secondary dark:text-gray-400">${item.expiration_date || 'N/A'}</td>
-                    <td class="py-3 px-4">
-                        <span class="px-2 py-1 bg-error-100 dark:bg-error-900 text-error-700 dark:text-error-300 rounded-full text-xs font-medium">
-                            ${item.days_expired || 0} days
-                        </span>
-                    </td>
-                    <td class="py-3 px-4 text-text-tertiary dark:text-gray-500 text-sm">${item.expired_at ? new Date(item.expired_at).toLocaleDateString() : 'N/A'}</td>
-                </tr>
-            `).join('');
-        }
-
-        // Render cancelled orders
-        function renderCancelledOrdersModal(orders) {
-            const tbody = document.getElementById('cancelledOrdersTableModal');
-            if (orders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-text-tertiary dark:text-gray-500">No cancelled orders found</td></tr>';
-                return;
-            }
-            tbody.innerHTML = orders.map(order => `
-                <tr class="border-b border-border-light dark:border-gray-700 hover:bg-surface-hover dark:hover:bg-gray-800">
-                    <td class="py-3 px-4 font-medium text-text-primary dark:text-gray-100">#${order.original_id || order.id}</td>
-                    <td class="py-3 px-4 text-text-secondary dark:text-gray-400">${escapeHtml(order.supplier_name || 'N/A')}</td>
-                    <td class="py-3 px-4 text-text-secondary dark:text-gray-400">${order.order_date || 'N/A'}</td>
-                    <td class="py-3 px-4 text-text-secondary dark:text-gray-400">$${parseFloat(order.total_amount || 0).toFixed(2)}</td>
-                    <td class="py-3 px-4 text-text-secondary dark:text-gray-400">${order.item_count || 0} items</td>
-                    <td class="py-3 px-4 text-text-tertiary dark:text-gray-500 text-sm">${order.cancelled_at ? new Date(order.cancelled_at).toLocaleDateString() : 'N/A'}</td>
-                    <td class="py-3 px-4 text-text-tertiary dark:text-gray-500 text-sm">${escapeHtml(order.cancellation_reason || 'N/A')}</td>
-                </tr>
-            `).join('');
-        }
-
-        // Render deleted items
-        function renderDeletedItemsModal(items) {
-            const tbody = document.getElementById('deletedItemsTableModal');
-            if (items.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-text-tertiary dark:text-gray-500">No deleted items found</td></tr>';
-                return;
-            }
-            tbody.innerHTML = items.map(item => `
-                <tr class="border-b border-border-light dark:border-gray-700 hover:bg-surface-hover dark:hover:bg-gray-800">
-                    <td class="py-3 px-4 font-medium text-text-primary dark:text-gray-100">${escapeHtml(item.name || 'N/A')}</td>
-                    <td class="py-3 px-4 text-text-secondary dark:text-gray-400">${escapeHtml(item.ndc || 'N/A')}</td>
-                    <td class="py-3 px-4 text-text-secondary dark:text-gray-400">${escapeHtml(item.manufacturer || 'N/A')}</td>
-                    <td class="py-3 px-4 text-text-secondary dark:text-gray-400">${escapeHtml(item.category || 'N/A')}</td>
-                    <td class="py-3 px-4 text-text-secondary dark:text-gray-400">${item.quantity || 0}</td>
-                    <td class="py-3 px-4 text-text-tertiary dark:text-gray-500 text-sm">${item.deleted_at ? new Date(item.deleted_at).toLocaleDateString() : 'N/A'}</td>
-                    <td class="py-3 px-4 text-text-tertiary dark:text-gray-500 text-sm">${escapeHtml(item.reason || 'N/A')}</td>
-                </tr>
-            `).join('');
-        }
-
-        // Render archived suppliers
-        function renderArchivedSuppliersModal(suppliers) {
-            const tbody = document.getElementById('archivedSuppliersTableModal');
-            if (!tbody) return;
-            
-            if (suppliers.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-text-tertiary dark:text-gray-500">No archived suppliers found</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = suppliers.map(supplier => `
-                <tr class="border-b border-border-light dark:border-gray-700 hover:bg-surface-hover dark:hover:bg-gray-800">
-                    <td class="py-3 px-4 font-medium text-text-primary dark:text-gray-100">${escapeHtmlArchive(supplier.name || 'N/A')}</td>
-                    <td class="py-3 px-4 text-text-secondary dark:text-gray-400">${escapeHtmlArchive(supplier.contact || 'N/A')}</td>
-                    <td class="py-3 px-4 text-text-secondary dark:text-gray-400">${escapeHtmlArchive(supplier.email || 'N/A')}</td>
-                    <td class="py-3 px-4 text-text-secondary dark:text-gray-400">${escapeHtmlArchive(supplier.phone || 'N/A')}</td>
-                    <td class="py-3 px-4 text-text-secondary dark:text-gray-400">${escapeHtmlArchive(supplier.location || 'N/A')}</td>
-                    <td class="py-3 px-4 text-text-tertiary dark:text-gray-500 text-sm">${supplier.archived_at ? new Date(supplier.archived_at).toLocaleDateString() : 'N/A'}</td>
-                    <td class="py-3 px-4 text-text-tertiary dark:text-gray-500 text-sm">${escapeHtmlArchive(supplier.reason || 'N/A')}</td>
-                </tr>
-            `).join('');
-        }
-
-        // Open Archive Modal
-        function openArchiveModal() {
-            document.getElementById('settingsModal').classList.add('hidden');
-            setTimeout(() => {
-                document.getElementById('archiveModal').classList.remove('hidden');
-                loadArchivesModal();
-            }, 150);
-        }
-        window.openArchiveModal = openArchiveModal;
-
-        // Close Archive Modal
-        document.getElementById('closeArchiveModal')?.addEventListener('click', () => {
-            document.getElementById('archiveModal').classList.add('hidden');
-        });
-
-        // Close Archive modal on backdrop click
-        document.getElementById('archiveModal')?.addEventListener('click', (e) => {
-            if (e.target.id === 'archiveModal') {
-                document.getElementById('archiveModal').classList.add('hidden');
-            }
-        });
-
-        // Tab switching event listeners
-        document.getElementById('tabExpiredModal')?.addEventListener('click', () => switchArchiveTab('Expired'));
-        document.getElementById('tabCancelledModal')?.addEventListener('click', () => switchArchiveTab('Cancelled'));
-        document.getElementById('tabDeletedModal')?.addEventListener('click', () => switchArchiveTab('Deleted'));
-        document.getElementById('tabSuppliersModal')?.addEventListener('click', () => switchArchiveTab('Suppliers'));
     </script>
 <script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
 </body>

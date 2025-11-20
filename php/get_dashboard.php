@@ -271,47 +271,177 @@ function getExpirationAlerts($conn) {
 }
 
 function getCalendarEvents($conn) {
-    // Get medicines with expiration dates in the next 90 days
-    $sql = "SELECT 
-                id,
-                name,
-                expiration_date,
-                quantity,
-                status
-            FROM medicines
-            WHERE expiration_date IS NOT NULL
-                AND expiration_date >= CURDATE()
-                AND expiration_date <= DATE_ADD(CURDATE(), INTERVAL 90 DAY)
-            ORDER BY expiration_date ASC";
-
-    $result = mysqli_query($conn, $sql);
     $events = [];
+    $currentDate = date('Y-m-d');
+    $endDate = date('Y-m-d', strtotime('+90 days'));
+    
+    try {
+        // 1. Get medicines with expiration dates (past and future within 90 days)
+        $expirationSql = "SELECT 
+                    id,
+                    name,
+                    expiration_date,
+                    quantity,
+                    status,
+                    batch_number
+                FROM medicines
+                WHERE expiration_date IS NOT NULL
+                    AND expiration_date <= DATE_ADD(CURDATE(), INTERVAL 90 DAY)
+                ORDER BY expiration_date ASC";
 
-    if ($result) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $status = $row['status'];
-            $color = '#22C55E'; // green for in-stock
-            
-            if ($status === 'expired') {
-                $color = '#EF4444'; // red
-            } elseif ($status === 'low-stock') {
-                $color = '#F59E0B'; // orange
-            } elseif ($status === 'out-of-stock') {
-                $color = '#6B7280'; // gray
+        $expirationResult = mysqli_query($conn, $expirationSql);
+        if ($expirationResult) {
+            while ($row = mysqli_fetch_assoc($expirationResult)) {
+                $status = $row['status'];
+                $expDate = $row['expiration_date'];
+                $isExpired = strtotime($expDate) < strtotime($currentDate);
+                
+                // Color coding for expiration dates
+                $color = '#22C55E'; // green for in-stock, not expired
+                if ($isExpired) {
+                    $color = '#EF4444'; // red for expired
+                } elseif ($status === 'low-stock') {
+                    $color = '#F59E0B'; // orange for low stock
+                } elseif ($status === 'out-of-stock') {
+                    $color = '#6B7280'; // gray for out of stock
+                } elseif (strtotime($expDate) <= strtotime('+30 days')) {
+                    $color = '#F97316'; // orange for expiring soon (within 30 days)
+                }
+
+                $events[] = [
+                    'id' => 'exp_' . (int)$row['id'],
+                    'title' => $row['name'] . ' (Expires)',
+                    'start' => $expDate,
+                    'color' => $color,
+                    'extendedProps' => [
+                        'type' => 'expiration',
+                        'medicineId' => (int)$row['id'],
+                        'quantity' => (int)$row['quantity'],
+                        'status' => $status,
+                        'batchNumber' => $row['batch_number'] ? (int)$row['batch_number'] : null,
+                        'isExpired' => $isExpired
+                    ]
+                ];
             }
-
-            $events[] = [
-                'id' => (int)$row['id'],
-                'title' => $row['name'] . ' (Expires)',
-                'start' => $row['expiration_date'],
-                'color' => $color,
-                'extendedProps' => [
-                    'medicineId' => (int)$row['id'],
-                    'quantity' => (int)$row['quantity'],
-                    'status' => $status
-                ]
-            ];
         }
+    } catch (Exception $e) {
+        error_log("Error fetching expiration dates: " . $e->getMessage());
+    }
+    
+    try {
+        // 2. Get orders with order dates
+        $orderSql = "SELECT 
+                    o.id,
+                    o.order_date,
+                    o.status,
+                    s.name as supplier_name,
+                    COUNT(oi.id) as item_count
+                FROM orders o
+                LEFT JOIN suppliers s ON o.supplier_id = s.id
+                LEFT JOIN order_items oi ON oi.order_id = o.id
+                WHERE o.order_date IS NOT NULL
+                    AND o.order_date <= DATE_ADD(CURDATE(), INTERVAL 90 DAY)
+                GROUP BY o.id, o.order_date, o.status, s.name
+                ORDER BY o.order_date ASC";
+
+        $orderResult = mysqli_query($conn, $orderSql);
+        if ($orderResult) {
+            while ($row = mysqli_fetch_assoc($orderResult)) {
+                $status = $row['status'];
+                $color = '#3B82F6'; // blue for pending orders
+                if ($status === 'completed') {
+                    $color = '#22C55E'; // green for completed
+                } elseif ($status === 'cancelled') {
+                    $color = '#6B7280'; // gray for cancelled
+                } elseif ($status === 'shipping') {
+                    $color = '#8B5CF6'; // purple for shipping
+                }
+
+                $supplierName = $row['supplier_name'] ? $row['supplier_name'] : 'Unknown Supplier';
+                $events[] = [
+                    'id' => 'order_' . (int)$row['id'],
+                    'title' => 'Order #' . $row['id'] . ' (' . $supplierName . ')',
+                    'start' => $row['order_date'],
+                    'color' => $color,
+                    'extendedProps' => [
+                        'type' => 'order',
+                        'orderId' => (int)$row['id'],
+                        'status' => $status,
+                        'supplierName' => $supplierName,
+                        'itemCount' => (int)$row['item_count']
+                    ]
+                ];
+            }
+        }
+    } catch (Exception $e) {
+        error_log("Error fetching order dates: " . $e->getMessage());
+    }
+    
+    try {
+        // 3. Get batch items with expiration dates (if batch_items table exists)
+        $checkBatchItems = mysqli_query($conn, "SHOW TABLES LIKE 'batch_items'");
+        if ($checkBatchItems && mysqli_num_rows($checkBatchItems) > 0) {
+            // Check if batches table exists
+            $checkBatches = mysqli_query($conn, "SHOW TABLES LIKE 'batches'");
+            if ($checkBatches && mysqli_num_rows($checkBatches) > 0) {
+                // Simplified query - just get batch items with expiration dates
+                $batchExpirationSql = "SELECT 
+                            bi.id,
+                            bi.expiration_date,
+                            bi.quantity,
+                            bi.is_expired,
+                            b.batch_number,
+                            b.medicine_id
+                        FROM batch_items bi
+                        INNER JOIN batches b ON bi.batch_id = b.id
+                        WHERE bi.expiration_date IS NOT NULL
+                            AND bi.expiration_date <= DATE_ADD(CURDATE(), INTERVAL 90 DAY)
+                        ORDER BY bi.expiration_date ASC
+                        LIMIT 50";
+
+                $batchResult = mysqli_query($conn, $batchExpirationSql);
+                if ($batchResult) {
+                    while ($row = mysqli_fetch_assoc($batchResult)) {
+                        $expDate = $row['expiration_date'];
+                        $isExpired = (int)$row['is_expired'] === 1 || strtotime($expDate) < strtotime($currentDate);
+                        
+                        // Try to get medicine name if medicine_id exists
+                        $medicineName = 'Batch Item';
+                        if (isset($row['medicine_id']) && $row['medicine_id']) {
+                            $medSql = "SELECT name FROM medicines WHERE id = " . (int)$row['medicine_id'];
+                            $medResult = mysqli_query($conn, $medSql);
+                            if ($medResult && $medRow = mysqli_fetch_assoc($medResult)) {
+                                $medicineName = $medRow['name'];
+                            }
+                        }
+                        
+                        $color = '#10B981'; // lighter green for batch items
+                        if ($isExpired) {
+                            $color = '#DC2626'; // darker red for expired batches
+                        } elseif (strtotime($expDate) <= strtotime('+30 days')) {
+                            $color = '#F59E0B'; // orange for expiring soon
+                        }
+
+                        $events[] = [
+                            'id' => 'batch_' . (int)$row['id'],
+                            'title' => $medicineName . ' Batch #' . $row['batch_number'] . ' (Expires)',
+                            'start' => $expDate,
+                            'color' => $color,
+                            'extendedProps' => [
+                                'type' => 'batch_expiration',
+                                'batchItemId' => (int)$row['id'],
+                                'batchNumber' => $row['batch_number'] ? (int)$row['batch_number'] : null,
+                                'quantity' => (int)$row['quantity'],
+                                'isExpired' => $isExpired,
+                                'medicineName' => $medicineName
+                            ]
+                        ];
+                    }
+                }
+            }
+        }
+    } catch (Exception $e) {
+        error_log("Error fetching batch expiration dates: " . $e->getMessage());
     }
 
     echo json_encode([

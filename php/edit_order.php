@@ -145,6 +145,23 @@ require_once __DIR__ . '/archive_helper.php';
                 }
             }
             
+            // Check if batch exists for this order to get received quantities
+            $batchCheckSql = "SELECT bi.medicine_id, bi.received_quantity 
+                             FROM batch_items bi
+                             INNER JOIN batches b ON bi.batch_id = b.id
+                             WHERE b.order_id = ?";
+            $batchCheckStmt = mysqli_prepare($conn, $batchCheckSql);
+            $batchQtyMap = [];
+            if ($batchCheckStmt) {
+                mysqli_stmt_bind_param($batchCheckStmt, 'i', $order_id);
+                mysqli_stmt_execute($batchCheckStmt);
+                $batchResult = mysqli_stmt_get_result($batchCheckStmt);
+                while ($batchRow = mysqli_fetch_assoc($batchResult)) {
+                    $batchQtyMap[$batchRow['medicine_id']] = (int)$batchRow['received_quantity'];
+                }
+                mysqli_stmt_close($batchCheckStmt);
+            }
+            
             $itemsSql = "SELECT medicine_id, quantity FROM order_items WHERE order_id = ?";
             $itemsStmt = mysqli_prepare($conn, $itemsSql);
             if ($itemsStmt) {
@@ -153,10 +170,12 @@ require_once __DIR__ . '/archive_helper.php';
                 $itemsResult = mysqli_stmt_get_result($itemsStmt);
                 
                 while ($item = mysqli_fetch_assoc($itemsResult)) {
-                    // Use received quantity if provided, otherwise use ordered quantity
+                    // Priority: received_quantities param > batch received_quantity > ordered quantity
                     $qtyToAdd = isset($receivedQtyMap[$item['medicine_id']]) 
                         ? $receivedQtyMap[$item['medicine_id']] 
-                        : $item['quantity'];
+                        : (isset($batchQtyMap[$item['medicine_id']]) && $batchQtyMap[$item['medicine_id']] > 0
+                            ? $batchQtyMap[$item['medicine_id']]
+                            : $item['quantity']);
                     
                     // Get current quantity, reorder_level, and expiration_date for status calculation
                     $getMedicineSql = "SELECT quantity, reorder_level, expiration_date FROM medicines WHERE id = ?";
